@@ -56,7 +56,7 @@ void GF_LaplacexForm(GF_ARGX)
 
     switch (Element->ElementSource->Type) {
 
-    case POINT :
+    case POINT_ELEMENT :
       xs[0] = Element->ElementSource->x[0] ; ys[0] = Element->ElementSource->y[0] ;
 
       r2 = SQU(x-xs[0])+SQU(y-ys[0]) ;
@@ -363,7 +363,7 @@ void GF_GradLaplacexForm(GF_ARGX)
 
     switch (Element->ElementSource->Type) {
 
-    case POINT :
+    case POINT_ELEMENT :
       Val->Type = VECTOR ;
 
       if (Element->Num == Element->ElementSource->Num) {

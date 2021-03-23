@@ -31,7 +31,7 @@ void BF_Node(struct Element * Element, int NumNode,
   double r;
 
   switch (Element->Type) {
-  case POINT :
+  case POINT_ELEMENT :
     switch(NumNode) {
     case 1  : *s = 1. ; break ;
     default : WrongNumNode ;
@@ -216,7 +216,7 @@ void BF_GradNode(struct Element * Element, int NumNode,
   double r;
 
   switch (Element->Type) {
-  case POINT :
+  case POINT_ELEMENT :
     switch(NumNode) {
     case 1  : s[0] =  0. ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumNode ;

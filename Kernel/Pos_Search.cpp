@@ -257,7 +257,7 @@ static void Init_SearchGrid(struct Grid * Grid)
     Element.Type       = Element.GeoElement->Type ;
     Current.Region = Element.Region = Element.GeoElement->Region ;
 
-    if (Element.Region && Element.Type != POINT) {
+    if (Element.Region && Element.Type != POINT_ELEMENT) {
 
       Get_NodesCoordinatesOfElement(&Element) ;
       ComputeElementBox(&Element, &ElementBox);
@@ -467,7 +467,7 @@ void xyz2uvwInAnElement (struct Element *Element,
     ChainDim = DIM_2D;
   else if(Element->Type & (LINE|LINE_2|LINE_3|LINE_4))
     ChainDim = DIM_1D;
-  else if(Element->Type & POINT)
+  else if(Element->Type & POINT_ELEMENT)
     ChainDim = DIM_0D;
   else{
     Message::Error("Unknown type of element in xyz2uvwInAnElement");

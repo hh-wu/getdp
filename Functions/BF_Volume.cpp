@@ -16,7 +16,7 @@ void BF_Volume(struct Element * Element, int NumVolume,
 	       double u, double v, double w,  double *s)
 {
   switch (Element->Type) {
-  case POINT :
+  case POINT_ELEMENT :
     switch(NumVolume) {
     case 1  : *s = 1. ; break ;
     default : WrongNumVolume ;

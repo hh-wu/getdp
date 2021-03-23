@@ -62,7 +62,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case POINT       :
+    case POINT_ELEMENT       :
       *Type_Dimension = DIM_0D; return((void *)JacobianVol0D);
 
     case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
@@ -297,7 +297,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case POINT :
+    case POINT_ELEMENT :
       *Type_Dimension = DIM_1D; return((void *)JacobianVol0D);
 
     case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
@@ -348,7 +348,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 
     switch (Type_Element) {
 
-    case POINT :
+    case POINT_ELEMENT :
       *Type_Dimension = DIM_2D; return((void *)JacobianVol0D);
 
     case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
@@ -372,7 +372,7 @@ void  * Get_JacobianFunction(int Type_Jacobian, int Type_Element,
 void  * Get_JacobianFunctionAuto (int Type_Element, int Dimension)
 {
   switch(Type_Element){
-  case POINT :
+  case POINT_ELEMENT :
     return((void *)JacobianVol0D);
   case LINE        : case LINE_2       : case LINE_3       : case LINE_4 :
     switch(Dimension){
@@ -408,7 +408,7 @@ void  * Get_IntegrationFunctionAuto (int Type_Element, int Order, int *NumPoints
   // TODO : compute correct number of points
 
   switch(Type_Element){
-  case POINT :
+  case POINT_ELEMENT :
     *NumPoints = 1;
     return ((void *)Gauss_Point);
   case LINE : case LINE_2 :

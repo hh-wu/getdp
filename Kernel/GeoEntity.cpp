@@ -21,7 +21,7 @@ extern int               Flag_XDATA ;
 double * Geo_GetNodes_uvw(int Type, int *nbn)
 {
   switch(Type){
-  case POINT       : *nbn = NbrNodes_Point ;       return(*Nodes_Point) ;
+  case POINT_ELEMENT : *nbn = NbrNodes_Point ;     return(*Nodes_Point) ;
 
   case LINE        : *nbn = NbrNodes_Line ;        return(*Nodes_Line) ;
   case TRIANGLE    : *nbn = NbrNodes_Triangle ;    return(*Nodes_Triangle) ;
@@ -110,7 +110,7 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
 {
 
   switch (Type_Element) {
-  case POINT :
+  case POINT_ELEMENT :
     *Nbe = NbrEdges_Point       ; return(NULL) ;
 
   case LINE   : case LINE_2 :
@@ -154,7 +154,7 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
 int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
 {
   switch (Type_Element) {
-  case POINT :
+  case POINT_ELEMENT :
     *Nbf = NbrFacets_Point       ; return(NULL) ;
 
   case LINE   : case LINE_2 :
@@ -198,7 +198,7 @@ int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
 int *Geo_GetIM_Dfn(int Type_Element, int * Nbf)
 {
   switch (Type_Element) {
-  case POINT :
+  case POINT_ELEMENT :
     *Nbf = NbrFacets_Point       ; return(NULL) ;
 
   case LINE   : case LINE_2 :
@@ -242,7 +242,7 @@ int *Geo_GetIM_Dfn(int Type_Element, int * Nbf)
 int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
 {
   switch (Type_Element) {
-  case POINT :
+  case POINT_ELEMENT :
     *Nbe = NbrEdges_Point ; *Nbn = NbrNodes_Point ;
     return(NULL) ;
 
@@ -294,7 +294,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
 int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
 {
   switch (Type_Element) {
-  case POINT :
+  case POINT_ELEMENT :
     *nbf = NbrFacets_Point ; *nbe = NbrEdges_Point ;
     return(NULL) ;
 

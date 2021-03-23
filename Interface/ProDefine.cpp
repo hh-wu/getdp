@@ -187,7 +187,7 @@ void Get_Valid_SXF2N (const char *value, struct StringXFunction2Nbr V[])
 int Gmsh2GetDP(int Type)
 {
   switch(Type){
-  case 15 : return POINT;
+  case 15 : return POINT_ELEMENT;
 
   case 1  : return LINE;
   case 2  : return TRIANGLE;
@@ -235,7 +235,7 @@ int Gmsh2GetDP(int Type)
 int GetDP2Gmsh(int Type)
 {
   switch(Type){
-  case POINT         : return 15;
+  case POINT_ELEMENT : return 15;
 
   case LINE          : return 1;
   case TRIANGLE      : return 2;

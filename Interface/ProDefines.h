@@ -113,7 +113,7 @@ struct StringXDefine  Integration_SubType[] = {
 } ;
 
 struct StringXDefine  Element_Type[] = {
-  {"Point"          , POINT},
+  {"Point"          , POINT_ELEMENT},
   {"Line"           , LINE},
   {"Line2"          , LINE_2},
   {"Line3"          , LINE_3},
@@ -415,7 +415,7 @@ struct StringXDefine  PostSubOperation_SortType[] = {
 
 struct DefineXFunction  FunctionForGauss[] = {
 #if defined(HAVE_KERNEL)
-  {POINT          , (CAST)Gauss_Point},
+  {POINT_ELEMENT  , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
   {LINE_2         , (CAST)Gauss_Line},
   {LINE_3         , (CAST)Gauss_Line},
@@ -449,7 +449,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {PYRAMID_3      , (CAST)Gauss_Pyramid},
   //{PYRAMID_4      , (CAST)Gauss_Pyramid},
 #else
-  {POINT          , NULL},
+  {POINT_ELEMENT  , NULL},
   {LINE           , NULL},
   {LINE_2         , NULL},
   {LINE_3         , NULL},
@@ -499,7 +499,7 @@ struct DefineXFunction  FunctionForSingularGauss[] = {
 
 struct DefineXFunction  FunctionForGaussLegendre[] = {
 #if defined(HAVE_KERNEL)
-  {POINT          , (CAST)Gauss_Point},
+  {POINT_ELEMENT  , (CAST)Gauss_Point},
   {LINE           , (CAST)Gauss_Line},
   {LINE_2         , (CAST)Gauss_Line},
   {TRIANGLE       , (CAST)GaussLegendre_Triangle},
@@ -515,7 +515,7 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
   {PYRAMID        , (CAST)Gauss_Pyramid},
   {PYRAMID_2      , (CAST)Gauss_Pyramid},
 #else
-  {POINT          , NULL},
+  {POINT_ELEMENT  , NULL},
   {LINE           , NULL},
   {TRIANGLE       , NULL},
   {QUADRANGLE     , NULL},
@@ -525,7 +525,7 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
   {0              , 0}
 } ;
 
-#define POI  POINT
+#define POI  POINT_ELEMENT
 #define LIN  LINE | LINE_2 | LINE_3 | LINE_4
 #define TRI  TRIANGLE | TRIANGLE_2 | TRIANGLE_3 | TRIANGLE_4
 #define QUA  QUADRANGLE | QUADRANGLE_2 | QUADRANGLE_2_8N | QUADRANGLE_3 | QUADRANGLE_4

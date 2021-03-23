@@ -186,7 +186,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 
     switch(PE->Type){
 
-    case POINT :
+    case POINT_ELEMENT :
       Message::Error("Impossible to divide a Point recursively");
       break;
 
@@ -444,7 +444,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     if(!error){
       double dummy;
       for(int i = 0; i < Gauss; i++){
-        PE = Create_PostElement(Index, POINT, 1, 0) ;
+        PE = Create_PostElement(Index, POINT_ELEMENT, 1, 0) ;
         f(Gauss, i, &PE->u[0], &PE->v[0], &PE->w[0], &dummy);
         POS_CUT_FILL ;
       }
@@ -453,9 +453,9 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
   }
   else if(!Depth){
 
-    PE = Create_PostElement(Index, POINT, 1, 0) ;
+    PE = Create_PostElement(Index, POINT_ELEMENT, 1, 0) ;
     switch(GE->Type){
-    case POINT :
+    case POINT_ELEMENT :
       PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case LINE :
     case LINE_2 :
@@ -508,8 +508,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
       switch(GE->Type){
 
-      case POINT :
-        PE = Create_PostElement(Index, POINT, 1, 1) ; /* node 1 */
+      case POINT_ELEMENT :
+        PE = Create_PostElement(Index, POINT_ELEMENT, 1, 1) ; /* node 1 */
         PE->NumNodes[0] = GE->NumNodes[0] ;
         PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
         POS_CUT_FILL ;

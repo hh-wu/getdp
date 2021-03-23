@@ -869,7 +869,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
       if((PSO_P->Dimension == DIM_ALL &&
-	  (Element.GeoElement->Type != POINT)) ||
+	  (Element.GeoElement->Type != POINT_ELEMENT)) ||
 	 (PSO_P->Dimension == DIM_3D &&
 	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))) ||
 	 (PSO_P->Dimension == DIM_2D &&
@@ -939,7 +939,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	      LETS_PRINT_THE_RESULT ;
 	    }
 	    else{
-	      PE = Create_PostElement(iGeo, POINT, 1, 0) ;
+	      PE = Create_PostElement(iGeo, POINT_ELEMENT, 1, 0) ;
 	      PE->x[0] = (e[0].xc + e[iCut-1].xc + e[iCut].xc) / 3. ;
 	      PE->y[0] = (e[0].yc + e[iCut-1].yc + e[iCut].yc) / 3. ;
 	      PE->z[0] = (e[0].zc + e[iCut-1].zc + e[iCut].zc) / 3. ;
@@ -964,7 +964,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	    LETS_PRINT_THE_RESULT ;
 	  }
 	  else{
-	    PE = Create_PostElement(iGeo, POINT, 1, 0) ;
+	    PE = Create_PostElement(iGeo, POINT_ELEMENT, 1, 0) ;
 	    PE->x[0] = (e[0].xc + e[1].xc) / 2. ;
 	    PE->y[0] = (e[0].yc + e[1].yc) / 2. ;
 	    PE->z[0] = (e[0].zc + e[1].zc) / 2. ;
@@ -1101,7 +1101,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
                     PSO_P->Label ? NULL :
                     (CPQ_P ? CPQ_P->Name : NULL));
 
-  PE = Create_PostElement(0, POINT, 1, 0) ;
+  PE = Create_PostElement(0, POINT_ELEMENT, 1, 0) ;
 
   switch(PSO_P->SubType) {
 

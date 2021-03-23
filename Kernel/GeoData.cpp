@@ -187,7 +187,7 @@ void Geo_CloseFile(void)
 int Geo_GetNbNodesPerElement(int Type)
 {
   switch(Type){
-  case POINT         : return 1;
+  case POINT_ELEMENT : return 1;
 
   case LINE          : return 2;
   case TRIANGLE      : return 3;
@@ -234,7 +234,7 @@ int Geo_GetNbNodesPerElement(int Type)
 int Geo_GetDimOfElement(int Type)
 {
   switch(Type){
-  case POINT         : return 0;
+  case POINT_ELEMENT : return 0;
 
   case LINE          : return 1;
   case TRIANGLE      : return 2;
@@ -281,7 +281,7 @@ void Geo_ReverseElement(Geo_Element *Geo_Element)
 {
   int tmp;
   switch(Geo_Element->Type){
-  case POINT :
+  case POINT_ELEMENT :
     break;
   case LINE :
   case LINE_2 :

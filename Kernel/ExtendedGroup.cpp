@@ -849,7 +849,7 @@ void GenEle_OnPositiveSideOf::add_FacetsOnSur(struct Geo_Element * geoElement)
       X /= geoElement->NbrNodes; Y /= geoElement->NbrNodes; Z /= geoElement->NbrNodes;
 
       entityOnSur.X[0] = X; entityOnSur.X[1] = Y; entityOnSur.X[2] = Z;
-      if(geoElement->Type == POINT){
+      if(geoElement->Type == POINT_ELEMENT){
         // FIXME: hack so that we can use OnPositiveSide of for line elements
         // connected to points, in 3D models. Assumes that the lines are not in
         // the z=0 plane.

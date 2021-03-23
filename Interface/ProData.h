@@ -1721,11 +1721,7 @@ struct Element {
 } ;
 
 /* Element.Type */
-#ifdef POINT
-#undef POINT
-#endif
-
-#define POINT            (1<<0)
+#define POINT_ELEMENT    (1<<0) // POINT is used in the Windows API
 
 #define LINE             (1<<1)
 #define TRIANGLE         (1<<2)

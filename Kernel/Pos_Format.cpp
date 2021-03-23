@@ -209,14 +209,14 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : fprintf(PostStream, "SP("); break;
-      case LINE        : fprintf(PostStream, "SL("); break;
-      case TRIANGLE    : fprintf(PostStream, "ST("); break;
-      case QUADRANGLE  : fprintf(PostStream, "SQ("); break;
-      case TETRAHEDRON : fprintf(PostStream, "SS("); break;
-      case HEXAHEDRON  : fprintf(PostStream, "SH("); break;
-      case PRISM       : fprintf(PostStream, "SI("); break;
-      case PYRAMID     : fprintf(PostStream, "SY("); break;
+      case POINT_ELEMENT : fprintf(PostStream, "SP("); break;
+      case LINE          : fprintf(PostStream, "SL("); break;
+      case TRIANGLE      : fprintf(PostStream, "ST("); break;
+      case QUADRANGLE    : fprintf(PostStream, "SQ("); break;
+      case TETRAHEDRON   : fprintf(PostStream, "SS("); break;
+      case HEXAHEDRON    : fprintf(PostStream, "SH("); break;
+      case PRISM         : fprintf(PostStream, "SI("); break;
+      case PYRAMID       : fprintf(PostStream, "SY("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -254,14 +254,14 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : fprintf(PostStream, "VP("); break;
-      case LINE        : fprintf(PostStream, "VL("); break;
-      case TRIANGLE    : fprintf(PostStream, "VT("); break;
-      case QUADRANGLE  : fprintf(PostStream, "VQ("); break;
-      case TETRAHEDRON : fprintf(PostStream, "VS("); break;
-      case HEXAHEDRON  : fprintf(PostStream, "VH("); break;
-      case PRISM       : fprintf(PostStream, "VI("); break;
-      case PYRAMID     : fprintf(PostStream, "VY("); break;
+      case POINT_ELEMENT : fprintf(PostStream, "VP("); break;
+      case LINE          : fprintf(PostStream, "VL("); break;
+      case TRIANGLE      : fprintf(PostStream, "VT("); break;
+      case QUADRANGLE    : fprintf(PostStream, "VQ("); break;
+      case TETRAHEDRON   : fprintf(PostStream, "VS("); break;
+      case HEXAHEDRON    : fprintf(PostStream, "VH("); break;
+      case PRISM         : fprintf(PostStream, "VI("); break;
+      case PYRAMID       : fprintf(PostStream, "VY("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -307,14 +307,14 @@ static void GmshParsed_PrintElement(double Time, int TimeStep, int NbTimeStep, i
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : fprintf(PostStream, "TP("); break;
-      case LINE        : fprintf(PostStream, "TL("); break;
-      case TRIANGLE    : fprintf(PostStream, "TT("); break;
-      case QUADRANGLE  : fprintf(PostStream, "TQ("); break;
-      case TETRAHEDRON : fprintf(PostStream, "TS("); break;
-      case HEXAHEDRON  : fprintf(PostStream, "TH("); break;
-      case PRISM       : fprintf(PostStream, "TI("); break;
-      case PYRAMID     : fprintf(PostStream, "TY("); break;
+      case POINT_ELEMENT : fprintf(PostStream, "TP("); break;
+      case LINE          : fprintf(PostStream, "TL("); break;
+      case TRIANGLE      : fprintf(PostStream, "TT("); break;
+      case QUADRANGLE    : fprintf(PostStream, "TQ("); break;
+      case TETRAHEDRON   : fprintf(PostStream, "TS("); break;
+      case HEXAHEDRON    : fprintf(PostStream, "TH("); break;
+      case PRISM         : fprintf(PostStream, "TI("); break;
+      case PYRAMID       : fprintf(PostStream, "TY("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -400,14 +400,14 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = &SP ; NbSP++ ; break ;
-      case LINE        : Current_L = &SL ; NbSL++ ; break ;
-      case TRIANGLE    : Current_L = &ST ; NbST++ ; break ;
-      case QUADRANGLE  : Current_L = &SQ ; NbSQ++ ; break ;
-      case TETRAHEDRON : Current_L = &SS ; NbSS++ ; break ;
-      case HEXAHEDRON  : Current_L = &SH ; NbSH++ ; break ;
-      case PRISM       : Current_L = &SI ; NbSI++ ; break ;
-      case PYRAMID     : Current_L = &SY ; NbSY++ ; break ;
+      case POINT_ELEMENT  : Current_L = &SP ; NbSP++ ; break ;
+      case LINE           : Current_L = &SL ; NbSL++ ; break ;
+      case TRIANGLE       : Current_L = &ST ; NbST++ ; break ;
+      case QUADRANGLE     : Current_L = &SQ ; NbSQ++ ; break ;
+      case TETRAHEDRON    : Current_L = &SS ; NbSS++ ; break ;
+      case HEXAHEDRON     : Current_L = &SH ; NbSH++ ; break ;
+      case PRISM          : Current_L = &SI ; NbSI++ ; break ;
+      case PYRAMID        : Current_L = &SY ; NbSY++ ; break ;
 
       case LINE_2         : Current_L = &SL ; NbSL++ ; break ;
       case TRIANGLE_2     : Current_L = &ST ; NbST++ ; break ;
@@ -467,15 +467,15 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = &VP ; NbVP++ ; break ;
+      case POINT_ELEMENT  : Current_L = &VP ; NbVP++ ; break ;
 
-      case LINE        : Current_L = &VL ; NbVL++ ; break ;
-      case TRIANGLE    : Current_L = &VT ; NbVT++ ; break ;
-      case QUADRANGLE  : Current_L = &VQ ; NbVQ++ ; break ;
-      case TETRAHEDRON : Current_L = &VS ; NbVS++ ; break ;
-      case HEXAHEDRON  : Current_L = &VH ; NbVH++ ; break ;
-      case PRISM       : Current_L = &VI ; NbVI++ ; break ;
-      case PYRAMID     : Current_L = &VY ; NbVY++ ; break ;
+      case LINE           : Current_L = &VL ; NbVL++ ; break ;
+      case TRIANGLE       : Current_L = &VT ; NbVT++ ; break ;
+      case QUADRANGLE     : Current_L = &VQ ; NbVQ++ ; break ;
+      case TETRAHEDRON    : Current_L = &VS ; NbVS++ ; break ;
+      case HEXAHEDRON     : Current_L = &VH ; NbVH++ ; break ;
+      case PRISM          : Current_L = &VI ; NbVI++ ; break ;
+      case PYRAMID        : Current_L = &VY ; NbVY++ ; break ;
 
       case LINE_2         : Current_L = &VL ; NbVL++ ; break ;
       case TRIANGLE_2     : Current_L = &VT ; NbVT++ ; break ;
@@ -539,15 +539,15 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
 
     if(TimeStep == 0){
       switch(Type){
-      case POINT       : Current_L = &TP ; NbTP++ ; break ;
+      case POINT_ELEMENT  : Current_L = &TP ; NbTP++ ; break ;
 
-      case LINE        : Current_L = &TL ; NbTL++ ; break ;
-      case TRIANGLE    : Current_L = &TT ; NbTT++ ; break ;
-      case QUADRANGLE  : Current_L = &TQ ; NbTQ++ ; break ;
-      case TETRAHEDRON : Current_L = &TS1 ; NbTS++ ; break ;
-      case HEXAHEDRON  : Current_L = &TH ; NbTH++ ; break ;
-      case PRISM       : Current_L = &TI ; NbTI++ ; break ;
-      case PYRAMID     : Current_L = &TY ; NbTY++ ; break ;
+      case LINE           : Current_L = &TL ; NbTL++ ; break ;
+      case TRIANGLE       : Current_L = &TT ; NbTT++ ; break ;
+      case QUADRANGLE     : Current_L = &TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON    : Current_L = &TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON     : Current_L = &TH ; NbTH++ ; break ;
+      case PRISM          : Current_L = &TI ; NbTI++ ; break ;
+      case PYRAMID        : Current_L = &TY ; NbTY++ ; break ;
 
       case LINE_2         : Current_L = &TL ; NbTL++ ; break ;
       case TRIANGLE_2     : Current_L = &TT ; NbTT++ ; break ;
@@ -1809,12 +1809,13 @@ void Format_PostValue(struct PostQuantity  *PQ_P,
                        " by Regions. Zero coordinates are considered.") ;
     }
     GmshParsed_PrintElement(Time, 0, 1, NbrHarmonics, HarmonicToTime,
-                            POINT, 1, &x, &y, &z,
+                            POINT_ELEMENT, 1, &x, &y, &z,
                             Value) ;
   }
   else if (Format == FORMAT_NXUNV) {
     if(PostStream)
-      Unv_PrintRegion(PostStream, Comma ? 1 : 0, numRegion, NbrHarmonics, Size, Value, NXUnv_UnitFactor);
+      Unv_PrintRegion(PostStream, Comma ? 1 : 0, numRegion, NbrHarmonics,
+                      Size, Value, NXUnv_UnitFactor);
   }
   else if (Format == FORMAT_LOOP_ERROR) {
     StorePostOpResult(NbrHarmonics, Value);
