@@ -1721,6 +1721,10 @@ struct Element {
 } ;
 
 /* Element.Type */
+#ifdef POINT
+#undef POINT
+#endif
+
 #define POINT            (1<<0)
 
 #define LINE             (1<<1)
