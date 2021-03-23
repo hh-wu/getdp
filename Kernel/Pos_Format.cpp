@@ -1134,7 +1134,6 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
 			int Order, char *Name1, char *Name2)
 {
   int Format = PSO_P->Format;
-  int SubType = PSO_P->SubType;
   double Time = Current.Time;
   int TimeStep = Current.TimeStep;
   int Contour = PSO_P->Iso;
