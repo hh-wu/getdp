@@ -16,7 +16,7 @@
 
 #include "Cal_Value.h"
 
-#if defined(HAVE_MPI)
+#if defined(HAVE_MPI) && !defined(HAVE_PETSC)
 #include <mpi.h>
 #endif
 
