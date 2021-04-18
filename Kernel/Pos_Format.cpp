@@ -1008,21 +1008,13 @@ static void StorePostOpResult(int NbrHarmonics, struct Value *Value)
 #endif
 
 double NXUnv_UnitFactor = 1;
-bool   NXUnv_NodalResult = false;
+int    NXUnv_DatasetLocation = 3; //1: Data at nodes, 2: Data on elements, 3: Data at nodes on elements
 
-void Unv_PrintHeader(FILE *PostStream, char *name, double Time, int TimeStep,
-                     double& NXUnv_UnitFactor, bool& NXUnv_NodalResult) NX
+void Unv_PrintHeader(FILE *PostStream, char *name, double Time, int TimeStep, double& NXUnv_UnitFactor, int& NXUnv_DatasetLocation) NX
 void Unv_PrintFooter(FILE *PostStream) NX
-void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes,
-                      struct Value *Value, int NbrHarmonics,
-                      double &NXUnv_UnitFactor) NX
-void Unv_PrintNodeTable(FILE *PostStream,
-                        std::map<int, std::vector<double> > &NodeTable,
-                        double &NXUnv_UnitFactor) NX
-void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion,
-                     int NbrHarmonics, int Size, struct Value *Value,
-                     double& NXUnv_UnitFactor) NX
-
+void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes, struct Value *Value, int NbrHarmonics, int& NXUnv_DatasetLocation, double& NXUnv_UnitFactor) NX									 
+void Unv_PrintNodeTable(FILE *PostStream, std::map<int, std::vector<double>> &NodeTable, double& NXUnv_UnitFactor) NX
+void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHarmonics, int Size, struct Value *Value, double& NXUnv_UnitFactor) NX
 #undef NX
 
 /* ------------------------------------------------------------------------ */
@@ -1185,10 +1177,9 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     break ;
   case FORMAT_NXUNV :
     if(PostStream){
-      NodeTable_StartNew = 1 ;
-      Unv_PrintHeader(PostStream, name, Time, TimeStep, NXUnv_UnitFactor,
-                      NXUnv_NodalResult);
-    }
+		  NodeTable_StartNew = 1 ;
+		  Unv_PrintHeader(PostStream, name, Time, TimeStep, NXUnv_UnitFactor, NXUnv_DatasetLocation);
+	  }
     break ;
   case FORMAT_GNUPLOT :
     if(PostStream){
@@ -1449,10 +1440,10 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     break ;
   case FORMAT_NXUNV :
     if(PostStream){
-      if(NXUnv_NodalResult)
-        Unv_PrintNodeTable(PostStream, NodeTable, NXUnv_UnitFactor);
-      Unv_PrintFooter(PostStream);
-    }
+		  if(NXUnv_DatasetLocation == 1) //Data at nodes
+			  Unv_PrintNodeTable(PostStream, NodeTable, NXUnv_UnitFactor);
+		  Unv_PrintFooter(PostStream);
+	  }
     break ;
   case FORMAT_NODE_TABLE :
     if(PostStream && NodeTable.size()){
@@ -1649,12 +1640,11 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     break ;
   case FORMAT_NXUNV :
     if(PostStream){
-      if(NXUnv_NodalResult)
-        NodeTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
-      else
-        Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value,
-                         NbrHarmonics, NXUnv_UnitFactor) ;
-    }
+		  if(NXUnv_DatasetLocation == 1) //Data at nodes
+			  NodeTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
+		  else if(NXUnv_DatasetLocation == 2 || NXUnv_DatasetLocation == 3) //Data at elements or nodes on elements
+			  Unv_PrintElement(PostStream, Num_Element, PE->NbrNodes, PE->Value, NbrHarmonics, NXUnv_DatasetLocation, NXUnv_UnitFactor) ;
+	  }
     break ;
   case FORMAT_GMSH :
     if(PSO_P->StoreInField >= 0 || PSO_P->StoreInMeshBasedField >= 0){
