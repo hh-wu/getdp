@@ -575,10 +575,8 @@ void cxxStyleComments()
 
 void parseString(char endchar)
 {
-  char tmp[2048];
-
+  std::string tmp;
   int c = input();
-  int i = 0;
   while(c != endchar){
     if(feof(getdp_yyin)) {
       Message::Error("End of file in string");
@@ -589,17 +587,13 @@ void parseString(char endchar)
       getdp_yylinenum++;
       getdp_yycolnum = 0;
     }
-    else if(i >= (int)sizeof(tmp)-1) {
-      Message::Error("String too long");
-      break;
-    }
     else {
-      tmp[i++] = c;
+      tmp.push_back((char)c);
     }
     c = input();
   }
-  tmp[i] = '\0';
-  getdp_yylval.c = strSave(tmp);
+  tmp.push_back('\0');
+  getdp_yylval.c = strSave(tmp.c_str());
 }
 
 static bool is_alpha(const int c)
