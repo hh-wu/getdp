@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 
 #if defined(HAVE_KERNEL)
   Message::SetExitOnError(1);
-  MainKernel(argc, argv);
+  return MainKernel(argc, argv);
 #else
   Init_ProblemStructure();
   Read_ProblemPreamble();
@@ -78,4 +78,6 @@ int main(int argc, char **argv)
   for(int i = 1; i < 10; i++)
   GetDP(args);
 #endif
+
+  return 0;
 }
