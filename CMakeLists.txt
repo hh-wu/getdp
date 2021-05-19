@@ -862,11 +862,12 @@ else()
   target_link_libraries(getdp ${LINK_LIBRARIES})
 endif()
 
-# force static linking of system libraries with Cygwin/MinGW
+# Windows specific linker options
 if(WIN32 AND NOT MSVC OR CYGWIN)
-  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static -municode")
+  set(FLAGS "-Wl,--image-base -Wl,0x10000000 -static")
+  set_target_properties(getdp PROPERTIES LINK_FLAGS "${FLAGS} -municode")
   if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
-    set_target_properties(shared PROPERTIES LINK_FLAGS "-static")
+    set_target_properties(shared PROPERTIES LINK_FLAGS "${FLAGS}")
     # remove -Wl,-Bdynamic flags
     set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
     set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
