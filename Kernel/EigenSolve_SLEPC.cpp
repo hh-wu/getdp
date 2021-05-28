@@ -354,17 +354,17 @@ static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealF
   }
 
   bool newsol = true;
-  char fname[100];
-  static PetscViewer myviewer;
+  // char fname[100];
+  // static PetscViewer myviewer;
   for (int i = 0; i < nbApplyResolventRealFreqs; i++){
     x = ListOfExpansionResults[i];
 
-    // store vectors in petsc/matlab format
-    sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
-    PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
-    PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
-    VecView(x,myviewer);
-    PetscViewerPopFormat(myviewer);
+    // // store vectors in petsc/matlab format
+    // sprintf(fname,"applyresolvent_vec_result_%03d.m",i);
+    // PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+    // PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+    // VecView(x,myviewer);
+    // PetscViewerPopFormat(myviewer);
 
     Current.Time = tabApplyResolventRealFreqs[i];
     Current.TimeImag = 0;
@@ -417,7 +417,7 @@ static void _storeExpansion(struct DofData *DofData_P, int nbApplyResolventRealF
     // GenerateSystem knows which solutions exist
     Current.TimeStep += 1.;
   }
-  _try(PetscViewerDestroy(&myviewer));
+  // _try(PetscViewerDestroy(&myviewer));
   _try(VecDestroy(&x));
   if(Message::GetCommSize() > 1){
     _try(VecDestroy(&x_seq));
@@ -1158,20 +1158,20 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
   PetscComplex Lambda;
   // Vec VRHS;
   std::vector<Vec> ListOfExpansionResults;
-  char fname[100];
-  static PetscViewer myviewer;
+  // char fname[100];
+  // static PetscViewer myviewer;
 
   if(Flag_ApplyResolvent){
 #if (PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 12)
     Message::Info("A RHS term is available for ApplyResolvent!");
     ListOfExpansionResults.reserve(nbApplyResolventRealFreqs);
     for(int i = 0; i < nbApplyResolventRealFreqs; i++){
-      // debug : print RHS in matlab format
-      sprintf(fname,"applyresolvent_vec_input_%03d.m",i);
-      PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
-      PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
-      VecView(DofData_P2->ListOfRHS[i].V,myviewer);
-      PetscViewerPopFormat(myviewer);
+      // // debug : print RHS in matlab format
+      // sprintf(fname,"applyresolvent_vec_input_%03d.m",i);
+      // PetscViewerASCIIOpen(PETSC_COMM_WORLD, fname , &myviewer);
+      // PetscViewerPushFormat(myviewer, PETSC_VIEWER_ASCII_MATLAB);
+      // VecView(DofData_P2->ListOfRHS[i].V,myviewer);
+      // PetscViewerPopFormat(myviewer);
 
       _try(MatCreateVecs(DofData_P->M7.M,PETSC_NULL,&ListOfExpansionResults[i]));
       Lambda = PETSC_i*tabApplyResolventRealFreqs[i];
@@ -1184,7 +1184,7 @@ static void _rationalEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPC >= 3.12 required for ApplyResolvant");
 #endif
   }
-  _try(PetscViewerDestroy(&myviewer));
+  // _try(PetscViewerDestroy(&myviewer));
   _try(NEPDestroy(&nep));
 #else
   Message::Error("Nonlinear eigenvalue solver requires PETSc/SLEPc >= 3.8");

@@ -843,11 +843,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         DofData_P->TotalNumberOfRHS = Operation_P->Case.Generate.NumListOfRHS;
         Init_SystemData(DofData_P, 0) ;
         DofData_P->Flag_ListOfRHS = 1;
-        if(Operation_P->Case.Generate.GroupIndex >= 0){
-          Generate_Group = (struct Group *)
-            List_Pointer(Problem_S.Group,
-                         Operation_P->Case.Generate.GroupIndex) ;
-        }
+        // if(Operation_P->Case.Generate.GroupIndex >= 0){
+        //   Generate_Group = (struct Group *)
+        //     List_Pointer(Problem_S.Group,
+        //                  Operation_P->Case.Generate.GroupIndex) ;
+        // }
         Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0, 0) ;
         DofData_P->CounterOfRHS += 1;
       }
