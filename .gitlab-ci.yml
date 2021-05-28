@@ -94,13 +94,13 @@ windows64_ci:
     - docker
 
 linux64_official_petsc_complex_snapshot:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_complex
   except:
     - tags
 
 linux64_official_petsc_complex_release:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_complex
@@ -108,13 +108,13 @@ linux64_official_petsc_complex_release:
     - /^getdp_.*$/
 
 linux64_official_petsc_real_snapshot:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_real
   except:
     - tags
 
 linux64_official_petsc_real_release:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real
@@ -122,13 +122,13 @@ linux64_official_petsc_real_release:
     - /^getdp_.*$/
 
 linux64_official_petsc_real_mh_snapshot:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_real_mh
   except:
     - tags
 
 linux64_official_petsc_real_mh_release:
-  image: onelab/debian.buster.64bit
+  image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *linux_official_petsc_real_mh
