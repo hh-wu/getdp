@@ -1136,9 +1136,9 @@ else()
 endif()
 
 # code signing
-if(APPLE AND PACKAGER STREQUAL "geuzaine - removed: we sign on a separate machine")
+if(APPLE AND PACKAGER STREQUAL "geuzaine")
   set(CODESIGN "codesign -v -s \"Developer ID Application: Christophe Geuzaine\"")
-  set(APPDIR _CPack_Packages/Darwin/TGZ/getdp-${GETDP_VERSION}-MacOSX/bin)
+  set(APPDIR _CPack_Packages/Darwin/TGZ/${CPACK_PACKAGE_FILE_NAME}/bin)
   install(CODE "execute_process(COMMAND ${CODESIGN} ${APPDIR}/getdp)")
 endif()
 
