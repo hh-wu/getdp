@@ -145,10 +145,10 @@ linux64_official_petsc_real_mh_release:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc ${EXTRA_OPTION} .."
-    - bash -c "/usr/bin/make package -j 4"
-    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/c\.zip}"
-    - bash -c "/usr/bin/ctest -j 4 --output-on-failure"
+    - c:\cygwin64\bin\bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc ${EXTRA_OPTION} .."
+    - c:\cygwin64\bin\bash -c "/usr/bin/make package -j 4"
+    - c:\cygwin64\bin\bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/c\.zip}"
+    - c:\cygwin64\bin\bash -c "/usr/bin/ctest -j 4 --output-on-failure"
 
 .windows_official_petsc_real: &windows_official_petsc_real
   only:
@@ -156,10 +156,10 @@ linux64_official_petsc_real_mh_release:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc ${EXTRA_OPTION} .."
-    - bash -c "/usr/bin/make package -j 4"
-    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r\.zip}"
-    - bash -c "/usr/bin/ctest -j 4 --output-on-failure"
+    - c:\cygwin64\bin\bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc ${EXTRA_OPTION} .."
+    - c:\cygwin64\bin\bash -c "/usr/bin/make package -j 4"
+    - c:\cygwin64\bin\bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r\.zip}"
+    - c:\cygwin64\bin\bash -c "/usr/bin/ctest -j 4 --output-on-failure"
 
 .windows_official_petsc_real_mh: &windows_official_petsc_real_mh
   only:
@@ -167,10 +167,10 @@ linux64_official_petsc_real_mh_release:
   script:
     - md build
     - cd build
-    - bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc -DENABLE_MULTIHARMONIC=1 ${EXTRA_OPTION} .."
-    - bash -c "/usr/bin/make package -j 4"
-    - bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r-MH\.zip}"
-    - bash -c "/usr/bin/ctest -j 4 --output-on-failure"
+    - c:\cygwin64\bin\bash -c "/usr/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_PREFIX_PATH='/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw' -DCMAKE_C_COMPILER=/usr/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-w64-mingw32-g++.exe -DCMAKE_Fortran_COMPILER=/usr/bin/x86_64-w64-mingw32-gfortran.exe -DCMAKE_RC_COMPILER=/usr/bin/x86_64-w64-mingw32-windres.exe -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/home/geuzaine/src/petsc -DSLEPC_DIR=/home/geuzaine/src/slepc -DENABLE_MULTIHARMONIC=1 ${EXTRA_OPTION} .."
+    - c:\cygwin64\bin\bashh -c "/usr/bin/make package -j 4"
+    - c:\cygwin64\bin\bash -c "PKG=`ls getdp-*.zip`; /usr/bin/scp -o StrictHostKeyChecking=no -i /home/geuzaine/.ssh/id_rsa ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/Windows/${PKG/\.zip/r-MH\.zip}"
+    - c:\cygwin64\bin\bash -c "/usr/bin/ctest -j 4 --output-on-failure"
   allow_failure: true
 
 windows64_official_petsc_complex_snapshot:
