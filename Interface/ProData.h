@@ -465,6 +465,8 @@ struct FunctionActive {
       double *mi, *bi, *ci, *di;  /* Akima */
     } Interpolation;
     struct {
+      List_T *RegionList;
+      int     RegionCurrent;
       double  Value;
     } SurfaceArea;
     struct {

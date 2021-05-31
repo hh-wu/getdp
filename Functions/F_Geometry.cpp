@@ -233,7 +233,31 @@ void F_SurfaceArea(F_ARG)
 #else
   struct Element  Element ;
 
-  // FIXME: TODO redo integration when parameters change!
+  // check if the cache can be reused
+  if (Fct->Active) {
+    bool recompute = false;
+    if(Fct->NbrParameters != List_Nbr(Fct->Active->Case.SurfaceArea.RegionList)) {
+      recompute = true;
+    }
+    else if(Fct->NbrParameters >= 1) {
+      for(int i = 0; i < Fct->NbrParameters; i++) {
+        int num ; List_Read(Fct->Active->Case.SurfaceArea.RegionList, i, &num);
+        if(num != (int)(Fct->Para[i])) {
+          recompute = true;
+          break;
+        }
+      }
+    }
+    else if(Current.Region != Fct->Active->Case.SurfaceArea.RegionCurrent) {
+      recompute = true;
+    }
+    if(recompute) {
+      List_Delete(Fct->Active->Case.SurfaceArea.RegionList);
+      Free(Fct->Active);
+      Fct->Active = NULL;
+    }
+  }
+
   if (!Fct->Active) {
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
@@ -304,6 +328,8 @@ void F_SurfaceArea(F_ARG)
 	}
       }
     }
+    Fct->Active->Case.SurfaceArea.RegionList = InitialList_L ;
+    Fct->Active->Case.SurfaceArea.RegionCurrent = Current.Region ;
     Fct->Active->Case.SurfaceArea.Value = Val_Surface ;
 
     if(!Nbr_Found_Element)
