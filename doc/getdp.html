@@ -17,6 +17,7 @@ elements finis, programme gratuit">
 <link href="getdp.css" rel="stylesheet" type="text/css">
 
 <style type="text/css"><!--
+  div.small { font-size:80%; }
   pre { border: 0; }
   #banner img { box-shadow: none; margin-bottom: 0.5ex; }
   @media screen and (min-width: 1200px) {
@@ -121,25 +122,16 @@ Public License (GPL)</a>:
         <li>Download GetDP for
           <a href="bin/Windows/getdp-3.3.0-Windows64c.zip">Windows</a>,
           <a href="bin/Linux/getdp-3.3.0-Linux64c.tgz">Linux</a> or
-          <a href="bin/MacOSX/getdp-3.3.0-MacOSXc.tgz">macOS</a>
+          <a href="bin/MacOSX/getdp-3.3.0-MacOSXc.tgz">macOS</a> <!-- a href="#1"><sup>*</sup></a -->
         <li>Download the <a href="src/getdp-3.3.0-source.tgz">source code</a>
       </ul>
     </div>
-    <p>
-      <em>The binary versions are compiled
-        with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support for
-        the multi-threaded direct sparse linear
-        solver <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. Distributed
-        memory versions for computer clusters (using MPI) should be
-        <a href="https://gitlab.onelab.info/getdp/getdp/wikis/GetDP-compilation">compiled
-        from source</a>.</em>
-    </p>
   <li>Development version:
     <ul>
       <li>Download the latest automatic GetDP snapshot for
         <a href="bin/Windows/getdp-git-Windows64c.zip">Windows</a>,
         <a href="bin/Linux/getdp-git-Linux64c.tgz">Linux</a> or
-        <a href="bin/MacOSX/getdp-git-MacOSXc.tgz">macOS</a>
+        <a href="bin/MacOSX/getdp-git-MacOSXc.tgz">macOS</a> <a href="#1"><sup>*</sup></a>
       <li>Download the latest automatic
         <a href="src/getdp-git-source.tgz">source code</a> snapshot
       <li>Access the Git repository: '<code>git clone
@@ -167,6 +159,17 @@ in your work (books, articles, reports, etc.).
     donation.
   </p>
 </form>
+
+<div class="small">
+  <a name="1"><sup>*</sup></a> Binary releases are compiled
+with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support for the
+multi-threaded direct sparse linear
+solver <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>, and require Windows
+10, Linux with glibc >= 2.24, or macOS >= 10.15. Distributed memory versions for
+computer clusters (using MPI) should be
+  <a href="https://gitlab.onelab.info/getdp/getdp/wikis/GetDP-compilation">compiled
+  from source</a>.
+</div>
 
 <h2><a name="Documentation"></a>Documentation</h2>
 
