@@ -855,8 +855,7 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
           else{
             fprintf(PostStream, " %s_%d_%d = %.16g",
                     PSO_P->ValueName, j, PSO_P->ValueIndex, Value[i].Val[MAX_DIM*k+j]);
-            // How can we hanlde this case with TableList??
-            // Just push Value[i].Val[MAX_DIM*k+j] (i.e. %.16g)?
+            TableList.push_back(Value[i].Val[MAX_DIM*k+j]);
             if (j<Size-1)
               fprintf(PostStream, "\n");
           }
@@ -1555,8 +1554,8 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_SIMPLE_SPACE_TABLE :
   case FORMAT_VALUE_ONLY :
     {
-      // GetDPNumbers[CurrentName] and GetDPNumbersMap[CurrentName]???
       std::vector<double> v(TableList.begin(), TableList.end());
+      GetDPNumbers[CurrentName] = v;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
