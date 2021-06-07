@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <list>
 #include <string.h>
 #include <math.h>
 #include <set>
@@ -767,6 +768,10 @@ static void Gnuplot_PrintElement(int Format, double Time, int TimeStep, int NbrT
 /*  Tabular format                                                          */
 /* ------------------------------------------------------------------------ */
 
+// global static list for tables output
+static int TableList_StartNew = 0;
+static std::list<double> TableList;
+
 static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
                                  int Format, double Time, int TimeStep, int NbrTimeSteps,
                                  int NbrHarmonics, int HarmonicToTime,
@@ -778,6 +783,11 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
   int         i,j,k ;
   double      TimeMH ;
   struct Value  TmpValue ;
+
+  if(TableList_StartNew){
+    TableList_StartNew = 0 ;
+    TableList.clear();
+  }
 
   if(!PostStream) return;
 
@@ -794,16 +804,31 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
   if(Format == FORMAT_SPACE_TABLE || Format == FORMAT_SIMPLE_SPACE_TABLE
      || Format == FORMAT_VALUE_ONLY){
     if(TimeStep == 0){
-      if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY)
-        fprintf(PostStream, "%d %d  ", GetDP2Gmsh(ElementType), NumElement);
-      if(Format != FORMAT_VALUE_ONLY)
-        for(i=0 ; i<NbrNodes ; i++)
-          fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
       if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY){
-        if(Dummy)
+        fprintf(PostStream, "%d %d  ", GetDP2Gmsh(ElementType), NumElement);
+        TableList.push_back(GetDP2Gmsh(ElementType));
+        TableList.push_back(NumElement);
+      }
+      if(Format != FORMAT_VALUE_ONLY)
+        for(i=0 ; i<NbrNodes ; i++){
+          fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
+          TableList.push_back(x[i]);
+          TableList.push_back(y[i]);
+          TableList.push_back(z[i]);
+        }
+      if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY){
+        if(Dummy){
           fprintf(PostStream, "%.16g %.16g %.16g  ", Dummy[0], Dummy[1],  Dummy[2]);
-        else
+          TableList.push_back(Dummy[0]);
+          TableList.push_back(Dummy[1]);
+          TableList.push_back(Dummy[2]);
+        }
+        else{
           fprintf(PostStream, "0 0 0  ");
+          TableList.push_back(0);
+          TableList.push_back(0);
+          TableList.push_back(0);
+        }
       }
     }
   }
@@ -811,22 +836,31 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
   if (HarmonicToTime == 1) {
     if(Format == FORMAT_TIME_TABLE){
       fprintf(PostStream, "%d %.16g ", TimeStep, Time);
-      for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
+      TableList.push_back(TimeStep);
+      TableList.push_back(Time);
+      for(i=0 ; i<NbrNodes ; i++){
+        fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
+        TableList.push_back(x[i]);
+        TableList.push_back(y[i]);
+        TableList.push_back(z[i]);
+      }
     }
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
-	for(j = 0 ; j < Size ; j++){
-          if (Format != FORMAT_VALUE_ONLY)
+        for(j = 0 ; j < Size ; j++){
+          if (Format != FORMAT_VALUE_ONLY){
             fprintf(PostStream, " %.16g", Value[i].Val[MAX_DIM*k+j]);
+            TableList.push_back(Value[i].Val[MAX_DIM*k+j]);
+          }
           else{
             fprintf(PostStream, " %s_%d_%d = %.16g",
                     PSO_P->ValueName, j, PSO_P->ValueIndex, Value[i].Val[MAX_DIM*k+j]);
+            TableList.push_back(Value[i].Val[MAX_DIM*k+j]);
             if (j<Size-1)
               fprintf(PostStream, "\n");
           }
-	}
-	fprintf(PostStream, " ");
+        }
+        fprintf(PostStream, " ");
       }
       fprintf(PostStream, " ");
     }
@@ -834,18 +868,26 @@ static void Tabular_PrintElement(struct PostSubOperation *PSO_P,
   else {
     for(k = 0 ; k < HarmonicToTime ; k++){
       for(i = 0 ; i < NbrNodes ; i++){
-	F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
-	if (!i && Format == FORMAT_TIME_TABLE) {
-	  fprintf(PostStream, "%d %.16g ", TimeStep, TimeMH);
-	  for(i=0 ; i<NbrNodes ; i++)
-	    fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
-	}
-	for(j = 0 ; j < Size ; j++)
-	  fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
-	fprintf(PostStream, " ");
+        F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+        if (!i && Format == FORMAT_TIME_TABLE) {
+          fprintf(PostStream, "%d %.16g ", TimeStep, TimeMH);
+          TableList.push_back(TimeStep);
+          TableList.push_back(TimeMH);
+          for(i=0 ; i<NbrNodes ; i++){
+            fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
+            TableList.push_back(x[i]);
+            TableList.push_back(y[i]);
+            TableList.push_back(z[i]);
+          }
+        }
+        for(j = 0 ; j < Size ; j++){
+          fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
+          TableList.push_back(TmpValue.Val[j]);
+        }
+        fprintf(PostStream, " ");
       }
       if(Format == FORMAT_TIME_TABLE)
-	fprintf(PostStream, "\n");
+        fprintf(PostStream, "\n");
     }
   }
 
@@ -1012,7 +1054,7 @@ int    NXUnv_DatasetLocation = 3; //1: Data at nodes, 2: Data on elements, 3: Da
 
 void Unv_PrintHeader(FILE *PostStream, char *name, double Time, int TimeStep, double& NXUnv_UnitFactor, int& NXUnv_DatasetLocation) NX
 void Unv_PrintFooter(FILE *PostStream) NX
-void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes, struct Value *Value, int NbrHarmonics, int& NXUnv_DatasetLocation, double& NXUnv_UnitFactor) NX									 
+void Unv_PrintElement(FILE *PostStream, int Num_Element, int NbrNodes, struct Value *Value, int NbrHarmonics, int& NXUnv_DatasetLocation, double& NXUnv_UnitFactor) NX
 void Unv_PrintNodeTable(FILE *PostStream, std::map<int, std::vector<double>> &NodeTable, double& NXUnv_UnitFactor) NX
 void Unv_PrintRegion(FILE *PostStream, int Flag_Comma, int numRegion, int NbrHarmonics, int Size, struct Value *Value, double& NXUnv_UnitFactor) NX
 #undef NX
@@ -1192,6 +1234,12 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
     break ;
   case FORMAT_ELEMENT_TABLE :
     ElementTable_StartNew = 1 ;
+    break ;
+  case FORMAT_SPACE_TABLE :
+  case FORMAT_TIME_TABLE :
+  case FORMAT_SIMPLE_SPACE_TABLE :
+  case FORMAT_VALUE_ONLY :
+    TableList_StartNew = 1 ;
     break ;
   case FORMAT_ADAPT :
     if(PostStream) fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -1497,6 +1545,19 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       GetDPNumbersMap[CurrentName] = ElementTable;
       if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
+                                       PSO_P->Units, PSO_P->Label, PSO_P->Visible,
+                                       PSO_P->Closed);
+    }
+    break;
+  case FORMAT_SPACE_TABLE :
+  case FORMAT_TIME_TABLE :
+  case FORMAT_SIMPLE_SPACE_TABLE :
+  case FORMAT_VALUE_ONLY :
+    {
+      std::vector<double> v(TableList.begin(), TableList.end());
+      GetDPNumbers[CurrentName] = v;
+      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+        Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
                                        PSO_P->Closed);
     }
