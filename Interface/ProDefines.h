@@ -395,10 +395,10 @@ struct StringXDefine  PostSubOperation_FormatTag[] = {
 } ;
 
 struct StringXDefine  PostSubOperation_AdaptationType[] = {
-  {"P1"     , P1},
-  {"H1"     , H1},
-  {"H2"     , H2},
-  {NULL     , P1}
+  {"P1"     , ADAPT_P1},
+  {"H1"     , ADAPT_H1},
+  {"H2"     , ADAPT_H2},
+  {NULL     , ADAPT_P1}
 } ;
 
 struct StringXDefine  PostSubOperation_SortType[] = {

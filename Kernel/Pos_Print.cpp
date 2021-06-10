@@ -669,8 +669,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
 	for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
 	  PE->Value[iNode].Type = SCALAR ;
-	  if(PSO_P->Adapt == H1 ||
-	     PSO_P->Adapt == H2)
+	  if(PSO_P->Adapt == ADAPT_H1 ||
+	     PSO_P->Adapt == ADAPT_H2)
 	    PE->Value[iNode].Val[0] = Dummy[2] ;
 	  else
 	    PE->Value[iNode].Val[0] = Dummy[3] ;

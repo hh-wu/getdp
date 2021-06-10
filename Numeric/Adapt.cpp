@@ -78,8 +78,8 @@ double min1d (int method, double (*funct)(double), double *xmin){
   double xx, fx, fb, fa, bx, ax, tol = 1.e-4;
 
   switch(method){
-  case H1:
-  case P1: ax=1.e-12; xx=1.e2; break;
+  case ADAPT_H1:
+  case ADAPT_P1: ax=1.e-12; xx=1.e2; break;
   default: ax=1.e-15; xx=1.e-12; break;
   }
   mnbrak(&ax,&xx,&bx,&fa,&fx,&fb,funct);
@@ -90,7 +90,7 @@ double min1d (int method, double (*funct)(double), double *xmin){
 /* Adapt return the constraint (N0 ou e0) for the optimzed problem */
 
 double Adapt (int N,        /* Number of elements */
-	      int method,   /* H1, H2, P1 or P2 */
+	      int method,   /* ADAPT_H1, ADAPT_H2, ADAPT_P1 or ADAPT_P2 */
 	      int dim,      /* 2 or 3 */
 	      double *err,  /* elementary errors */
 	      double *h,    /* elementary mesh sizes */
@@ -121,7 +121,7 @@ double Adapt (int N,        /* Number of elements */
 
   switch (method) {
 
-  case H1 :
+  case ADAPT_H1 :
     minf = min1d (method, fH1, &lambda);
     obj = 0.0;
     for(i = 1 ; i <= N ; i++){
@@ -141,7 +141,7 @@ double Adapt (int N,        /* Number of elements */
                   e0, sqrt(obj), -minf, minri, maxri);
     break;
 
-  case H2 :
+  case ADAPT_H2 :
     minf = min1d (method, fH2, &lambda);
     obj = 0.0;
     for(i = 1 ; i <= N ; i++){
@@ -160,7 +160,7 @@ double Adapt (int N,        /* Number of elements */
 	      e0, obj, 100. * sqrt(fabs(minf)), minri, maxri);
     break;
 
-  case P1 :
+  case ADAPT_P1 :
     MINH = h[1];
     for(i = 1 ; i <= N ; i++) MINH = std::min(h[i], MINH);
     MINH /= 2.;
@@ -182,7 +182,7 @@ double Adapt (int N,        /* Number of elements */
                   e0, sqrt(obj), sqrt(obj2), minf);
     break;
 
-  case P2 :
+  case ADAPT_P2 :
     minf = min1d (method, fH1, &lambda);
     break;
 

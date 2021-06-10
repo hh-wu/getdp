@@ -6,13 +6,13 @@
 #ifndef ADAPT_H
 #define ADAPT_H
 
-#define P1 1
-#define P2 2
-#define H1 3
-#define H2 4
+#define ADAPT_P1 1
+#define ADAPT_P2 2
+#define ADAPT_H1 3
+#define ADAPT_H2 4
 
 double Adapt (int N,        /* Number of elements */
-	      int method,   /* H1, H2, P1 or P2 */
+	      int method,   /* ADAPT_H1, ADAPT_H2, ADAPT_P1 or ADAPT_P2 */
 	      int dim,      /* 2 or 3 */
 	      double *err,  /* elementary errors */
 	      double *h,    /* elementary mesh sizes */

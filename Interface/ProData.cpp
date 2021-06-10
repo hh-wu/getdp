@@ -387,7 +387,7 @@ void Read_ProblemStructure(const char *name)
     }
   }
 
-  getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;
+  getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum = 0;
   getdp_yyname = std::string(AbsPath);
 
   getdp_yyrestart(getdp_yyin); getdp_yyparse();
