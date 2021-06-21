@@ -12,7 +12,7 @@ Building a bare-bones version of GetDP from its source code requires a C++
 compiler and CMake (http://cmake.org). By default GetDP also uses the GSL
 (http://www.gnu.org/software/gsl) and PETSc (http://www.mcs.anl.gov/petsc),
 using either real or complex arithmetic. If PETSc is available, GetDP can use
-SLEPc (http://www.grycap.upv.es/slepc) to solve eigenvalue problems. Instead of
+SLEPc (https://slepc.upv.es/) to solve eigenvalue problems. Instead of
 PETsc (and SLEPc), GetDP can also use a built-in set of linear solvers derived
 from Sparskit Version 2 (http://www-users.cs.umn.edu/~saad/) and eigensolvers
 from Arpack (http://www.caam.rice.edu/software/ARPACK). Sparskit and Arpack, as
