@@ -1539,7 +1539,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
   }
 
-  Format_PostFooter(PSO_P, 0);
+  // prevent SendToServer here, as we have alredy done it
+  Format_PostFooter(PSO_P, 0, false);
 }
 
 /* ------------------------------------------------------------------------ */

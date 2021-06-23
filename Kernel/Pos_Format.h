@@ -14,7 +14,8 @@ void  Format_PostFormat(struct PostSubOperation * PSO_P) ;
 void  Format_PostHeader(struct PostSubOperation * PSO_P, int NbTimeStep,
                         int Order, char *Name1, char *Name2) ;
 
-void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
+void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store,
+                        bool SendToServer = true) ;
 
 void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store,
 			 double Time, int TimeStep, int NbTimeStep,

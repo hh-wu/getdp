@@ -1251,7 +1251,8 @@ void  Format_PostHeader(struct PostSubOperation *PSO_P, int NbTimeStep,
 /*  F o r m a t _ P o s t F o o t e r                                       */
 /* ------------------------------------------------------------------------ */
 
-void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
+void Format_PostFooter(struct PostSubOperation *PSO_P, int Store,
+                       bool SendToServer)
 {
   List_T    *Iso_L[NBR_MAX_ISO], *Solutions_L;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
@@ -1515,7 +1516,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       }
       GetDPNumbers[CurrentName] = exp;
       GetDPNumbersMap[CurrentName] = NodeTable;
-      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+      if(SendToServer && PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
                                        PSO_P->Closed);
@@ -1543,7 +1544,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       }
       GetDPNumbers[CurrentName] = exp;
       GetDPNumbersMap[CurrentName] = ElementTable;
-      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+      if(SendToServer && PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
         Message::AddOnelabNumberChoice(PSO_P->SendToServer, exp, PSO_P->Color,
                                        PSO_P->Units, PSO_P->Label, PSO_P->Visible,
                                        PSO_P->Closed);
@@ -1557,7 +1558,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       if(TableList.size()) {
         std::vector<double> v(TableList.begin(), TableList.end());
         GetDPNumbers[CurrentName] = v;
-        if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+        if(SendToServer && PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
           Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
                                          PSO_P->Units, PSO_P->Label, PSO_P->Visible,
                                          PSO_P->Closed);
