@@ -1554,12 +1554,14 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_SIMPLE_SPACE_TABLE :
   case FORMAT_VALUE_ONLY :
     {
-      std::vector<double> v(TableList.begin(), TableList.end());
-      GetDPNumbers[CurrentName] = v;
-      if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
-        Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
-                                       PSO_P->Units, PSO_P->Label, PSO_P->Visible,
-                                       PSO_P->Closed);
+      if(TableList.size()) {
+        std::vector<double> v(TableList.begin(), TableList.end());
+        GetDPNumbers[CurrentName] = v;
+        if(PSO_P->SendToServer && strcmp(PSO_P->SendToServer, "No"))
+          Message::AddOnelabNumberChoice(PSO_P->SendToServer, v, PSO_P->Color,
+                                         PSO_P->Units, PSO_P->Label, PSO_P->Visible,
+                                         PSO_P->Closed);
+      }
     }
     break;
   case FORMAT_LOOP_ERROR :
