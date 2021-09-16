@@ -1029,8 +1029,12 @@ struct Operation {
       double  Alpha ;
     } AddCorrection ;
     struct {
-      double  Alpha ;
+      int  ExpressionIndex;
     } MultiplySolution ;
+    struct {
+      int  ExpressionIndex;
+	  int  ConstraintIndex;
+    } MultiplyConstraint ;
     struct {
       int     Size;
       List_T  *Save;
@@ -1391,6 +1395,7 @@ struct IterativeLoopSystem {
 #define RESIDUAL              2
 #define RECALCRESIDUAL        3
 
+#define OPERATION_MULTIPLYCONSTRAINT         201
 
 /* ------------------------------------------------------------------------ */
 /*  P r e R e s o l u t i o n I n f o                                       */

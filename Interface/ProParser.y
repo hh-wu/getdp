@@ -316,7 +316,7 @@ struct doubleXstring{
 %token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
 %token      tLanczos tEigenSolve tEigenSolveAndExpand tEigenSolveJac tPerturbation
 %token      tUpdate tUpdateConstraint tBreak tExit tGetResidual tCreateSolution
-%token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
+%token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution tMultiplyConstraint
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
 %token      tAddVector
 
@@ -5406,7 +5406,7 @@ OperationTerm :
       Operation_P->Case.AddCorrection.Alpha = $5 ;
     }
 
-  | tMultiplySolution '[' String__Index ',' FExpr ']' tEND
+  | tMultiplySolution '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_MULTIPLYSOLUTION;
@@ -5416,9 +5416,29 @@ OperationTerm :
 	vyyerror(0, "Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.MultiplySolution.Alpha = $5 ;
+      Operation_P->Case.MultiplySolution.ExpressionIndex = $5 ;
     }
-
+	
+  | tMultiplyConstraint '[' String__Index ',' Expression ',' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_MULTIPLYCONSTRAINT;
+      int i;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror(0, "Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.MultiplyConstraint.ExpressionIndex = $5 ;
+	  
+	        Constraint_Index =
+	List_ISearchSeq(Problem_S.Constraint, $7, fcmp_Constraint_Name);
+      if(Constraint_Index < 0)
+        vyyerror(1, "Constraint '%s' is not provided", $7);
+      Operation_P->Case.MultiplyConstraint.ConstraintIndex = Constraint_Index;
+      Free($7); 
+    }
+	
   | tAddOppositeFullSolution '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;

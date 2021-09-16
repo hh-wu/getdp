@@ -330,7 +330,8 @@ MeshMovingBand2D             return tMeshMovingBand2D;
 MetricTensor                 return tMetricTensor;
 Modulo                       return tModulo;
 MovingBand2D                 return tMovingBand2D;
-MultiplySolution             return tMultiplySolution ;
+MultiplySolution             return tMultiplySolution;
+MultiplyConstraint           return tMultiplyConstraint;
 
 Name                         return tName;
 NameToString                 return tNameToString;

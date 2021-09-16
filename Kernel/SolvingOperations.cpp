@@ -1153,12 +1153,43 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("MultiplySolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-
+	Get_ValueOfExpressionByIndex(Operation_P->Case.MultiplySolution.ExpressionIndex,
+				     NULL, 0., 0., 0., &Value) ;
+		
       LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x,
-			      Operation_P->Case.MultiplySolution.Alpha,
+			      Value.Val[0],
 			      &DofData_P->CurrentSolution->x) ;
-      break ;
 
+     break;
+      /*  -->  M u l t i p l y C o n s t  r a i n t        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_MULTIPLYCONSTRAINT :
+      Init_OperationOnSystem("MultiplyConstraint",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+	Get_ValueOfExpressionByIndex(Operation_P->Case.MultiplyConstraint.ExpressionIndex,
+				     NULL, 0., 0., 0., &Value) ; 
+    struct Constraint    * Constraint_P ;
+	Constraint_P = (struct Constraint*)
+	List_Pointer(Problem_S.Constraint, Operation_P->Case.MultiplyConstraint.ConstraintIndex) ;
+	for (int i = 0; i < List_Nbr(Constraint_P->ConstraintPerRegion); i++) 
+	{
+		struct ConstraintPerRegion * ConstraintPerRegion_P;
+		ConstraintPerRegion_P = (struct ConstraintPerRegion*)List_Pointer(Constraint_P->ConstraintPerRegion, i) ;			 
+		struct Expression * Expression_P;
+		Expression_P = (struct Expression *)List_Pointer(Problem_S.Expression, ConstraintPerRegion_P->Case.Fixed.ExpressionIndex);
+		for (int j = 0; j < List_Nbr(Expression_P->Case.WholeQuantity); j++) 
+		{
+			struct WholeQuantity * WholeQuantity_P;
+			WholeQuantity_P = (struct WholeQuantity*)List_Pointer(Expression_P->Case.WholeQuantity, j) ;					
+			WholeQuantity_P->Case.Constant = WholeQuantity_P->Case.Constant * Value.Val[0];
+		}
+	}
+
+		  
+      break;
+	  
       /*  -->  A d d O p p o s i t e F u l l S o l u t i o n  */
       /*  --------------------------------------------------  */
 
