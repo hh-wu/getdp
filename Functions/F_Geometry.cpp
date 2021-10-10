@@ -385,7 +385,8 @@ void F_GetVolume(F_ARG)
 
 	if (Element.Type == TETRAHEDRON || Element.Type == TETRAHEDRON_2 ||
             Element.Type == HEXAHEDRON ||
-            Element.Type == PRISM) {
+            Element.Type == PRISM ||
+            Element.Type == PYRAMID) {
 
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
@@ -419,6 +420,9 @@ void F_GetVolume(F_ARG)
             break;
           case PRISM:
             Val_Volume += fabs(DetJac);
+            break;
+          case PYRAMID:
+            Val_Volume += 4./3. * fabs(DetJac);
             break;
           }
 	}
