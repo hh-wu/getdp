@@ -1136,10 +1136,10 @@ else()
 endif()
 
 # code signing
-if(APPLE AND PACKAGER STREQUAL "geuzaine")
+set(APP _CPack_Packages/Darwin/TGZ/${CPACK_PACKAGE_FILE_NAME}/bin/getdp)
+if(APPLE AND EXISTS ${APP} AND PACKAGER STREQUAL "geuzaine")
   set(CODESIGN "codesign -v -s \"Developer ID Application: Christophe Geuzaine\"")
-  set(APPDIR _CPack_Packages/Darwin/TGZ/${CPACK_PACKAGE_FILE_NAME}/bin)
-  install(CODE "execute_process(COMMAND ${CODESIGN} ${APPDIR}/getdp)")
+  install(CODE "execute_process(COMMAND ${CODESIGN} ${APP})")
 endif()
 
 include(CPack)
