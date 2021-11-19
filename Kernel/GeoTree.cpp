@@ -3,12 +3,13 @@
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
 
+#include <math.h>
+#include <stdlib.h>
 #include "GeoData.h"
 #include "ProData.h"
 #include "TreeUtils.h"
 #include "Get_Geometry.h"
-#include <math.h>
-#include <stdlib.h>
+#include "Message.h"
 
 static int Tree_IndexToChange, Tree_NewIndex;
 
@@ -25,33 +26,10 @@ static void Geo_ChangeTreeIndex(void *a, void *b)
 static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
                                 int SuppListType2)
 {
-  /*
-  bool aligned = false;
-  double tol = 1e-7;
-
-  switch(SuppListType2) {
-  case -1: // aligned with Cartesian X direction
-    aligned = fabs(x[abs(Entity_P[0]) - 1] - x[abs(Entity_P[1]) - 1]) < tol;
-    break;
-  case -2: // aligned with Cartesian Y direction
-    aligned = fabs(y[abs(Entity_P[0]) - 1] - y[abs(Entity_P[1]) - 1]) < tol;
-    break;
-  case -4: // aligned with Cartesian Z direction
-    aligned = fabs(z[abs(Entity_P[0]) - 1] - z[abs(Entity_P[1]) - 1]) < tol;
-    break;
-  case -3: // aligned with radius around X axis
-    double val1,val2;
-    val1 = hypot(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
-    val2 = hypot(y[abs(Entity_P[1]) - 1], z[abs(Entity_P[1]) - 1]);
-    aligned = fabs(val2-val1) < tol;
-    break;
-  default: printf("Unknown 'AlignedWith parameter' %d\n", SuppListType2);
-  }
-  */
   bool aligned = false;
   double val1=0,val2=0;
   double tol = 1e-7;
-  
+
   switch(SuppListType2) {
   case -1: // aligned with Cartesian X direction "X"
     val1 = x[abs(Entity_P[0]) - 1] ; val2 = x[abs(Entity_P[1]) - 1] ;
@@ -74,7 +52,8 @@ static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
     val1 = hypot(x[abs(Entity_P[0]) - 1], y[abs(Entity_P[0]) - 1]);
     val2 = hypot(x[abs(Entity_P[1]) - 1], y[abs(Entity_P[1]) - 1]);
     break;
-  default: printf("Unknown 'AlignedWith parameter' %d\n", SuppListType2);
+  default:
+    Message::Error("Unknown 'AlignedWith parameter' %d", SuppListType2);
   }
   aligned = fabs(val2-val1) < tol;
   return aligned;
@@ -128,7 +107,7 @@ static void Geo_GenerateTreeOnSlidingSurface(List_T *InitialList,
 }
 
 static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
-                                               bool isElementList, 
+                                               bool isElementList,
                                                List_T *ExtendedList,
                                                Tree_T *EntitiesInTree_T)
 {
@@ -148,7 +127,7 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
     }
     else{
       Geo_Element = Geo_GetGeoElement(i_Element);
-      if(!List_Search(List, &Geo_Element->Region, fcmp_int)) 
+      if(!List_Search(List, &Geo_Element->Region, fcmp_int))
         continue;
     }
 
@@ -186,7 +165,7 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
           }
           else {
             EntityInTree_S.Num = abs(Geo_Element->NumNodes[Entity]);
-            EntitiesInTree_P[Entity] = 
+            EntitiesInTree_P[Entity] =
               (struct EntityInTree *)Tree_Add(EntitiesInTree_T, &EntityInTree_S);
             Flag_Change = 1;
           }
