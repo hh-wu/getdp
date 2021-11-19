@@ -25,6 +25,7 @@ static void Geo_ChangeTreeIndex(void *a, void *b)
 static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
                                 int SuppListType2)
 {
+  /*
   bool aligned = false;
   double tol = 1e-7;
 
@@ -35,11 +36,47 @@ static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
   case -2: // aligned with Cartesian Y direction
     aligned = fabs(y[abs(Entity_P[0]) - 1] - y[abs(Entity_P[1]) - 1]) < tol;
     break;
-  case -3: // aligned with Cartesian Z direction
+  case -4: // aligned with Cartesian Z direction
     aligned = fabs(z[abs(Entity_P[0]) - 1] - z[abs(Entity_P[1]) - 1]) < tol;
+    break;
+  case -3: // aligned with radius around X axis
+    double val1,val2;
+    val1 = hypot(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
+    val2 = hypot(y[abs(Entity_P[1]) - 1], z[abs(Entity_P[1]) - 1]);
+    aligned = fabs(val2-val1) < tol;
     break;
   default: printf("Unknown 'AlignedWith parameter' %d\n", SuppListType2);
   }
+  */
+  bool aligned = false;
+  double val1=0,val2=0;
+  double tol = 1e-7;
+  
+  switch(SuppListType2) {
+  case -1: // aligned with Cartesian X direction "X"
+    val1 = x[abs(Entity_P[0]) - 1] ; val2 = x[abs(Entity_P[1]) - 1] ;
+    break;
+  case -2: // aligned with Cartesian Y direction "Y"
+    val1 = y[abs(Entity_P[0]) - 1] ; val2 = y[abs(Entity_P[1]) - 1] ;
+    break;
+  case -3: // aligned with Cartesian Z direction "Z"
+    val1 = z[abs(Entity_P[0]) - 1] ; val2 = z[abs(Entity_P[1]) - 1] ;
+    break;
+  case -4: // aligned with radius around X axis "Rx"
+    val1 = hypot(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
+    val2 = hypot(y[abs(Entity_P[1]) - 1], z[abs(Entity_P[1]) - 1]);
+    break;
+  case -5: // aligned with radius around Y axis "Ry"
+    val1 = hypot(z[abs(Entity_P[0]) - 1], x[abs(Entity_P[0]) - 1]);
+    val2 = hypot(z[abs(Entity_P[1]) - 1], x[abs(Entity_P[1]) - 1]);
+    break;
+  case -6: // aligned with radius around Z axis "Rz"
+    val1 = hypot(x[abs(Entity_P[0]) - 1], y[abs(Entity_P[0]) - 1]);
+    val2 = hypot(x[abs(Entity_P[1]) - 1], y[abs(Entity_P[1]) - 1]);
+    break;
+  default: printf("Unknown 'AlignedWith parameter' %d\n", SuppListType2);
+  }
+  aligned = fabs(val2-val1) < tol;
   return aligned;
 }
 

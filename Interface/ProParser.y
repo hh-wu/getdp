@@ -662,6 +662,12 @@ SuppListOfRegion :
         if(!strcmp($4, "Z")) {
           Type_SuppLists[nb_SuppList] = -3;
         }
+        else if(!strcmp($4, "Rx")) {
+          Type_SuppLists[nb_SuppList] = -4;
+        }
+        else if(!strcmp($4, "Rz")) {
+          Type_SuppLists[nb_SuppList] = -6;
+        }
         else{
           vyyerror(0, "Unknown AlignedWith parameter: %s", $4);
           Type_SuppLists[nb_SuppList] = SUPPLIST_NONE;
