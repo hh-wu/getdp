@@ -2910,7 +2910,7 @@ SubSpaceTerm :
 
 ListOfBasisFunction :
 
-    tSTRING
+    String__Index
     {
       $$ = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
@@ -2942,7 +2942,7 @@ RecursiveListOfBasisFunction :
         SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
     }
 
-  | RecursiveListOfBasisFunction Comma tSTRING
+  | RecursiveListOfBasisFunction Comma String__Index
     {
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
@@ -2963,7 +2963,7 @@ RecursiveListOfBasisFunction :
 
 ListOfBasisFunctionCoef :
 
-    tSTRING
+    String__Index
     {
       $$ = SubSpace_S.BasisFunction?
         SubSpace_S.BasisFunction : List_Create(1, 5, sizeof(int));
@@ -2990,7 +2990,7 @@ RecursiveListOfBasisFunctionCoef :
         SubSpace_S.BasisFunction : List_Create(5, 5, sizeof(int));
     }
 
-  | RecursiveListOfBasisFunctionCoef Comma tSTRING
+  | RecursiveListOfBasisFunctionCoef Comma String__Index
     {
       int i;
       if((i = List_ISearchSeq(Current_BasisFunction_L,
