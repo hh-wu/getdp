@@ -41,16 +41,16 @@ static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
     val1 = z[abs(Entity_P[0]) - 1] ; val2 = z[abs(Entity_P[1]) - 1] ;
     break;
   case -4: // aligned with radius around X axis "Rx"
-    val1 = hypot(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
-    val2 = hypot(y[abs(Entity_P[1]) - 1], z[abs(Entity_P[1]) - 1]);
+    val1 = atan2(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
+    val2 = atan2(y[abs(Entity_P[1]) - 1], z[abs(Entity_P[1]) - 1]);
     break;
   case -5: // aligned with radius around Y axis "Ry"
-    val1 = hypot(z[abs(Entity_P[0]) - 1], x[abs(Entity_P[0]) - 1]);
-    val2 = hypot(z[abs(Entity_P[1]) - 1], x[abs(Entity_P[1]) - 1]);
+    val1 = atan2(z[abs(Entity_P[0]) - 1], x[abs(Entity_P[0]) - 1]);
+    val2 = atan2(z[abs(Entity_P[1]) - 1], x[abs(Entity_P[1]) - 1]);
     break;
   case -6: // aligned with radius around Z axis "Rz"
-    val1 = hypot(x[abs(Entity_P[0]) - 1], y[abs(Entity_P[0]) - 1]);
-    val2 = hypot(x[abs(Entity_P[1]) - 1], y[abs(Entity_P[1]) - 1]);
+    val1 = atan2(x[abs(Entity_P[0]) - 1], y[abs(Entity_P[0]) - 1]);
+    val2 = atan2(x[abs(Entity_P[1]) - 1], y[abs(Entity_P[1]) - 1]);
     break;
   default:
     Message::Error("Unknown 'AlignedWith parameter' %d", SuppListType2);
