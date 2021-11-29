@@ -2887,7 +2887,7 @@ SubSpaceTerm :
       level_Append_2 = $1; index_Append_2 = -1;
     }
 
-  | tName tSTRING tEND
+  | tName String__Index tEND
     {
       index_Append_2 =
         Check_NameOfStructExist("SubSpace", FunctionSpace_S.SubSpace,
