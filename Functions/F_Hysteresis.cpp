@@ -2663,8 +2663,10 @@ void Vector_b_EB (const double h[3],
   if (::FLAG_HOMO==1)
   {
     double Jtot[3];
+    int old = p->idcell;
     p->idcell=-1; // due to the need to take global Ja, Jb (not Jak=wk*Ja, Jbk=wk*Jb) !
     Vector_Jk_From_hrk(hrtot,params,Jtot);
+    p->idcell = old;
     for (int n=0; n<3; n++)
       b[n] += Jtot[n];
   }
@@ -2706,14 +2708,14 @@ void Vector_h_EB  ( const double b[3],
   double TOL = ::TOLERANCE_NR;
   const int MAX_ITER = ::MAX_ITER_NR;
 
-  double dh[3], dx[3], df[3],res[3], b_bc[3] ;
-  double Ib_bcI;
+  double dx[3] = {0,0,0}, df[3] = {0,0,0}, res[3] = {0,0,0}, b_bc[3] = {0,0,0} ;
 
   int ncomp = ::NCOMP;
   double *dbdh; dbdh = new double[ncomp];
   double *dhdb; dhdb = new double[ncomp];
   for (int n=0; n<ncomp; n++) {dbdh[n]=0.; dhdb[n]=0.;}
 
+  double dh[3];
   for (int n=0; n<3; n++) dh[n]=10.*::DELTA_0;
   double ndh=norm(dh);
 
@@ -2805,7 +2807,7 @@ void Vector_h_EB  ( const double b[3],
     }
 
     for (int n=0; n<3; n++) b_bc[n]=b[n]-bc[n];
-    Ib_bcI=norm(b_bc);
+    double Ib_bcI=norm(b_bc);
 
     Mul_TensorVec(dhdb, b_bc, dh, 0);
 
@@ -3240,8 +3242,10 @@ void Tensor_dbdh_ana ( const double h[3],
   if (::FLAG_HOMO==1)
   {
     //Build mutgtot
+    int old = p->idcell;
     p->idcell=-1; // due to the need to take global Ja, Jb (not Jak=wk*Ja, Jbk=wk*Jb) !
     Tensor_dJkdhrk(hrtot,params, mutgtot) ;
+    p->idcell = old;
 
     //dJtotdh= mutgtot*dhrtotdh
     Mul_TensorSymTensorNonSym(mutgtot,dhrtotdh, dJtotdh) ;
@@ -3563,7 +3567,7 @@ void F_h_EB(F_ARG)
   // output: magnetic field -- h
 
   struct FunctionActive  * D ;
-  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  if (!Fct->Active) Fi_InitListX (Fct, A, V) ;
   D = Fct->Active ;
   set_sensi_param(D);
 
@@ -3590,7 +3594,9 @@ void F_h_EB(F_ARG)
   }
   //End Creation of EB parameters structure
 
-  double Xk_all[3*params.N];
+  double *Xk_all = new double[3*params.N];
+  for (int n = 0; n < 3*params.N; n++)
+    Xk_all[n] = 0.;
   double h[3], b[3], bc[3] ;
   for (int n=0; n<3; n++) {
      h[n]  = (A+0)->Val[n]; // h is initialized at hp
@@ -3603,6 +3609,7 @@ void F_h_EB(F_ARG)
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = h[n];
 
+  delete [] Xk_all;
   delete [] params.kappa;
   delete [] params.w;
   delete [] params.Xp;
@@ -3646,7 +3653,10 @@ void F_b_EB(F_ARG)
   }
   //End Creation of EB parameters structure
 
-  double Xk_all[3*params.N];
+  double *Xk_all = new double[3*params.N];
+  for (int n = 0; n < 3*params.N; n++)
+    Xk_all[n] = 0.;
+
   double h[3], b[3];
   for (int n=0; n<3; n++)
     h[n] = (A+0)->Val[n];
@@ -3656,6 +3666,7 @@ void F_b_EB(F_ARG)
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = b[n];
 
+  delete [] Xk_all;
   delete [] params.kappa;
   delete [] params.w;
   delete [] params.Xp;
@@ -3811,7 +3822,11 @@ void F_dbdh_EB(F_ARG)
   for (int n=0; n<3; n++)
      h[n]  = (A+0)->Val[n];
 
-  double Xk_all[3*params.N], bdummy[3];
+  double bdummy[3] = {0., 0., 0.};
+  double *Xk_all = new double[3*params.N];
+  for (int n = 0; n < 3*params.N; n++)
+    Xk_all[n] = 0.;
+
   Vector_b_EB(h, bdummy, Xk_all, &params); // to update Xk_all
 
 
@@ -3850,6 +3865,7 @@ void F_dbdh_EB(F_ARG)
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dbdh[k] ;
 
+  delete [] Xk_all;
   delete [] dbdh;
   delete [] params.kappa;
   delete [] params.w;
@@ -3896,9 +3912,12 @@ void F_dhdb_EB(F_ARG)
 
   double h[3];
   for (int n=0; n<3; n++)
-     h[n]  = (A+0)->Val[n];
+     h[n] = (A+0)->Val[n];
 
-  double Xk_all[3*params.N],bdummy[3];
+  double bdummy[3] = {0., 0., 0.};
+  double *Xk_all = new double[3*params.N];
+  for (int n = 0; n < 3*params.N; n++)
+    Xk_all[n] = 0.;
   Vector_b_EB(h, bdummy, Xk_all, &params); // to update Xk_all
 
   // Init dbdh
@@ -3951,6 +3970,7 @@ void F_dhdb_EB(F_ARG)
   for (int k=0 ; k<ncomp ; k++)
     V->Val[k] = dhdb[k] ;
 
+  delete [] Xk_all;
   delete [] dhdb;
   delete [] dbdh;
   delete [] params.kappa;
