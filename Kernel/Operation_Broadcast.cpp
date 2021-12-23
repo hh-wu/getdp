@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
 #include "GetDPConfig.h"
