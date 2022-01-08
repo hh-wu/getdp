@@ -20,7 +20,6 @@ DefineConstant[
   TimeFinal = 1/50, // final time (for time-domain simulations)
   DeltaTime = 1/500, // time step (for time-domain simulations)
   Flag_Axi = 0, // axisymmetric model?
-  FE_Order = 1 // finite element order
 ];
 
 Group {
@@ -76,13 +75,20 @@ Integration {
       { Type Gauss;
         Case {
           { GeoElement Point; NumberOfPoints 1; }
-          { GeoElement Line; NumberOfPoints 3; }
+          { GeoElement Line; NumberOfPoints 2; }
           { GeoElement Triangle; NumberOfPoints 3; }
           { GeoElement Quadrangle; NumberOfPoints 4; }
           { GeoElement Tetrahedron; NumberOfPoints 4; }
           { GeoElement Hexahedron; NumberOfPoints 6; }
           { GeoElement Prism; NumberOfPoints 9; }
           { GeoElement Pyramid; NumberOfPoints 8; }
+
+          { GeoElement Line2; NumberOfPoints 3; }
+          { GeoElement Triangle2; NumberOfPoints 6; }
+          { GeoElement Quadrangle2; NumberOfPoints 7; }
+          { GeoElement Tetrahedron2; NumberOfPoints 15; }
+          { GeoElement Hexahedron2; NumberOfPoints 34; }
+          { GeoElement Prism2; NumberOfPoints 21; }
 	}
       }
     }
@@ -117,48 +123,27 @@ FunctionSpace {
     BasisFunction {
       { Name sxn; NameOfCoef uxn; Function BF_Node;
         Support Dom_Mec; Entity NodesOf[ All ]; }
-      If(FE_Order == 2)
-        { Name sxn2; NameOfCoef uxn2; Function BF_Node_2E;
-          Support Dom_Mec; Entity EdgesOf[ All ]; }
-      EndIf
     }
     Constraint {
       { NameOfCoef uxn; EntityType NodesOf; NameOfConstraint Displacement_x; }
-      If(FE_Order == 2)
-        { NameOfCoef uxn2; EntityType EdgesOf; NameOfConstraint Displacement_x; }
-      EndIf
     }
   }
   { Name H_uy_Mec; Type Form0;
     BasisFunction {
       { Name syn; NameOfCoef uyn; Function BF_Node;
         Support Dom_Mec; Entity NodesOf[ All ]; }
-      If(FE_Order == 2)
-        { Name syn2; NameOfCoef uyn2; Function BF_Node_2E;
-          Support Dom_Mec; Entity EdgesOf[ All ]; }
-      EndIf
     }
     Constraint {
       { NameOfCoef uyn; EntityType NodesOf; NameOfConstraint Displacement_y; }
-      If(FE_Order == 2)
-        { NameOfCoef uyn2; EntityType EdgesOf; NameOfConstraint Displacement_y; }
-      EndIf
     }
   }
   { Name H_uz_Mec; Type Form0;
     BasisFunction {
       { Name syn; NameOfCoef uzn; Function BF_Node;
         Support Dom_Mec; Entity NodesOf[ All ]; }
-      If(FE_Order == 2)
-        { Name szn2; NameOfCoef uzn2; Function BF_Node_2E;
-          Support Dom_Mec; Entity EdgesOf[ All ]; }
-      EndIf
     }
     Constraint {
       { NameOfCoef uzn; EntityType NodesOf; NameOfConstraint Displacement_z; }
-      If(FE_Order == 2)
-        { NameOfCoef uzn2; EntityType EdgesOf; NameOfConstraint Displacement_z; }
-      EndIf
     }
   }
 }
@@ -244,8 +229,8 @@ Resolution {
       }
     }
     Operation {
-      // uncomment this for faster assembly with high order elements
-      // SetGlobalSolverOptions["-petsc_prealloc 400"];
+      // faster assembly with 2nd order elements
+      SetGlobalSolverOptions["-petsc_prealloc 500"];
 
       If(Flag_Regime == 0 || Flag_Regime == 1)
         Generate[A]; Solve[A]; SaveSolution[A];
