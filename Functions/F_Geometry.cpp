@@ -248,6 +248,11 @@ void F_SurfaceArea(F_ARG)
         }
       }
     }
+    else if(Current.Region == -1) {
+      // in case e.g. of Print OnGlobal: stay on the safe side and always
+      // recompute
+      recompute = true;
+    }
     else if(Current.Region != Fct->Active->Case.SurfaceArea.RegionCurrent) {
       recompute = true;
     }
