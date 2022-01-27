@@ -590,8 +590,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
                     Get_DofOfElement
                       (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
                        DefineQuantity_P->IndexInFunctionSpace) ;
-                    Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
                   }
+                  Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
                 }
 #endif
               }
