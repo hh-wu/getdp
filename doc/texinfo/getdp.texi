@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2021 P. Dular and C. Geuzaine, University of Liege
+@c GetDP - Copyright (C) 1997-2022 P. Dular and C. Geuzaine, University of Liege
 @c
 @c See the LICENSE.txt file for license information. Please report all
 @c issues on https://gitlab.onelab.info/getdp/getdp/issues.
@@ -22,7 +22,7 @@
 @c %**start of header
 @setfilename getdp.info
 @include version.texi
-@set COPYRIGHT @copyright{} 1997-2021 P. Dular and C. Geuzaine, University of Liege
+@set COPYRIGHT @copyright{} 1997-2022 P. Dular and C. Geuzaine, University of Liege
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
 @setchapternewpage odd
