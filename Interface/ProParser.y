@@ -1675,9 +1675,6 @@ WholeQuantity_Single :
       WholeQuantity_S.Case.Trace.InIndex =
         Num_Group(&Group_S, strSave("WQ_Trace_In"), $6);
 
-      if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
-	vyyerror(0, "Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
-
       WholeQuantity_S.Case.Trace.DofIndexInWholeQuantity = -1;
       if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity){
 	for(int i = 0; i < List_Nbr($4); i++){

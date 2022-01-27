@@ -8,6 +8,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "GetDPConfig.h"
 #include "ListUtils.h"
 
@@ -1691,6 +1692,8 @@ struct Element {
   int       Num, Type, Region ;
 
   struct Element  * ElementSource, * ElementTrace ;
+
+  std::vector<Element*> ElementTraceCandidates ;
 
   int       NumLastElementForNodesCoordinates ;
   double    x [NBR_MAX_NODES_IN_ELEMENT] ;

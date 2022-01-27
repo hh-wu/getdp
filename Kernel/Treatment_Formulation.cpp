@@ -455,14 +455,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	     Check_IsEntityInExtendedGroup(GroupIn_P, Element.Num, 0))
 	    ) {
 
-	/*
-	if (List_Search(((struct Group *)
-			 List_Pointer(Problem_S.Group,
-				      EquationTerm_P->Case.
-				      LocalTerm.InIndex))->InitialList,
-			&Element.Region, fcmp_int ) ) {
-	*/
-
 	  if(Message::GetVerbosity() == 10)
 	    printf("==> Element #%d, EquationTerm #%d/%d\n",
 		   Element.Num, i_EquTerm+1, Nbr_EquationTerm) ;
@@ -484,7 +476,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
           else
             Current.SubRegion = -1;
 
-
 	  /* ---------------------------------------------------------- */
 	  /* 2.1.1.  Loop on quantities (test fcts and shape functions) */
 	  /* ---------------------------------------------------------- */
@@ -499,31 +490,29 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    TraceGroupIndex_DefineQuantity =
 	      EquationTerm_P->Case.LocalTerm.Term.QuantityTraceGroupIndexTable[i] ;
 
-	    /* Only one analysis for each function space */
-
-	    /*
-	     * Attention : l'operateur de trace ne fonctionne que si le champ
-	     * dont on prend la trace n'intervient qu'une seule fois dans le terme.
-	     * du a - manque de generalite du code au niveau de la gestion des
-	     *        espaces fonctionnels des fcts tests  pour 'Trace de Dof'
-	     *      - et Christophe fatigue
-	     */
+	    /* Only one analysis for each function space, unless we have a Trace
+               (note that a quantity involved in a Trace cannot appear in the
+               same term outside of a Trace) */
 
 	    if (QuantityStorage_P->NumLastElementForFunctionSpace != Element.Num ||
 		TraceGroupIndex_DefineQuantity >= 0 ) {
 
-	      QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
-
 	      switch (DefineQuantity_P->Type) {
 	      case LOCALQUANTITY :
 		if(TraceGroupIndex_DefineQuantity >= 0){
-		  Get_ElementTrace(&Element, TraceGroupIndex_DefineQuantity) ;
-		  QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementTrace->Num ;
-		  Get_DofOfElement
-		    (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
-		     DefineQuantity_P->IndexInFunctionSpace) ;
+
+                  /* Fill QuantityStorage for the first trace element; others
+                     (e.g. for mortaring on nonconformal meshes) will be handled
+                     in a loop over the Cal_GalerkinTermOfFemEquation */
+
+                  Get_InitElementTrace(&Element, TraceGroupIndex_DefineQuantity) ;
+                  QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementTrace->Num ;
+                  Get_DofOfElement
+                    (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
+                     DefineQuantity_P->IndexInFunctionSpace) ;
 		}
                 else{
+                  QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
 		  Get_DofOfElement
 		    (&Element, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
 		     DefineQuantity_P->IndexInFunctionSpace) ;
@@ -540,75 +529,80 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    }
 	  }  /* for i = 0, 1 ... */
 
-	  /* -------------------------------------- */
-	  /* 2.1.2.  Treatment of the equation term */
-	  /* -------------------------------------- */
+          /* -------------------------------------- */
+          /* 2.1.2.  Treatment of the equation term */
+          /* -------------------------------------- */
 
-	  switch (TreatmentStatus) {
-	  case STATUS_PRE :
-	    Pre_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-	    break ;
-	  case STATUS_CAL :
-	    Flag_Only = 0 ;
+          switch (TreatmentStatus) {
+          case STATUS_PRE :
+            Pre_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+            break ;
+          case STATUS_CAL :
+            Flag_Only = 0 ;
 
-	    if (Current.DofData->Flag_Only){
-	      A = Current.DofData->A ;
-	      b = Current.DofData->b ;
+            if (Current.DofData->Flag_Only) {
+              A = Current.DofData->A ;
+              b = Current.DofData->b ;
 
-	      if (EquationTerm_P->Case.LocalTerm.MatrixIndex == -1)
-		EquationTerm_P->Case.LocalTerm.MatrixIndex = 0 ;
+              if (EquationTerm_P->Case.LocalTerm.MatrixIndex == -1)
+                EquationTerm_P->Case.LocalTerm.MatrixIndex = 0 ;
 
-	      j = List_ISearch(Current.DofData->OnlyTheseMatrices,
-			       &EquationTerm_P->Case.LocalTerm.MatrixIndex, fcmp_int) ;
-	      if(j!=-1){
-		Flag_Only = 1 ;
-		switch(EquationTerm_P->Case.LocalTerm.MatrixIndex){
-		case 1 :
-		  Current.DofData->A = Current.DofData->A1 ;
-		  Current.DofData->b = Current.DofData->b1 ;
-		  break;
-		case 2 :
-		  Current.DofData->A = Current.DofData->A2 ;
-		  Current.DofData->b = Current.DofData->b2 ;
-		  break;
-		case 3 :
-		  Current.DofData->A = Current.DofData->A3 ;
-		  Current.DofData->b = Current.DofData->b3 ;
-		  break;
-		}
-	      }
-	    }/* Only the matrices that vary are recalculated */
+              j = List_ISearch(Current.DofData->OnlyTheseMatrices,
+                               &EquationTerm_P->Case.LocalTerm.MatrixIndex, fcmp_int) ;
+              if(j != -1) {
+                Flag_Only = 1 ;
+                switch(EquationTerm_P->Case.LocalTerm.MatrixIndex) {
+                case 1 :
+                  Current.DofData->A = Current.DofData->A1 ;
+                  Current.DofData->b = Current.DofData->b1 ;
+                  break;
+                case 2 :
+                  Current.DofData->A = Current.DofData->A2 ;
+                  Current.DofData->b = Current.DofData->b2 ;
+                  break;
+                case 3 :
+                  Current.DofData->A = Current.DofData->A3 ;
+                  Current.DofData->b = Current.DofData->b3 ;
+                  break;
+                }
+              }
+            } /* Only the matrices that vary are recalculated */
 
-	    if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ){
-	      QuantityStorage_P = QuantityStorage_P0 +
-		EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
+            if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ) {
+              QuantityStorage_P = QuantityStorage_P0 +
+                EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
 
-	      if(EquationTerm_P->Type == GALERKIN){
+              if(EquationTerm_P->Type == GALERKIN) {
 #if defined(HAVE_SMALLFEM)
+                /* if multiple Trace elements, change ElementTrace, redo Get_Dof
+                   and compute the additional contribution */
+
                 Cal_SmallFemTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 #else
-                Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+                do {
+                  Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+                } while(Get_NextElementTrace(&Element));
 #endif
               }
-	      if (Current.DofData->Flag_Only && Flag_Only){
-		Current.DofData->A = A ;
-		Current.DofData->b = b ;
-	      }
+              if (Current.DofData->Flag_Only && Flag_Only) {
+                Current.DofData->A = A ;
+                Current.DofData->b = b ;
+              }
 
-	    }/* Flag_Only */
-	    break ;
+            } /* Flag_Only */
+            break ;
 
           case STATUS_CST :
             Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
             break ;
 
-	  }
+          }
 
-	}/* if Support ... */
+	} /* if Support ... */
 
       } /* if GALERKIN ... */
 
-    }  /* for i_EquTerm ... */
+    } /* for i_EquTerm ... */
 
     Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == STATUS_PRE) ?
                            "Pre-processing" : "Processing (Generate)");

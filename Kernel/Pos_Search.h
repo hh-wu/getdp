@@ -35,6 +35,12 @@ void InWhichElement(struct Grid *Grid,
 		    double  x, double  y, double  z,
 		    double *u, double *v, double *w);
 
+int PointInElement (struct Element * Element,
+                    List_T *ExcludeRegion_L,
+                    double  x, double  y, double  z,
+                    double *u, double *v, double *w,
+                    double tol);
+
 void xyz2uvwInAnElement(struct Element *Element,
 			double  x, double  y, double  z,
 			double *u, double *v, double *w);
