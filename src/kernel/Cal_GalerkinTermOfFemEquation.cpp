@@ -381,22 +381,29 @@ void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
 /*  C a l _ v B F x D o f                                                   */
 /* ------------------------------------------------------------------------ */
 
-void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
-		 struct FemLocalTermActive * FI,
-		 struct QuantityStorage    * QuantityStorage_P0,
-		 struct QuantityStorage    * QuantityStorageDof_P,
-		 int                         Nbr_Dof,
-		 void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
-		 (struct Element * Element, int NumEntity,
-		  double u, double v, double w, double Value[]),
-		 double vBFxEqu[][MAX_DIM],
-		 struct Value vBFxDof[])
+int Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
+                struct FemLocalTermActive * FI,
+                struct QuantityStorage    * QuantityStorage_P0,
+                struct QuantityStorage    * QuantityStorageDof_P,
+                int                         Nbr_Dof,
+                void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
+                (struct Element * Element, int NumEntity,
+                 double u, double v, double w, double Value[]),
+                double vBFxEqu[][MAX_DIM],
+                struct Value vBFxDof[])
 {
   double         vBFuDof[NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double         u, v, w ;
   struct Value   CoefPhys ;
   struct Element *E ;
   int  i, j ;
+
+  // initialize vBFxDof to zero; this allows to perform e.g. [0, {d u}] without
+  // having to explicitly use [Vector[0,0,0], {d u}] ; if this is too slow, we
+  // should check vBFxDof[j].Type against FI->Type_FormEqu before calling
+  // FI->Cal_Productx to report errors
+  for (j = 0 ; j < Nbr_Dof ; j++)
+    Cal_ZeroValue(&vBFxDof[j]);
 
   if(EquationTerm_P->Case.LocalTerm.Term.DofInTrace){
     E = Current.Element->ElementTrace ;
@@ -406,8 +413,10 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       Current.y += Current.Element->y[i] * Current.Element->n[i] ;
       Current.z += Current.Element->z[i] * Current.Element->n[i] ;
     }
-    xyz2uvwInAnElement(E, Current.x, Current.y, Current.z,
-		       &Current.ut, &Current.vt, &Current.wt) ;
+    if(!PointInElement(E, nullptr, Current.x, Current.y, Current.z,
+                       &Current.ut, &Current.vt, &Current.wt, 1.e-12)) {
+      return 0; // we're done, no contribution from this Trace element
+    }
     u = Current.ut ;
     v = Current.vt ;
     w = Current.wt ;
@@ -418,13 +427,6 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     v = Current.v ;
     w = Current.w ;
   }
-
-  // initialize vBFxDof to zero; this allows to perform e.g. [0, {d u}] without
-  // having to explicitly use [Vector[0,0,0], {d u}] ; if this is too slow, we
-  // should check vBFxDof[j].Type against FI->Type_FormEqu before calling
-  // FI->Cal_Productx to report errors
-  for (j = 0 ; j < Nbr_Dof ; j++)
-    Cal_ZeroValue(&vBFxDof[j]);
 
   // shape functions, integral quantity or dummy
 
@@ -504,6 +506,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   Cal_applyMetricTensor(EquationTerm_P, FI, QuantityStorage_P0,
                         Nbr_Dof, vBFxDof);
 
+  return 1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -811,26 +814,26 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	/* Shape Functions (+ surrounding expression) */
 
 	Current.Element = Element ;
-	Cal_vBFxDof(EquationTerm_P, FI,
-		    QuantityStorage_P0, QuantityStorageDof_P,
-		    Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof);
+	if(Cal_vBFxDof(EquationTerm_P, FI,
+                       QuantityStorage_P0, QuantityStorageDof_P,
+                       Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof)) {
+          Factor = FI->CoefJac *
+            ((FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight) ;
 
-	Factor = FI->CoefJac *
-          ((FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight) ;
-
-	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
-	if (FI->SymmetricalMatrix)
-	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
-            for (k = 0 ; k < Current.NbrHar ; k++)
-	      Ek[i][j][k] += Factor *
-		((double (*)(double*, double*))
-		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
-	else
-	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j < Nbr_Dof ; j++)
-	    for (k = 0 ; k < Current.NbrHar ; k++)
-	      Ek[i][j][k] += Factor *
-		((double (*)(double*, double*))
-		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k]));
+          /* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
+          if (FI->SymmetricalMatrix)
+            for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
+              for (k = 0 ; k < Current.NbrHar ; k++)
+                Ek[i][j][k] += Factor *
+                  ((double (*)(double*, double*))
+                   FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
+          else
+            for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j < Nbr_Dof ; j++)
+  	      for (k = 0 ; k < Current.NbrHar ; k++)
+                Ek[i][j][k] += Factor *
+                  ((double (*)(double*, double*))
+                   FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k]));
+        }
 
       }  /* for i_IntPoint ... */
       break ; /* case GAUSS */

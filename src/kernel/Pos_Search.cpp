@@ -109,11 +109,11 @@ static int PointInRefElement (struct Element * Element, double u, double v, doub
   }
 }
 
-static int PointInElement (struct Element * Element,
-                           List_T *ExcludeRegion_L,
-                           double  x, double  y, double  z,
-                           double *u, double *v, double *w,
-                           double tol)
+int PointInElement (struct Element * Element,
+                    List_T *ExcludeRegion_L,
+                    double  x, double  y, double  z,
+                    double *u, double *v, double *w,
+                    double tol)
 {
   struct ElementBox ElementBox ;
 
