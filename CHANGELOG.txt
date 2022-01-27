@@ -1,3 +1,6 @@
+(Work-in-progress): generalized Trace operator on non-conforming meshes; source
+code reorganization.
+
 3.4.0 (September 23, 2021): new Min and Max functions on constants (at parse
 time); fixed regression in trees of edges in 2D; added support for non-ASCII
 paths on command line on Windows; GetDP now requires C++11 and CMake 3.3; small
