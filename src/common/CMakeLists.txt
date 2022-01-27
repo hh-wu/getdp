@@ -11,5 +11,5 @@ set(SRC
     OS.cpp
 )
 
-file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h) 
-append_getdp_src(Common "${SRC};${HDR}")
+file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
+append_getdp_src(src/common "${SRC};${HDR}")

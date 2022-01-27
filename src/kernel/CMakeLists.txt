@@ -53,4 +53,4 @@ set(SRC
 )
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-append_getdp_src(Kernel "${SRC};${HDR}")
+append_getdp_src(src/kernel "${SRC};${HDR}")

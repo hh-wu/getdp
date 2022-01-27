@@ -89,10 +89,10 @@ set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
 set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}")
 set(GETDP_SHORT_LICENSE "GNU General Public License")
 
-set(GETDP_API Kernel/getdp.h)
+set(GETDP_API src/kernel/getdp.h)
 
 if(ENABLE_PRIVATE_API)
-  set(GETDP_PRIVATE_API Kernel/getdp.h
+  set(GETDP_PRIVATE_API src/kernel/getdp.h
     ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPConfig.h
     ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPVersion.h)
 endif()
@@ -854,10 +854,10 @@ endif()
 
 # binary target
 if(ENABLE_BUILD_DYNAMIC)
-  add_executable(getdp Main/Main.cpp)
+  add_executable(getdp src/main/Main.cpp)
   target_link_libraries(getdp shared)
 else()
-  add_executable(getdp Main/Main.cpp ${GETDP_SRC})
+  add_executable(getdp src/main/Main.cpp ${GETDP_SRC})
   target_link_libraries(getdp ${LINK_LIBRARIES})
 endif()
 
@@ -880,7 +880,7 @@ if(BISON AND FLEX)
   add_custom_target(parser
                     COMMAND ${BISON} -p getdp_yy --output ProParser.tab.cpp -d ProParser.y
                     COMMAND ${FLEX} -P getdp_yy -o ProParser.yy.cpp ProParser.l
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Interface)
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/interface)
 endif()
 
 # miscellaneaous targets
@@ -992,8 +992,8 @@ if(ENABLE_WRAP_PYTHON)
     include_directories(${PYTHON_INCLUDE_PATH})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     set(CMAKE_SWIG_FLAGS "")
-    set_source_files_properties(Kernel/getdp.i PROPERTIES CPLUSPLUS ON)
-    swig_add_module(getdp python Kernel/getdp.i)
+    set_source_files_properties(src/kernel/getdp.i PROPERTIES CPLUSPLUS ON)
+    swig_add_module(getdp python src/kernel/getdp.i)
     swig_link_libraries(getdp ${PYTHON_LIBRARIES} shared)
     if(APPLE)
       set_target_properties("_getdp" PROPERTIES LINK_FLAGS

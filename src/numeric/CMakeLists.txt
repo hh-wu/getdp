@@ -15,4 +15,4 @@ if(ENABLE_FORTRAN)
 endif(ENABLE_FORTRAN)
 
 file(GLOB HDR RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-append_getdp_src(Numeric "${SRC};${HDR}")
+append_getdp_src(src/numeric "${SRC};${HDR}")

@@ -24,7 +24,7 @@ Meys, Uwe Pahner, Georgia Psoni, Robert Struijs, Ahmed Rassili, Thierry
 Scordilis, Herve Tortel, Jose Geraldo A. Brito Neto, Matthias Fenner, Daryl Van
 Vorst.
 
-The AVL tree code (Common/avl.*) is copyright (C) 1988-1993, 1995 The Regents
+The AVL tree code (src/common/avl.*) is copyright (C) 1988-1993, 1995 The Regents
 of the University of California. Permission to use, copy, modify, and distribute
 this software and its documentation for any purpose and without fee is hereby
 granted, provided that the above copyright notice appear in all copies and that
@@ -35,7 +35,7 @@ specific, written prior permission.  The University of California makes no
 representations about the suitability of this software for any purpose.  It is
 provided "as is" without express or implied warranty.
 
-The KissFFT code (Numeric/kissfft.hh) is copyright (c) 2003-2010 Mark
+The KissFFT code (src/numeric/kissfft.hh) is copyright (c) 2003-2010 Mark
 Borgerding. Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met: *
 Redistributions of source code must retain the above copyright notice, this list
