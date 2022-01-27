@@ -93,8 +93,8 @@ set(GETDP_API Kernel/getdp.h)
 
 if(ENABLE_PRIVATE_API)
   set(GETDP_PRIVATE_API Kernel/getdp.h
-    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h
-    ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+    ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPVersion.h)
 endif()
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
@@ -359,13 +359,13 @@ if(ENABLE_BLAS_LAPACK)
   endif()
 endif()
 
-add_subdirectory(Common)
-add_subdirectory(Interface)
-add_subdirectory(Numeric)
-add_subdirectory(Functions)
+add_subdirectory(src/common)
+add_subdirectory(src/interface)
+add_subdirectory(src/numeric)
+add_subdirectory(src/functions)
 
-if(ENABLE_KERNEL AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Kernel)
-  add_subdirectory(Kernel)
+if(ENABLE_KERNEL AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/kernel)
+  add_subdirectory(src/kernel)
   set_config_option(HAVE_KERNEL "Kernel")
 endif()
 
@@ -709,8 +709,8 @@ endif()
 # force full warnings to encourage everybody to write clean(er) code
 check_cxx_compiler_flag("-Wall" WALL)
 if(WALL AND NOT MSVC)
-  file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Kernel/*.cpp
-       Main/*.cpp Numeric/*.cpp Functions/*.cpp)
+  file(GLOB_RECURSE WALL_SRC src/common/*.cpp src/interface/*.cpp src/kernel/*.cpp
+       src/main/*.cpp src/numeric/*.cpp src/functions/*.cpp)
   set(WF "-Wall")
   check_cxx_compiler_flag("-Wmisleading-indentation" WIND)
   if(WIND)
@@ -732,10 +732,10 @@ foreach(OPT ${CONFIG_OPTIONS})
   set(GETDP_CONFIG_OPTIONS "${GETDP_CONFIG_OPTIONS} ${OPT}")
 endforeach()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPConfig.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPVersion.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/common/GetDPConfig.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPConfig.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/common/GetDPVersion.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/src/common/GetDPVersion.h)
 
 # the texi file is modified in the source directory (not ideal, but since git
 # tracks the contents of the file this is acceptable as it will only change when
@@ -786,8 +786,8 @@ if(NOT ENABLE_BUILD_DYNAMIC AND NOT ENABLE_BUILD_SHARED)
 endif()
 
 # we could specify include dirs more selectively, but this is simpler
-include_directories(Common Interface Kernel Numeric Functions
-                    ${EXTERNAL_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}/Common)
+include_directories(src/common src/interface src/kernel src/numeric src/functions
+                    ${EXTERNAL_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR}/src/common)
 
 # set this for external codes that might include this CMakeList file
 set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE
