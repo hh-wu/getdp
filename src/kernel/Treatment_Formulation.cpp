@@ -480,6 +480,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	  /* 2.1.1.  Loop on quantities (test fcts and shape functions) */
 	  /* ---------------------------------------------------------- */
 
+          std::vector<struct QuantityStorage*> QuantityStorageTrace;
+
 	  for (i = 0 ; i < EquationTerm_P->Case.LocalTerm.Term.NbrQuantityIndex ; i++) {
 
 	    Index_DefineQuantity =
@@ -510,6 +512,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
                   Get_DofOfElement
                     (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
                      DefineQuantity_P->IndexInFunctionSpace) ;
+
+                  QuantityStorageTrace.push_back(QuantityStorage_P);
 		}
                 else{
                   QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
@@ -574,14 +578,21 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
               if(EquationTerm_P->Type == GALERKIN) {
 #if defined(HAVE_SMALLFEM)
-                /* if multiple Trace elements, change ElementTrace, redo Get_Dof
-                   and compute the additional contribution */
-
                 Cal_SmallFemTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 #else
-                do {
-                  Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-                } while(Get_NextElementTrace(&Element));
+                Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+
+                /* if multiple candidate Trace elements, assemble the additional contributions */
+                while(Get_NextElementTrace(&Element)) {
+                  for(std::size_t k = 0; k < QuantityStorageTrace.size(); k++) {
+                    QuantityStorage_P = QuantityStorageTrace[k];
+                    QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementTrace->Num ;
+                    Get_DofOfElement
+                      (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
+                       DefineQuantity_P->IndexInFunctionSpace) ;
+                    Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+                  }
+                }
 #endif
               }
               if (Current.DofData->Flag_Only && Flag_Only) {
