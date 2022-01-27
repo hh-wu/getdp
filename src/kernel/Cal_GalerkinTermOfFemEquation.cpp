@@ -413,8 +413,9 @@ int Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       Current.y += Current.Element->y[i] * Current.Element->n[i] ;
       Current.z += Current.Element->z[i] * Current.Element->n[i] ;
     }
+    double tol = Current.GeoData->CharacteristicLength * 1.e-4;
     if(!PointInElement(E, nullptr, Current.x, Current.y, Current.z,
-                       &Current.ut, &Current.vt, &Current.wt, 1.e-12)) {
+                       &Current.ut, &Current.vt, &Current.wt, tol)) {
       return 0; // we're done, no contribution from this Trace element
     }
     u = Current.ut ;

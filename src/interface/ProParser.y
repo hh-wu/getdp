@@ -10689,6 +10689,8 @@ int  Add_Group(struct Group *Group_P, char *Name, int Flag_AddRemove,
     Group_P->Name = Name;
   }
 
+  Group_S.ElementRTree = NULL;
+
   int i;
   if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
     i = Group_P->Num = List_Nbr(Problem_S.Group);

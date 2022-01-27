@@ -94,6 +94,8 @@ struct Problem {
 /*  G r o u p                                                               */
 /* ------------------------------------------------------------------------ */
 
+class GeoElementRTree;
+
 struct Group {
   char   *Name;
   int     Num,  Type, FunctionType, SuppListType, SuppListType2;
@@ -102,6 +104,7 @@ struct Group {
   int     InitialListGroupIndex, InitialSuppListGroupIndex, InitialSuppList2GroupIndex;
   std::multimap<int, TwoInt> ExtendedListForSearch;
   struct  MovingBand2D *MovingBand2D;
+  GeoElementRTree *ElementRTree;
 };
 
 struct MovingBand2D {

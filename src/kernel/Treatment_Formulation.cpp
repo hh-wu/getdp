@@ -501,18 +501,15 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 	      switch (DefineQuantity_P->Type) {
 	      case LOCALQUANTITY :
-		if(TraceGroupIndex_DefineQuantity >= 0){
-
+		if(TraceGroupIndex_DefineQuantity >= 0 &&
+                   Get_InitElementTrace(&Element, TraceGroupIndex_DefineQuantity)) {
                   /* Fill QuantityStorage for the first trace element; others
                      (e.g. for mortaring on nonconformal meshes) will be handled
                      in a loop over the Cal_GalerkinTermOfFemEquation */
-
-                  Get_InitElementTrace(&Element, TraceGroupIndex_DefineQuantity) ;
                   QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementTrace->Num ;
                   Get_DofOfElement
                     (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
                      DefineQuantity_P->IndexInFunctionSpace) ;
-
                   QuantityStorageTrace.push_back(QuantityStorage_P);
 		}
                 else{
@@ -573,8 +570,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
             } /* Only the matrices that vary are recalculated */
 
             if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ) {
-              QuantityStorage_P = QuantityStorage_P0 +
-                EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
 
               if(EquationTerm_P->Type == GALERKIN) {
 #if defined(HAVE_SMALLFEM)

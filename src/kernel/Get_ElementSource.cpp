@@ -9,6 +9,7 @@
 #include "Get_Geometry.h"
 #include "Message.h"
 #include "MallocUtils.h"
+#include "GeoElementRTree.h"
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -64,7 +65,7 @@ int Get_NextElementSource(struct Element *ElementSource)
 
 static int i_ElementTrace = -1;
 
-void Get_InitElementTrace(struct Element *Element, int InIndex)
+int Get_InitElementTrace(struct Element *Element, int InIndex)
 {
   struct Group   * Group_P ;
   struct TwoInt  * Pair_P ;
@@ -79,15 +80,12 @@ void Get_InitElementTrace(struct Element *Element, int InIndex)
 
   if(Group_P->Type == ELEMENTLIST && Group_P->SuppListType == SUPPLIST_CONNECTEDTO) {
     if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
-    if(!(Pair_P = (struct TwoInt*)List_PQuery(Group_P->ExtendedList,
-                                              &Element->Num, fcmp_int))) {
-      Message::Error("No Element connected to Element %d: check Group for Trace",
-                     Element->Num) ;
-      return;
+    if((Pair_P = (struct TwoInt*)List_PQuery(Group_P->ExtendedList,
+                                             &Element->Num, fcmp_int))) {
+      Element->ElementTraceCandidates.resize(1);
+      Element->ElementTraceCandidates[0] = (struct Element*)Malloc(sizeof(struct Element));
+      Element->ElementTraceCandidates[0]->GeoElement = Geo_GetGeoElement(Pair_P->Int2) ;
     }
-    Element->ElementTraceCandidates.resize(1);
-    Element->ElementTraceCandidates[0] = (struct Element*)Malloc(sizeof(struct Element));
-    Element->ElementTraceCandidates[0]->GeoElement = Geo_GetGeoElement(Pair_P->Int2) ;
   }
   else {
     // always generate elements (even if the group is simply a region), so that
@@ -95,22 +93,26 @@ void Get_InitElementTrace(struct Element *Element, int InIndex)
     if (!Group_P->ExtendedList) {
       Generate_Elements(Group_P->InitialList, SUPPLIST_NONE, nullptr, SUPPLIST_NONE,
                         nullptr, &Group_P->ExtendedList) ;
+      double tol = Current.GeoData->CharacteristicLength * 1.e-12;
+      Group_P->ElementRTree = new GeoElementRTree(tol);
+      for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++) {
+        int num; List_Read(Group_P->ExtendedList, i, &num);
+        Group_P->ElementRTree->insert(Geo_GetGeoElementOfNum(num));
+      }
     }
-    int N = List_Nbr(Group_P->ExtendedList);
-    if(!N) return;
-    // TODO: prune the element list based on which elements intersect the
-    // bounding box of Element
-    Element->ElementTraceCandidates.resize(N);
-    for(int i = 0; i < N; i++) {
-      int num; List_Read(Group_P->ExtendedList, i, &num);
-      Element->ElementTraceCandidates[i] = (struct Element*)Malloc(sizeof(struct Element));
-      Element->ElementTraceCandidates[i]->GeoElement = Geo_GetGeoElementOfNum(num);
+    std::vector<struct Geo_Element*> matches;
+    if(Group_P->ElementRTree->find(Element->GeoElement, matches)) {
+      Element->ElementTraceCandidates.resize(matches.size());
+      for(int i = 0; i < matches.size(); i++) {
+        Element->ElementTraceCandidates[i] = (struct Element*)Malloc(sizeof(struct Element));
+        Element->ElementTraceCandidates[i]->GeoElement = matches[i];
+      }
     }
   }
 
   if(Element->ElementTraceCandidates.empty()) {
     Message::Error("Found no candidate elements for Trace calculation");
-    return;
+    return 0;
   }
 
   for(std::size_t i = 0; i < Element->ElementTraceCandidates.size(); i++) {
@@ -127,6 +129,7 @@ void Get_InitElementTrace(struct Element *Element, int InIndex)
   Element->ElementTrace = Element->ElementTraceCandidates[i_ElementTrace];
   Message::Debug("First element trace: %d -> %d", Element->Num,
                  Element->ElementTrace->Num);
+  return 1;
 }
 
 int Get_NextElementTrace(Element *Element)
