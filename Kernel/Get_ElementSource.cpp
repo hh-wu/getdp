@@ -125,8 +125,8 @@ void Get_InitElementTrace(struct Element *Element, int InIndex)
 
   i_ElementTrace = 0;
   Element->ElementTrace = Element->ElementTraceCandidates[i_ElementTrace];
-  printf("first element trace %d\n", Element->ElementTrace->Num);
-  Message::Debug("Element %d -> Trace %d", Element->Num, Element->ElementTrace->Num);
+  Message::Debug("First element trace: %d -> %d", Element->Num,
+                 Element->ElementTrace->Num);
 }
 
 int Get_NextElementTrace(Element *Element)
@@ -135,6 +135,7 @@ int Get_NextElementTrace(Element *Element)
   i_ElementTrace++;
   if(i_ElementTrace >= Element->ElementTraceCandidates.size()) return 0;
   Element->ElementTrace = Element->ElementTraceCandidates[i_ElementTrace];
-  printf("next element trace %d\n", Element->ElementTrace->Num);
+  Message::Debug("Next element trace: %d -> %d", Element->Num,
+                 Element->ElementTrace->Num);
   return 1;
 }
