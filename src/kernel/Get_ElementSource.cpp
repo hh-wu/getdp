@@ -93,7 +93,11 @@ int Get_InitElementTrace(struct Element *Element, int InIndex)
     if (!Group_P->ExtendedList) {
       Generate_Elements(Group_P->InitialList, SUPPLIST_NONE, nullptr, SUPPLIST_NONE,
                         nullptr, &Group_P->ExtendedList) ;
-      double tol = Current.GeoData->CharacteristicLength * 1.e-12;
+    }
+    if (!Group_P->ElementRTree) {
+      // TODO: make this tolerance a parameter
+      // TODO: invalidate the RTree in Operation_ChangeOfCoordinates and Operation_DeformMesh
+      double tol = Current.GeoData->CharacteristicLength * 1.e-8;
       Group_P->ElementRTree = new GeoElementRTree(tol);
       for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++) {
         int num; List_Read(Group_P->ExtendedList, i, &num);
