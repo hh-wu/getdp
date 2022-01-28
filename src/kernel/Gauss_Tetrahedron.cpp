@@ -77,7 +77,7 @@ void  GaussLegendre_Tetrahedron(int Nbr_Points, int Num,
   int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dJ,dum;
 
-  nb = (int)pow((double)Nbr_Points, 1./3.);
+  nb = (int)(cbrt((double)Nbr_Points) + 0.5);
 
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS){
     Message::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;

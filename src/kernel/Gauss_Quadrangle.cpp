@@ -37,7 +37,7 @@ void GaussLegendre_Quadrangle(int Nbr_Points, int Num,
   int i, j, index = 0, nb;
   double pt1, pt2, wt1, wt2, dum;
 
-  nb = (int)sqrt((double)Nbr_Points);
+  nb = (int)(sqrt((double)Nbr_Points) + 0.5);
 
   if(nb * nb != Nbr_Points || nb > MAX_LINE_POINTS){
     Message::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
