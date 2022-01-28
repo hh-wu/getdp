@@ -899,16 +899,16 @@ set(WELCOME_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/WELCOME.txt)
 set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt)
 set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.txt)
 set(CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG.txt)
-file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
-                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
-                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
+file(GLOB EXAMPLE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.pro
+                        ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.geo
+                        ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.msh)
 file(GLOB TEMPLATE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.pro
                          ${CMAKE_CURRENT_SOURCE_DIR}/templates/*.txt)
-file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
-                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.res
-                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.txt
-                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pos
-                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.par)
+file(GLOB EXAMPLE_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.pre
+                            ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.res
+                            ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.txt
+                            ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.pos
+                            ${CMAKE_CURRENT_SOURCE_DIR}/examples/*.par)
 set(TEX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo)
 file(GLOB TEX_SRC ${TEX_DIR}/*.texi)
 set(TEX_OBJ ${TEX_DIR}/getdp.aux ${TEX_DIR}/getdp.cp ${TEX_DIR}/getdp.cps
@@ -947,7 +947,7 @@ if(WIN32 OR CYGWIN)
     unix2dos(LICENSE_FILE)
     unix2dos(CREDITS_FILE)
     unix2dos(CHANGELOG_FILE)
-    unix2dos(DEMO_FILES)
+    unix2dos(EXAMPLE_FILES)
     unix2dos(TEMPLATE_FILES)
   endif()
 else()
@@ -977,7 +977,7 @@ endif()
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
 install(FILES ${CREDITS_FILE} DESTINATION ${GETDP_DOC})
-install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/demos)
+install(FILES ${EXAMPLE_FILES} DESTINATION ${GETDP_DOC}/examples)
 install(FILES ${TEMPLATE_FILES} DESTINATION ${GETDP_DOC}/templates)
 if(UNIX AND NOT CYGWIN)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
@@ -1002,7 +1002,7 @@ if(ENABLE_WRAP_PYTHON)
   endif()
 endif()
 
-add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
+add_custom_target(clean_examples COMMAND ${CMAKE_COMMAND} -E remove ${EXAMPLE_FILES_TMP})
 
 add_custom_target(get_headers
   COMMAND ${CMAKE_COMMAND} -E make_directory Headers/getdp
@@ -1146,7 +1146,7 @@ include(CPack)
 # comprehensive getdp testing is done through in the onelab documentation
 # project (as it also requires Gmsh)
 include(CTest)
-file(GLOB_RECURSE TESTS demos/magnet.pro)
+file(GLOB_RECURSE TESTS examples/magnet.pro)
 foreach(TESTFILE ${TESTS})
   # use relative path for Cygwin/MinGW (the pure win exe built with the mingw
   # compilers does not understand a full Cygwin-style path)

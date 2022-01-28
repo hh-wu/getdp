@@ -147,6 +147,8 @@ int PointInElement (struct Element * Element,
 /*  I n i t _ S e a r c h G r i d                                           */
 /* ------------------------------------------------------------------------ */
 
+/* TODO: Grid should be replaced by GeoElementRTree */
+
 static void Init_SearchGrid(struct Grid * Grid)
 {
   struct Element      Element;

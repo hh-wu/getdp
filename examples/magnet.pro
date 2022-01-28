@@ -1,15 +1,24 @@
 /*
-   To solve the problem
-   with scalar potential, type 'getdp test -solve Magnetostatics_phi -pos phi'
-   with vector potential, type 'getdp test -solve Magnetostatics_a -pos a'
+   To solve the problem, either
+
+   * open "magnet.pro" with Gmsh and click on "Run";
+
+   * or type "getdp test -solve Magnetostatics_phi -pos phi" on the command line
+     to solve the problem using a scalar magnetic potential formulation;
+
+   * or type "getdp test -solve Magnetostatics_a -pos a" to solve the problem
+     using a vector potential formulation
+
+   See https://gitlab.onelab.info/doc/tutorials/wikis/home for a step-by-step
+   GetDP/Gmsh tutorial.
 */
 
 Include "magnet_data.pro";
 Include "../templates/Lib_Materials.pro";
 
 Group {
-  // AIR, AIR_INF, etc. are variables defined in core.txt, and correspond to the
-  // tags of physical regions in the mesh
+  // AIR, AIR_INF, etc. are variables defined in magnet_data.pro, and correspond
+  // to the tags of physical regions in the mesh
   Air     = Region[ AIR ];
   AirInf  = Region[ AIR_INF ];
   Core    = Region[ CORE ];
@@ -60,6 +69,8 @@ Function {
   hc [ Magnet ] = Rotate[ Vector[Hc, 0, 0.], 0, 0, Pi/2] ;
 }
 
+// These are the Dirichlet boundary conditions on either the magnetic vector
+// potential (a) or magnetic scalar potential (phi)
 Constraint {
   { Name a ;
     Case {
@@ -73,11 +84,13 @@ Constraint {
   }
 }
 
+// We include magnetostatic formulation from this template:
 modelPath = CurrentDirectory;
 Include "../templates/Lib_Magnetostatics_a_phi.pro"
 
-eps = 1.e-5;
 
+// And finally add some post-processing operations:
+eps = 1.e-5;
 PostOperation {
   { Name phi ; NameOfPostProcessing Magnetostatics_phi;
     Operation {

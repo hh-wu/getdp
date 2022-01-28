@@ -4,7 +4,7 @@ GetDP is copyright (C) 1997-2022 P. Dular and C. Geuzaine, University of Liege,
 and is distributed under the terms of the GNU General Public License, Version 2
 or later. See LICENSE.txt and CREDITS.txt for more information.
 
-See the doc/ and demos/ directories for documentation. The reference manual is
+See the doc/ and examples/ directories for documentation. The reference manual is
 located in doc/texinfo/. See the web site http://getdp.info for additional
 examples.
 
