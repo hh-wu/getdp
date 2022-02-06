@@ -19,7 +19,7 @@ DefineConstant[
   TimeInit = 0, // intial time (for time-domain simulations)
   TimeFinal = 1/50, // final time (for time-domain simulations)
   DeltaTime = 1/500, // time step (for time-domain simulations)
-  Flag_Axi = 0, // axisymmetric model?
+  Flag_Axi = 0 // axisymmetric model?
 ];
 
 Group {
