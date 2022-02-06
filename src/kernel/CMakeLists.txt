@@ -25,7 +25,7 @@ set(SRC
       Operation_Update.cpp Operation_Vector.cpp
       Operation_ChangeOfCoordinates.cpp
       Operation_PostOperation.cpp
-      Operation_HPDDM.cpp Operation_Debug.cpp
+      Operation_Debug.cpp
       Operation_Optimizer.cpp
       Operation_Broadcast.cpp
       Treatment_Formulation.cpp

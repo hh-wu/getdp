@@ -1359,7 +1359,6 @@ struct IterativeLoopSystem {
 #define OPERATION_GETNORMRHS               101
 #define OPERATION_GETNORMRESIDUAL          102
 #define OPERATION_GETNORMINCREMENT         103
-#define OPERATION_HPDDMSOLVE               104
 #define OPERATION_BROADCASTVARIABLES       105
 #define OPERATION_DEBUG                    106
 #define OPERATION_OPTIMIZER_INITIALIZE     107

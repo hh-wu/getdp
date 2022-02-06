@@ -19,8 +19,6 @@ Enable Fortran (needed for Arpack/Sparskit/Zitsol & Bessel) (default: ON)
 Enable Gmsh functions (for field interpolation) (default: ON)
 @item ENABLE_GSL
 Enable GSL functions (for some built-in functions) (default: ON)
-@item ENABLE_HPDDM
-Enable HPDDM support (default: ON)
 @item ENABLE_KERNEL
 Enable kernel (required for actual computations) (default: ON)
 @item ENABLE_MMA

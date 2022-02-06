@@ -104,9 +104,6 @@ void Operation_AddVector(struct Operation *Operation_P,
 void Operation_ClearVectors(struct Operation *Operation_P,
                             struct DofData   *DofData_P);
 
-void Operation_HPDDMSolve(struct Operation *Operation_P,
-                          struct DofData   *DofData_P);
-
 void Operation_Debug(struct Operation *Operation_P,
                      struct DofData   *DofData_P);
 
