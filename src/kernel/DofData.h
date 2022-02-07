@@ -125,7 +125,7 @@ struct DofData {
   gMatrix Jac;
   gVector res, dx;
 
-  // Flag_Init[0] == 3 //kj+++
+  // Flag_Init[0] == 3
   gVector df;
 
   // Flag_Init[1,2,3,4,5,6,7] == 1

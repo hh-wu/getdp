@@ -1522,36 +1522,16 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R,
     _try(SNESCreate(MyComm, &Solver->snes[solverIndex]));
     _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor, PETSC_NULL,
                         PETSC_NULL));
-    /* //kj+++
-    PetscReal abstol = 1.e-4;  //(PETSC_DEFAULT=1.e-15)
-    PetscReal rtol   = 1.e-2;  //(PETSC_DEFAULT=1.e-8)
-    PetscReal stol   = 1.e-2;  //(PETSC_DEFAULT=1.e-8)
-    PetscInt maxit   = 50;     //(PETSC_DEFAULT=50)
-    PetscInt maxf    = 10000;  //(PETSC_DEFAULT=10000)
-    _try(SNESSetTolerances(Solver->snes[solverIndex], abstol, rtol,
-                           stol, maxit, maxf));
-    */
     _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT,
                            PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT));
 
     // override default options with those from database (if any)
-    //_try(SNESSetType(Solver->snes[solverIndex],SNESNEWTONLS)); // kj+++
-    //_try(SNESQNSetType(Solver->snes[solverIndex], SNES_QN_LBFGS)); // kj+++
     _try(SNESSetFromOptions(Solver->snes[solverIndex]));
-
-    /* //kj+++
-    SNESType mySNESType;
-    _try(SNESGetType(Solver->snes[solverIndex],&mySNESType));
-    //Message::Info("Try to show Type");
-    Message::Info("SNESType: %s", mySNESType);
-    */
 
     PetscTruth fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE;
     PetscOptionsGetTruth(PETSC_NULL, "-fd_jacobian", &fd_jacobian, 0);
     PetscOptionsGetTruth(PETSC_NULL, "-snes_fd", &snes_fd, 0);
     if(fd_jacobian || snes_fd) {
-      //  Message::Error("Finite Difference Jacobian not yet implemented");
-
 #if(PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4)
       _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
                            SNESComputeJacobianDefault, PETSC_NULL));

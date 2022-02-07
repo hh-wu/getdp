@@ -92,9 +92,6 @@ double CalcMaxErrorRatio(Resolution *Resolution_P, DofData *DofData_P0,
     else if(ErrorRatio > MaxErrorRatio)
       MaxErrorRatio = ErrorRatio;
 
-    // Current.Residual = ErrorRatio; //kj+++ (should be commented here,
-    // Current.ResidualN used instead and defined at the end of
-    // CalcMaxErrorRatio)
     if(Message::GetVerbosity() > 5) {
       Message::Info(
         "IterativeLoopN: %s of %s error ratio from system %s:  %.3g",
@@ -141,8 +138,7 @@ double CalcMaxErrorRatio(Resolution *Resolution_P, DofData *DofData_P0,
         ILPostOp.NormTypeString, ILPostOp.PostOperationName, ErrorRatio);
     }
   }
-  Current.ResidualN =
-    MaxErrorRatio; // kj+++ Residual computed here for IterativeLoopN
+  Current.ResidualN = MaxErrorRatio;
   return MaxErrorRatio;
 }
 
@@ -308,8 +304,6 @@ void Operation_IterativeLoopN(Resolution *Resolution_P, Operation *Operation_P,
   if(Num_Iteration > NbrMaxIteration) {
     Num_Iteration = NbrMaxIteration;
     Flag_IterativeLoopConverged = 0;
-    // Message::Info(3, "IterativeLoopN did NOT converge (%d iterations, error
-    // ratio %g)", //kj+++ (warning is better)
     Message::Warning(
       "IterativeLoopN did NOT converge (%d iterations, error ratio %g)",
       (int)Current.Iteration, MaxErrorRatio);

@@ -1407,10 +1407,9 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
         LinAlg_AssembleVector(&DofData_P->b);
       }
 
-      LinAlg_CopyVector(
-        &DofData_P->CurrentSolution->x,
-        &DofData_P->dx); // kj+++ In prevision to build 'dx' in the following
-                         // (needed for "IterativeLoopPro")
+      // In prevision to build 'dx' in the following (needed for
+      // "IterativeLoopPro")
+      LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &DofData_P->dx);
 
       if(!again) {
         LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
@@ -1428,9 +1427,9 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
                           (Operation_P->Flag < 0) ? 0 : Operation_P->Flag);
       }
 
+      // In order to build 'dx' (needed for "IterativeLoopPro")
       LinAlg_SubVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-                             &DofData_P->dx); // kj+++ In order to build 'dx'
-                                              // (needed for "IterativeLoopPro")
+                             &DofData_P->dx);
     } break;
 
       /*  -->  S o l v e N L                          */
@@ -2861,11 +2860,6 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
 
       Save_Iteration = Current.Iteration;
 
-      // Current.Residual_Iter1=1.0; //kj+++ to compute a relative residual
-      // (relative to residual at iter 1) (not necessary)
-      //  abstol = Operation_P->Case.IterativeLoop.Criterion ;
-      //  reltol = Operation_P->Case.IterativeLoop.Criterion/100 ;
-
       for(Num_Iteration = 1;
           Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration;
           Num_Iteration++) {
@@ -2894,13 +2888,11 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
                             Operation_P->Case.IterativeLoop.Operation,
                             DofData_P0, GeoData_P0, Resolution2_P, DofData2_P0);
 
-        if(Current.RelaxFac == 0)
+        if(Current.RelaxFac == 0) {
           // SolveJacAdapt has not been called
           // ==> Copy the default RelaxationFactor in RelaxFac
-          Current.RelaxFac = Current.RelaxationFactor; // +++
-        // if (Current.Iteration==1)
-        // Current.Residual_Iter1=Current.RelativeDifference; //kj+++ to compute
-        // a relative residual (relative to residual at iter 1) (not necessary)
+          Current.RelaxFac = Current.RelaxationFactor;
+        }
 
         // NB: Current.RelativeDifference is what is used for classical
         // IterativeLoop stop criterion NB: In SolveJac:
@@ -2908,9 +2900,6 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
         // (Current.RelativeDifference=Current.Residual)
         if((Current.RelativeDifference <=
             Operation_P->Case.IterativeLoop.Criterion) ||
-           //(Current.RelativeDifference/Current.Residual_Iter1 <=
-           // Operation_P->Case.IterativeLoop.Criterion) || //kj+++ to compute a
-           // relative residual (relative to residual at iter 1) (not necessary)
            (Current.RelativeDifference !=
             Current.RelativeDifference)) // NaN or Inf
           break;
@@ -2945,22 +2934,6 @@ void Treatment_Operation(struct Resolution *Resolution_P, List_T *Operation_L,
                       Num_Iteration, Num_Iteration > 1 ? "s" : "",
                       Current.RelativeDifference);
       }
-      /* kj+++ to compute a relative residual (relative to residual at iter 1)
-      (not necessary) Message::Info(3, "IterativeLoop did NOT converge (%d
-      iterations, residual %g)\n rel %g", Num_Iteration,
-      Current.RelativeDifference,
-      Current.RelativeDifference/Current.Residual_Iter1);
-          // Either it has reached the max num of iterations or a NaN at a given
-      iteration Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration
-      ;
-        }
-        else{
-      Message::Info(3, "IterativeLoop converged (%d iteration%s, residual %g)\n
-      rel %g", Num_Iteration, Num_Iteration > 1 ? "s" : "",
-                        Current.RelativeDifference,
-      Current.RelativeDifference/Current.Residual_Iter1);
-      }
-      */
       Current.Iteration = Save_Iteration;
       break;
 

@@ -1258,42 +1258,22 @@ struct StringXFunction2Nbr F_Function[] =
    {"dhdb_Ducharne", (CAST)F_dhdb_Ducharne, -1, 3},
    {"h_Ducharne", (CAST)F_h_Ducharne, -1, 3},
    {"nu_Ducharne", (CAST)F_nu_Ducharne, -1, 3},
-   //{"mu_Vinch"              , (CAST)F_mu_Vinch              ,  -1,   3 }, //
-   // NOT USED FOR NOW (26/06/2016)
-   //{"nu_Vinch"              , (CAST)F_nu_Vinch              ,  -1,   3 }, //
-   // NOT USED FOR NOW (26/06/2016)
-   //{"h_Vinch"               , (CAST)F_h_Vinch               ,  -1,   4 }, //
-   // NOT USED FOR NOW (26/06/2016)
-   //{"dhdb_Vinch"            , (CAST)F_dhdb_Vinch            ,  -1,   3 }, //
-   // NOT USED FOR NOW (26/06/2016)
-   //{"dbdh_Vinch"            , (CAST)F_dbdh_Vinch            ,  -1,   3 }, //
-   // NOT USED FOR NOW (26/06/2016)
-   //{"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },
-   ////kj+++ // NOT USED FOR NOW (26/06/2016)
-   //{"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },
-   ////kj+++ // NOT USED FOR NOW (26/06/2016)
+   {"Update_Cell_K", (CAST)F_Update_Cell_K, -1, 4},
+   {"Cell_EB", (CAST)F_Cell_EB, -1, 3},
+   {"b_EB", (CAST)F_b_EB, -1, -1},
+   {"hrev_EB", (CAST)F_hrev_EB, -1, -1},
+   {"Jrev_EB", (CAST)F_Jrev_EB, -1, -1},
+   {"h_EB", (CAST)F_h_EB, -1, -1},
+   {"dbdh_EB", (CAST)F_dbdh_EB, -1, -1},
+   {"dhdb_EB", (CAST)F_dhdb_EB, -1, -1},
 
-   {"Update_Cell_K", (CAST)F_Update_Cell_K, -1, 4}, // kj+++
-   {"b_Vinch_K", (CAST)F_b_Vinch_K, -1, -1}, // 1+3*2=7 //kj+++
-   {"hr_Vinch_K", (CAST)F_hr_Vinch_K, -1, -1}, // 1+3*1=4 //kj+++
-   {"Jr_Vinch_K", (CAST)F_Jr_Vinch_K, -1, -1}, // 1+3*1=4 //kj+++
-   {"h_Vinch_K", (CAST)F_h_Vinch_K, -1,
-    -1}, // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
-   {"dbdh_Vinch_K", (CAST)F_dbdh_Vinch_K, -1,
-    -1}, // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
-   {"dhdb_Vinch_K", (CAST)F_dhdb_Vinch_K, -1,
-    -1}, // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
-
-   {"Cell_EB", (CAST)F_Cell_EB, -1, 3}, // kj+++
-   {"b_EB", (CAST)F_b_EB, -1, -1}, // 1+3*2=7 //kj+++
-   {"hrev_EB", (CAST)F_hrev_EB, -1, -1}, // 1+3*1=4 //kj+++
-   {"Jrev_EB", (CAST)F_Jrev_EB, -1, -1}, // 1+3*1=4 //kj+++
-   {"h_EB", (CAST)F_h_EB, -1,
-    -1}, // parameter is dimension {2},{3}, 3+3*2=9 //kj+++
-   {"dbdh_EB", (CAST)F_dbdh_EB, -1,
-    -1}, // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
-   {"dhdb_EB", (CAST)F_dhdb_EB, -1,
-    -1}, // parameter is dimension {2},{3}, 1+3*2=7 //kj+++
+   // for backward compatibility:
+   {"b_Vinch_K", (CAST)F_b_Vinch_K, -1, -1},
+   {"hr_Vinch_K", (CAST)F_hr_Vinch_K, -1, -1},
+   {"Jr_Vinch_K", (CAST)F_Jr_Vinch_K, -1, -1},
+   {"h_Vinch_K", (CAST)F_h_Vinch_K, -1, -1},
+   {"dbdh_Vinch_K", (CAST)F_dbdh_Vinch_K, -1, -1},
+   {"dhdb_Vinch_K", (CAST)F_dhdb_Vinch_K, -1, -1},
 
    // F_MultiHar
    {"MHToTime", (CAST)F_MHToTime, 0, 2},
