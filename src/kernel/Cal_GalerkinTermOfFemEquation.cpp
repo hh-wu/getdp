@@ -42,8 +42,6 @@ void Cal_InitGalerkinTermOfFemEquation(
   struct QuantityStorage *QuantityStorageNoDof, struct Dof *DofForNoDof_P)
 {
   struct FemLocalTermActive *FI;
-  // extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe,
-  // MH_Moving_Matrix_separate;
   extern int MHMoving_assemblyType;
 
   FI = EquationTerm_P->Case.LocalTerm.Active;
@@ -305,27 +303,12 @@ void Cal_InitGalerkinTermOfFemEquation(
   if(MHMoving_assemblyType)
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MHMoving;
 
-  /*
-  if (MH_Moving_Matrix_simple) {
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ;
-  }
-  if (MH_Moving_Matrix_probe) {
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ;
-  }
-  if (MH_Moving_Matrix_separate) {
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate
-  ;
-  }
-*/
-
   // TODO: if JACNL_, say to Cal_Init to assemble later in Jac, otherwise
   // assemble in the system matrix
 
-  /*  initialisation of MHBilinear-term (nonlinear multi-harmonics) if necessary
-   */
+  // initialisation of MHBilinear-term (nonlinear multi-harmonics)
   Cal_InitGalerkinTermOfFemEquation_MHBilinear(EquationTerm_P);
 
-  /* Full_Matrix */
   if(EquationTerm_P->Case.LocalTerm.Full_Matrix) {
     FI->Full_Matrix = 1;
     FI->FirstElements = List_Create(20, 10, sizeof(struct FirstElement));
