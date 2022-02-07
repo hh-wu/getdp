@@ -7,8 +7,8 @@
 #define NUMERIC_UTILS_H
 
 // Numerical routines implemented using either the GSL or Numerical Recipes
-double brent(double ax, double bx, double cx,
-             double (*f)(double), double tol, double *xmin);
+double brent(double ax, double bx, double cx, double (*f)(double), double tol,
+             double *xmin);
 void mnbrak(double *ax, double *bx, double *cx, double *fa, double *fb,
             double *fc, double (*func)(double));
 

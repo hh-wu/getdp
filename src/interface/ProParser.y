@@ -314,7 +314,7 @@ struct doubleXstring{
 %token      tCopySolution tCopyRHS tCopyResidual tCopyIncrement tCopyDofs
 %token      tGetNormSolution tGetNormResidual tGetNormRHS tGetNormIncrement
 %token      tOptimizerInitialize tOptimizerUpdate tOptimizerFinalize
-%token      tLanczos tEigenSolve tEigenSolveAndExpand tEigenSolveJac tPerturbation
+%token      tLanczos tEigenSolve tEigenSolveAndExpand tEigenSolveJac
 %token      tUpdate tUpdateConstraint tBreak tExit tGetResidual tCreateSolution
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution tSolveAgainWithOther tSetGlobalSolverOptions
@@ -5442,7 +5442,7 @@ OperationTerm :
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
              fcmp_DefineSystem_Name)) < 0)
-  vyyerror(0, "Unknown System: %s", $3);
+        vyyerror(0, "Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.AddVector.alphaIndex = $5;
@@ -5450,41 +5450,6 @@ OperationTerm :
       Operation_P->Case.AddVector.v1 = $7;
       Operation_P->Case.AddVector.v2 = $11;
       Operation_P->Case.AddVector.v3 = $13;
-    }
-
-  | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','
-    FExpr ',' ListOfFExpr ',' FExpr ',' FExpr ']' tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-      Operation_P->Type = OPERATION_PERTURBATION;
-      int i;
-      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror(0, "Unknown System: %s", $3);
-      Free($3);
-      Operation_P->DefineSystemIndex = i;
-      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror(0, "Unknown System: %s", $5);
-      Free($5);
-      Operation_P->Case.Perturbation.DefineSystemIndex2 = i;
-      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $7,
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror(0, "Unknown System: %s", $7);
-      Free($7);
-      Operation_P->Case.Perturbation.DefineSystemIndex3 = i;
-      Operation_P->Case.Perturbation.Size = (int)$9;
-      Operation_P->Case.Perturbation.Save =
-	List_Create(List_Nbr($11), 1, sizeof(int));
-      for(int l = 0; l < List_Nbr($11); l++) {
-	double d;
-	List_Read($11, l, &d);
-	int j = (int)d;
-	List_Add(Operation_P->Case.Perturbation.Save, &j);
-      }
-      List_Delete($11);
-      Operation_P->Case.Perturbation.Shift = $13;
-      Operation_P->Case.Perturbation.PertFreq = (int)$15;
     }
 
   | tTimeLoopTheta '[' FExpr ',' FExpr ',' Expression ',' Expression ']'

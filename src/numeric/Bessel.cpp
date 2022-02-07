@@ -9,26 +9,26 @@
 
 #if defined(HAVE_NO_FORTRAN)
 
-static void zbesj_(double*, double*, double*, int*, int*, double*,
-                   double*, int*, int*)
+static void zbesj_(double *, double *, double *, int *, int *, double *,
+                   double *, int *, int *)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
-static void zbesk_(double*, double*, double*, int*, int*, double*,
-                   double*, int*, int*)
+static void zbesk_(double *, double *, double *, int *, int *, double *,
+                   double *, int *, int *)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
-static void zbesy_(double*, double*, double*, int*, int*, double*,
-                   double*, int*, double*, double*, int*)
+static void zbesy_(double *, double *, double *, int *, int *, double *,
+                   double *, int *, double *, double *, int *)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
 
-static void zbesh_(double*, double*, double*, int*, int*, int*,
-                   double*, double*, int*, int*)
+static void zbesh_(double *, double *, double *, int *, int *, int *, double *,
+                   double *, int *, int *)
 {
   Message::Fatal("Bessel functions require Fortran compiler");
 }
@@ -42,43 +42,41 @@ define zbesk_ zbesk
 #define zbesh_ zbesh
 #endif
 
-extern "C" {
-  void zbesj_(double*, double*, double*, int*, int*, double*,
-              double*, int*, int*);
-  void zbesk_(double*, double*, double*, int*, int*, double*,
-              double*, int*, int*);
+  extern "C"
+{
+  void zbesj_(double *, double *, double *, int *, int *, double *, double *,
+              int *, int *);
+  void zbesk_(double *, double *, double *, int *, int *, double *, double *,
+              int *, int *);
 
-  void zbesy_(double*, double*, double*, int*, int*, double*,
-              double*, int*, double*,
-              double*, int*);
-  void zbesh_(double*, double*, double*, int*, int*, int*, double*,
-              double*, int*, int*);
+  void zbesy_(double *, double *, double *, int *, int *, double *, double *,
+              int *, double *, double *, int *);
+  void zbesh_(double *, double *, double *, int *, int *, int *, double *,
+              double *, int *, int *);
 }
 
 #endif
 
 static int BesselError(int ierr, const char *str)
 {
-  static int warn=0;
+  static int warn = 0;
 
-  switch(ierr){
-  case 0 :
-    return 0;
-  case 1 :
-    Message::Error("Input error in %s", str);
-    return BESSEL_ERROR_INPUT;
-  case 2 :
-    return BESSEL_OVERFLOW;
-  case 3 :
-    if(!warn){
-      Message::Info("Half machine accuracy lost in %s (large argument or order)", str);
+  switch(ierr) {
+  case 0: return 0;
+  case 1: Message::Error("Input error in %s", str); return BESSEL_ERROR_INPUT;
+  case 2: return BESSEL_OVERFLOW;
+  case 3:
+    if(!warn) {
+      Message::Info(
+        "Half machine accuracy lost in %s (large argument or order)", str);
       warn = 1;
     }
     return BESSEL_HALF_ACCURACY;
-  case 4 :
-    Message::Error("Complete loss of significance in %s (argument or order too large)", str);
+  case 4:
+    Message::Error(
+      "Complete loss of significance in %s (argument or order too large)", str);
     return BESSEL_NO_ACCURACY;
-  case 5 :
+  case 5:
     Message::Error("Failed to converge in %s", str);
     return BESSEL_NO_CONVERGENCE;
   default:
@@ -93,50 +91,48 @@ int BesselJn(double n, int num, double x, double *val)
 {
   int nz = 0, ierr = 0, kode = 1;
   double xi = 0.0;
-  double* ji = new double[num];
+  double *ji = new double[num];
 
-  zbesj_(&x, &xi, &n, &kode, &num, val, ji, &nz, &ierr) ;
+  zbesj_(&x, &xi, &n, &kode, &num, val, ji, &nz, &ierr);
 
   delete[] ji;
 
   return BesselError(ierr, "BesselJn");
 }
 
-int BesselJnComplex(double n, int num, double xr, double xi, double *valr, double *vali)
+int BesselJnComplex(double n, int num, double xr, double xi, double *valr,
+                    double *vali)
 {
   int nz = 0, ierr = 0, kode = 1;
 
-  zbesj_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr) ;
+  zbesj_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr);
 
   return BesselError(ierr, "BesselJnComplex");
 }
 
-int BesselKnComplex(double n, int num, double xr, double xi, double *valr, double *vali)
+int BesselKnComplex(double n, int num, double xr, double xi, double *valr,
+                    double *vali)
 {
   int nz = 0, ierr = 0, kode = 1;
 
-  zbesk_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr) ;
+  zbesk_(&xr, &xi, &n, &kode, &num, valr, vali, &nz, &ierr);
 
   return BesselError(ierr, "BesselKnComplex");
 }
 
 int BesselSphericalJn(double n, int num, double x, double *val)
 {
-  int ierr = BesselJn(n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI/x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselJn(n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI / x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselSphericalJn");
 }
 
 int BesselAltSphericalJn(double n, int num, double x, double *val)
 {
-  int ierr = BesselJn(n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI*x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselJn(n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI * x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselAltSphericalJn");
 }
 
@@ -146,9 +142,9 @@ int BesselYn(double n, int num, double x, double *val)
 {
   int nz = 0, ierr = 0, kode = 1;
   double xi = 0.0;
-  double* yi = new double[num];
-  double* auxyr = new double[num];
-  double* auxyi = new double[num];
+  double *yi = new double[num];
+  double *auxyr = new double[num];
+  double *auxyi = new double[num];
 
   zbesy_(&x, &xi, &n, &kode, &num, val, yi, &nz, auxyr, auxyi, &ierr);
 
@@ -161,21 +157,17 @@ int BesselYn(double n, int num, double x, double *val)
 
 int BesselSphericalYn(double n, int num, double x, double *val)
 {
-  int ierr = BesselYn(n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI/x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselYn(n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI / x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselSphericalYn");
 }
 
 int BesselAltSphericalYn(double n, int num, double x, double *val)
 {
-  int ierr = BesselYn(n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI*x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselYn(n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI * x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselAltSphericalYn");
 }
 
@@ -184,15 +176,13 @@ int BesselAltSphericalYn(double n, int num, double x, double *val)
 int BesselHn(int type, double n, int num, double x, std::complex<double> *val)
 {
   int nz = 0, ierr = 0, kode = 1;
-  double* hr = new double[num];
-  double* hi = new double[num];
+  double *hr = new double[num];
+  double *hi = new double[num];
   double xi = 0.0;
 
   zbesh_(&x, &xi, &n, &kode, &type, &num, hr, hi, &nz, &ierr);
 
-  for(int i=0; i < num; i++){
-    val[i] = std::complex<double>(hr[i], hi[i]);
-  }
+  for(int i = 0; i < num; i++) { val[i] = std::complex<double>(hr[i], hi[i]); }
 
   delete[] hr;
   delete[] hi;
@@ -200,23 +190,21 @@ int BesselHn(int type, double n, int num, double x, std::complex<double> *val)
   return BesselError(ierr, "BesselHn");
 }
 
-int BesselSphericalHn(int type, double n, int num, double x, std::complex<double> *val)
+int BesselSphericalHn(int type, double n, int num, double x,
+                      std::complex<double> *val)
 {
-  int ierr = BesselHn(type, n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI/x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselHn(type, n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI / x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselSphericalHn");
 }
 
-int BesselAltSphericalHn(int type, double n, int num, double x, std::complex<double> *val)
+int BesselAltSphericalHn(int type, double n, int num, double x,
+                         std::complex<double> *val)
 {
-  int ierr = BesselHn(type, n+0.5, num, x, val);
-  double coef = sqrt(0.5*M_PI*x);
-  for(int i = 0; i < num; i++){
-    val[i] *= coef;
-  }
+  int ierr = BesselHn(type, n + 0.5, num, x, val);
+  double coef = sqrt(0.5 * M_PI * x);
+  for(int i = 0; i < num; i++) { val[i] *= coef; }
   return BesselError(ierr, "BesselAltSphericalHn");
 }
 

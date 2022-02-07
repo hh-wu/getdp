@@ -19,25 +19,24 @@
 #include "gmsh.h"
 #endif
 
-#define SQU(a)     ((a)*(a))
+#define SQU(a) ((a) * (a))
 
-extern double Flag_ORDER, Flag_MSH_SCALING ;
+extern double Flag_ORDER, Flag_MSH_SCALING;
 
-FILE  * File_GEO ;
+FILE *File_GEO;
 char *name;
 
-struct GeoData  * CurrentGeoData ;
+struct GeoData *CurrentGeoData;
 
 static void swapBytes(char *array, int size, int n)
 {
   int i, c;
 
-  char *x = (char *)Malloc(size * sizeof(char)) ;
+  char *x = (char *)Malloc(size * sizeof(char));
   for(i = 0; i < n; i++) {
     char *a = &array[i * size];
     memcpy(x, a, size);
-    for(c = 0; c < size; c++)
-      a[size - 1 - c] = x[c];
+    for(c = 0; c < size; c++) a[size - 1 - c] = x[c];
   }
   Free(x);
 }
@@ -46,100 +45,99 @@ static void swapBytes(char *array, int size, int n)
 /*  G e o _ A d d G e o D a t a                                             */
 /* ------------------------------------------------------------------------ */
 
-int Geo_AddGeoData(List_T * GeoData_L,
-		   char * Name_MshFile, char * Name_DefaultMshFile,
-		   char * Name_AdaptFile, char * Name_DefaultAdaptFile)
+int Geo_AddGeoData(List_T *GeoData_L, char *Name_MshFile,
+                   char *Name_DefaultMshFile, char *Name_AdaptFile,
+                   char *Name_DefaultAdaptFile)
 {
-  struct GeoData  GeoData_S ;
-  int  i ;
+  struct GeoData GeoData_S;
+  int i;
 
-  if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
+  if(!Name_MshFile) Name_MshFile = Name_DefaultMshFile;
 
-  if ((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
-    Message::Info("Loading Geometric data '%s'", Name_MshFile) ;
-    i = List_Nbr(GeoData_L) ;
-    Geo_InitGeoData(&GeoData_S, i, Name_MshFile) ;
-    Geo_OpenFile(Name_MshFile, "rb") ;
-    Geo_ReadFile(&GeoData_S) ;
-    Geo_CloseFile() ;
+  if((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
+    Message::Info("Loading Geometric data '%s'", Name_MshFile);
+    i = List_Nbr(GeoData_L);
+    Geo_InitGeoData(&GeoData_S, i, Name_MshFile);
+    Geo_OpenFile(Name_MshFile, "rb");
+    Geo_ReadFile(&GeoData_S);
+    Geo_CloseFile();
 
-    if (!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile ;
-    if (Name_AdaptFile) {
-      Message::Info("Loading Adaptation data '%s'", Name_AdaptFile) ;
-      Geo_OpenFile(Name_AdaptFile, "r") ;
-      Geo_SetCurrentGeoData(&GeoData_S) ;
-      Geo_ReadFileAdapt(&GeoData_S) ;
-      Geo_CloseFile() ;
+    if(!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile;
+    if(Name_AdaptFile) {
+      Message::Info("Loading Adaptation data '%s'", Name_AdaptFile);
+      Geo_OpenFile(Name_AdaptFile, "r");
+      Geo_SetCurrentGeoData(&GeoData_S);
+      Geo_ReadFileAdapt(&GeoData_S);
+      Geo_CloseFile();
     }
-    List_Add(GeoData_L, &GeoData_S) ;
+    List_Add(GeoData_L, &GeoData_S);
   }
 
-  return(i) ;
+  return (i);
 }
 
-int fcmp_GeoData_Name(const void * a, const void * b)
+int fcmp_GeoData_Name(const void *a, const void *b)
 {
-  return ( strcmp((char *)a, ((struct GeoData *)b)->Name ) ) ;
+  return (strcmp((char *)a, ((struct GeoData *)b)->Name));
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ I n i t G e o D a t a                                           */
 /* ------------------------------------------------------------------------ */
 
-void Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name)
+void Geo_InitGeoData(struct GeoData *GeoData_P, int Num, char *Name)
 {
-  GeoData_P->Num  = Num ;
-  GeoData_P->Name = Name ;
+  GeoData_P->Num = Num;
+  GeoData_P->Name = Name;
 
-  GeoData_P->Nodes = NULL ;
-  GeoData_P->Elements = NULL ;
+  GeoData_P->Nodes = NULL;
+  GeoData_P->Elements = NULL;
 
-  GeoData_P->NbrElementsWithEdges = GeoData_P->NbrElementsWithFacets = 0 ;
-  GeoData_P->NumCurrentEdge = GeoData_P->NumCurrentFacet = 0 ;
+  GeoData_P->NbrElementsWithEdges = GeoData_P->NbrElementsWithFacets = 0;
+  GeoData_P->NumCurrentEdge = GeoData_P->NumCurrentFacet = 0;
   GeoData_P->EdgesXNodes =
-    Tree_Create(sizeof(struct Entity2XEntity1), fcmp_E2XE1) ;
+    Tree_Create(sizeof(struct Entity2XEntity1), fcmp_E2XE1);
   GeoData_P->FacetsXEdges =
-    Tree_Create(sizeof(struct Entity2XEntity1), fcmp_E2XE1) ;
+    Tree_Create(sizeof(struct Entity2XEntity1), fcmp_E2XE1);
 
-  GeoData_P->NodesXElements = NULL ;
-  GeoData_P->Normals =
-    Tree_Create(sizeof(struct EntityXVector), fcmp_EXVector) ;
+  GeoData_P->NodesXElements = NULL;
+  GeoData_P->Normals = Tree_Create(sizeof(struct EntityXVector), fcmp_EXVector);
 
-  GeoData_P->GroupForPRE = NULL ;
+  GeoData_P->GroupForPRE = NULL;
 
-  GeoData_P->Grid.Init = 0 ;
+  GeoData_P->Grid.Init = 0;
 
-  GeoData_P->H = GeoData_P->P = NULL ;
+  GeoData_P->H = GeoData_P->P = NULL;
 
-  GeoData_P->PeriodicNodes = NULL ;
+  GeoData_P->PeriodicNodes = NULL;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ F r e e G e o D a t a                                           */
 /* ------------------------------------------------------------------------ */
 
-void Geo_FreeGeoData(struct GeoData * GeoData_P)
+void Geo_FreeGeoData(struct GeoData *GeoData_P)
 {
   Message::Debug("Freeing GeoData %d", GeoData_P->Num);
   List_Delete(GeoData_P->Nodes);
-  if(GeoData_P->Elements){
-    for(int i = 0; i < List_Nbr(GeoData_P->Elements); i++){
-      Geo_Element *e = (Geo_Element*)List_Pointer(GeoData_P->Elements, i);
+  if(GeoData_P->Elements) {
+    for(int i = 0; i < List_Nbr(GeoData_P->Elements); i++) {
+      Geo_Element *e = (Geo_Element *)List_Pointer(GeoData_P->Elements, i);
       Free(e->NumNodes);
       Free(e->NumEdges);
       Free(e->NumFacets);
     }
     List_Delete(GeoData_P->Elements);
   }
-  if(GeoData_P->EdgesXNodes){
+  if(GeoData_P->EdgesXNodes) {
     Tree_Action(GeoData_P->EdgesXNodes, free_E2XE1);
     Tree_Delete(GeoData_P->EdgesXNodes);
   }
-  if(GeoData_P->FacetsXEdges){
+  if(GeoData_P->FacetsXEdges) {
     Tree_Action(GeoData_P->FacetsXEdges, free_E2XE1);
     Tree_Delete(GeoData_P->FacetsXEdges);
   }
-  if(GeoData_P->NodesXElements){
+  if(GeoData_P->NodesXElements) {
     Tree_Action(GeoData_P->NodesXElements, free_E2XE1);
     Tree_Delete(GeoData_P->NodesXElements);
   }
@@ -154,31 +152,28 @@ void Geo_FreeGeoData(struct GeoData * GeoData_P)
 /*  G e o _ S e t C u r r e n t G e o D a t a B a s e                       */
 /* ------------------------------------------------------------------------ */
 
-void Geo_SetCurrentGeoData(struct GeoData * GeoData_P)
+void Geo_SetCurrentGeoData(struct GeoData *GeoData_P)
 {
-  CurrentGeoData = GeoData_P ;
+  CurrentGeoData = GeoData_P;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ O p e n F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
-void Geo_OpenFile(char * Name, const char * Mode)
+void Geo_OpenFile(char *Name, const char *Mode)
 {
-  File_GEO = FOpen(Name, Mode) ;
+  File_GEO = FOpen(Name, Mode);
   name = Name;
 
-  if (!File_GEO) Message::Error("Unable to open file '%s'", Name);
+  if(!File_GEO) Message::Error("Unable to open file '%s'", Name);
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ C l o s e F i l e                                               */
 /* ------------------------------------------------------------------------ */
 
-void Geo_CloseFile(void)
-{
-  fclose(File_GEO) ;
-}
+void Geo_CloseFile(void) { fclose(File_GEO); }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ R e a d F i l e                                                 */
@@ -186,195 +181,192 @@ void Geo_CloseFile(void)
 
 int Geo_GetNbNodesPerElement(int Type)
 {
-  switch(Type){
-  case POINT_ELEMENT : return 1;
+  switch(Type) {
+  case POINT_ELEMENT: return 1;
 
-  case LINE          : return 2;
-  case TRIANGLE      : return 3;
-  case QUADRANGLE    : return 4;
-  case TETRAHEDRON   : return 4;
-  case HEXAHEDRON    : return 8;
-  case PRISM         : return 6;
-  case PYRAMID       : return 5;
+  case LINE: return 2;
+  case TRIANGLE: return 3;
+  case QUADRANGLE: return 4;
+  case TETRAHEDRON: return 4;
+  case HEXAHEDRON: return 8;
+  case PRISM: return 6;
+  case PYRAMID: return 5;
 
-  case LINE_2        : return 3;
-  case TRIANGLE_2    : return 6;
-  case QUADRANGLE_2  : return 9;
-  case TETRAHEDRON_2 : return 10;
-  case HEXAHEDRON_2  : return 27;
-  case PRISM_2       : return 18;
-  case PYRAMID_2     : return 13;
+  case LINE_2: return 3;
+  case TRIANGLE_2: return 6;
+  case QUADRANGLE_2: return 9;
+  case TETRAHEDRON_2: return 10;
+  case HEXAHEDRON_2: return 27;
+  case PRISM_2: return 18;
+  case PYRAMID_2: return 13;
   case QUADRANGLE_2_8N: return 8;
-  case HEXAHEDRON_2_20N : return 20;
-  case PRISM_2_15N   : return 15;
-  case PYRAMID_2_13N : return 13;
+  case HEXAHEDRON_2_20N: return 20;
+  case PRISM_2_15N: return 15;
+  case PYRAMID_2_13N: return 13;
 
-  case LINE_3        : return 4;
-  case TRIANGLE_3    : return 10;
-  case QUADRANGLE_3  : return 16;
-  case TETRAHEDRON_3 : return 20;
-  case HEXAHEDRON_3  : return 64;
-  case PRISM_3       : return 40;
-  case PYRAMID_3     : return 30;
+  case LINE_3: return 4;
+  case TRIANGLE_3: return 10;
+  case QUADRANGLE_3: return 16;
+  case TETRAHEDRON_3: return 20;
+  case HEXAHEDRON_3: return 64;
+  case PRISM_3: return 40;
+  case PYRAMID_3: return 30;
 
-  case LINE_4        : return 5;
-  case TRIANGLE_4    : return 15;
-  case QUADRANGLE_4  : return 25;
-  case TETRAHEDRON_4 : return 35;
-  case HEXAHEDRON_4  : return 125;
-  case PRISM_4       : return 75;
-  //case PYRAMID_4     : return 55;
+  case LINE_4: return 5;
+  case TRIANGLE_4: return 15;
+  case QUADRANGLE_4: return 25;
+  case TETRAHEDRON_4: return 35;
+  case HEXAHEDRON_4: return 125;
+  case PRISM_4:
+    return 75;
+    // case PYRAMID_4     : return 55;
 
-  default :
-    Message::Error("Unknown type of Element");
-    return -1;
+  default: Message::Error("Unknown type of Element"); return -1;
   }
 }
 
 int Geo_GetDimOfElement(int Type)
 {
-  switch(Type){
-  case POINT_ELEMENT : return 0;
+  switch(Type) {
+  case POINT_ELEMENT: return 0;
 
-  case LINE          : return 1;
-  case TRIANGLE      : return 2;
-  case QUADRANGLE    : return 2;
-  case TETRAHEDRON   : return 3;
-  case HEXAHEDRON    : return 3;
-  case PRISM         : return 3;
-  case PYRAMID       : return 3;
+  case LINE: return 1;
+  case TRIANGLE: return 2;
+  case QUADRANGLE: return 2;
+  case TETRAHEDRON: return 3;
+  case HEXAHEDRON: return 3;
+  case PRISM: return 3;
+  case PYRAMID: return 3;
 
-  case LINE_2        : return 1;
-  case TRIANGLE_2    : return 2;
-  case QUADRANGLE_2  : return 2;
-  case TETRAHEDRON_2 : return 3;
-  case HEXAHEDRON_2  : return 3;
-  case PRISM_2       : return 3;
-  case PYRAMID_2     : return 3;
+  case LINE_2: return 1;
+  case TRIANGLE_2: return 2;
+  case QUADRANGLE_2: return 2;
+  case TETRAHEDRON_2: return 3;
+  case HEXAHEDRON_2: return 3;
+  case PRISM_2: return 3;
+  case PYRAMID_2: return 3;
   case QUADRANGLE_2_8N: return 2;
-  case HEXAHEDRON_2_20N : return 3;
-  case PRISM_2_15N   : return 3;
-  case PYRAMID_2_13N : return 3;
+  case HEXAHEDRON_2_20N: return 3;
+  case PRISM_2_15N: return 3;
+  case PYRAMID_2_13N: return 3;
 
-  case LINE_3        : return 1;
-  case TRIANGLE_3    : return 2;
-  case QUADRANGLE_3  : return 2;
-  case TETRAHEDRON_3 : return 3;
-  case HEXAHEDRON_3  : return 3;
-  case PRISM_3       : return 3;
-  case PYRAMID_3     : return 3;
+  case LINE_3: return 1;
+  case TRIANGLE_3: return 2;
+  case QUADRANGLE_3: return 2;
+  case TETRAHEDRON_3: return 3;
+  case HEXAHEDRON_3: return 3;
+  case PRISM_3: return 3;
+  case PYRAMID_3: return 3;
 
-  case LINE_4        : return 1;
-  case TRIANGLE_4    : return 2;
-  case QUADRANGLE_4  : return 2;
-  case TETRAHEDRON_4 : return 3;
-  case HEXAHEDRON_4  : return 3;
-  case PRISM_4       : return 3;
-  //case PYRAMID_4     : return 3;
-  default :
-    Message::Error("Unknown type of Element");
-    return -1;
+  case LINE_4: return 1;
+  case TRIANGLE_4: return 2;
+  case QUADRANGLE_4: return 2;
+  case TETRAHEDRON_4: return 3;
+  case HEXAHEDRON_4: return 3;
+  case PRISM_4: return 3;
+  // case PYRAMID_4     : return 3;
+  default: Message::Error("Unknown type of Element"); return -1;
   }
 }
 
 void Geo_ReverseElement(Geo_Element *Geo_Element)
 {
   int tmp;
-  switch(Geo_Element->Type){
-  case POINT_ELEMENT :
-    break;
-  case LINE :
-  case LINE_2 :
+  switch(Geo_Element->Type) {
+  case POINT_ELEMENT: break;
+  case LINE:
+  case LINE_2:
     tmp = Geo_Element->NumNodes[0];
     Geo_Element->NumNodes[0] = Geo_Element->NumNodes[1];
     Geo_Element->NumNodes[1] = tmp;
     break;
-  case TRIANGLE :
+  case TRIANGLE:
     tmp = Geo_Element->NumNodes[1];
     Geo_Element->NumNodes[1] = Geo_Element->NumNodes[2];
     Geo_Element->NumNodes[2] = tmp;
     break;
-  case TRIANGLE_2 :
+  case TRIANGLE_2:
     tmp = Geo_Element->NumNodes[1];
     Geo_Element->NumNodes[1] = Geo_Element->NumNodes[2];
     Geo_Element->NumNodes[2] = tmp;
-    tmp = Geo_Element->NumNodes[3+0];
+    tmp = Geo_Element->NumNodes[3 + 0];
     Geo_Element->NumNodes[3] = Geo_Element->NumNodes[5];
     Geo_Element->NumNodes[5] = tmp;
     break;
-  case QUADRANGLE :
+  case QUADRANGLE:
     tmp = Geo_Element->NumNodes[1];
     Geo_Element->NumNodes[1] = Geo_Element->NumNodes[3];
     Geo_Element->NumNodes[3] = tmp;
     break;
-  case QUADRANGLE_2 :
+  case QUADRANGLE_2:
   case QUADRANGLE_2_8N:
     tmp = Geo_Element->NumNodes[1];
     Geo_Element->NumNodes[1] = Geo_Element->NumNodes[3];
     Geo_Element->NumNodes[3] = tmp;
-    tmp = Geo_Element->NumNodes[4+0];
+    tmp = Geo_Element->NumNodes[4 + 0];
     Geo_Element->NumNodes[4] = Geo_Element->NumNodes[7];
     Geo_Element->NumNodes[7] = tmp;
     tmp = Geo_Element->NumNodes[5];
     Geo_Element->NumNodes[5] = Geo_Element->NumNodes[6];
     Geo_Element->NumNodes[6] = tmp;
     break;
-  default :
+  default:
     Message::Error("Unknown type of element (%d) to reverse",
                    Geo_Element->Type);
     break;
   }
 }
 
-void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName)
+void Geo_SaveMesh(struct GeoData *GeoData_P, List_T *InitialList,
+                  char *FileName)
 {
-  FILE * file;
-  struct Geo_Node     Geo_Node ;
-  struct Geo_Node   * Geo_Node_P ;
-  struct Geo_Element  Geo_Element ;
-  struct GeoData GeoData ;
-  int  fcmp_int(const void * a, const void * b);
+  FILE *file;
+  struct Geo_Node Geo_Node;
+  struct Geo_Node *Geo_Node_P;
+  struct Geo_Element Geo_Element;
+  struct GeoData GeoData;
+  int fcmp_int(const void *a, const void *b);
 
-  GeoData.Nodes    = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
-  GeoData.Elements = List_Create(1000, 1000, sizeof(struct Geo_Element)) ;
+  GeoData.Nodes = List_Create(1000, 1000, sizeof(struct Geo_Node));
+  GeoData.Elements = List_Create(1000, 1000, sizeof(struct Geo_Element));
 
   int maxdim = 0;
-  for (int i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++) {
-    List_Read(GeoData_P->Elements, i, &Geo_Element) ;
+  for(int i = 0; i < List_Nbr(GeoData_P->Elements); i++) {
+    List_Read(GeoData_P->Elements, i, &Geo_Element);
     maxdim = std::max(maxdim, Geo_GetDimOfElement(Geo_Element.Type));
-    if (List_Search(InitialList, &Geo_Element.Region, fcmp_int) ) {
-      List_Add(GeoData.Elements, &Geo_Element) ;
-      for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
-	if (!List_Search(GeoData.Nodes,
-	 		 Geo_Node_P = Geo_GetGeoNodeOfNum(Geo_Element.NumNodes[j]),
-                         fcmp_Nod) )
-	  List_Add(GeoData.Nodes, Geo_Node_P) ;
+    if(List_Search(InitialList, &Geo_Element.Region, fcmp_int)) {
+      List_Add(GeoData.Elements, &Geo_Element);
+      for(int j = 0; j < Geo_Element.NbrNodes; j++)
+        if(!List_Search(GeoData.Nodes,
+                        Geo_Node_P =
+                          Geo_GetGeoNodeOfNum(Geo_Element.NumNodes[j]),
+                        fcmp_Nod))
+          List_Add(GeoData.Nodes, Geo_Node_P);
     }
   }
 
-  file = FOpen(FileName,"w");
-  if(file){
+  file = FOpen(FileName, "w");
+  if(file) {
     Message::Error("Could not open file '%s'", FileName);
     return;
   }
-  Message::Info("Saving mesh in file \"%s\" (%d nodes, %d elements)",
-                FileName, List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
+  Message::Info("Saving mesh in file \"%s\" (%d nodes, %d elements)", FileName,
+                List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
   fprintf(file, "$NOD\n%d\n", List_Nbr(GeoData.Nodes));
-  for (int i = 0 ; i < List_Nbr(GeoData.Nodes) ; i++) {
-    List_Read(GeoData.Nodes, i, &Geo_Node) ;
-    fprintf(file, "%d %.16g %.16g %.16g\n",
-            Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+  for(int i = 0; i < List_Nbr(GeoData.Nodes); i++) {
+    List_Read(GeoData.Nodes, i, &Geo_Node);
+    fprintf(file, "%d %.16g %.16g %.16g\n", Geo_Node.Num, Geo_Node.x,
+            Geo_Node.y, Geo_Node.z);
   }
   fprintf(file, "$ENDNOD\n$ELM\n%d\n", List_Nbr(GeoData.Elements));
-  for (int i = 0 ; i < List_Nbr(GeoData.Elements) ; i++) {
-    List_Read(GeoData.Elements, i, &Geo_Element) ;
-    int Type = GetDP2Gmsh(Geo_Element.Type) ;
-    fprintf(file, "%d %d %d %d %d ",
-            Geo_Element.Num, Type, Geo_Element.Region,
-            Geo_Element.Region, Geo_Element.NbrNodes) ;
-    for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
-      fprintf(file, "%d ", Geo_Element.NumNodes[j]) ;
-    fprintf(file, "\n") ;
+  for(int i = 0; i < List_Nbr(GeoData.Elements); i++) {
+    List_Read(GeoData.Elements, i, &Geo_Element);
+    int Type = GetDP2Gmsh(Geo_Element.Type);
+    fprintf(file, "%d %d %d %d %d ", Geo_Element.Num, Type, Geo_Element.Region,
+            Geo_Element.Region, Geo_Element.NbrNodes);
+    for(int j = 0; j < Geo_Element.NbrNodes; j++)
+      fprintf(file, "%d ", Geo_Element.NumNodes[j]);
+    fprintf(file, "\n");
   }
   fprintf(file, "$ENDELM\n");
   fclose(file);
@@ -385,7 +377,7 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
 
 static std::string ExtractDoubleQuotedString(const char *str, int len)
 {
-  char *c = strstr((char*)str, "\"");
+  char *c = strstr((char *)str, "\"");
   if(!c) return "";
   std::string ret;
   for(int i = 1; i < len; i++) {
@@ -395,7 +387,7 @@ static std::string ExtractDoubleQuotedString(const char *str, int len)
   return ret;
 }
 
-static void Geo_SnapNodes(struct GeoData * GeoData_P)
+static void Geo_SnapNodes(struct GeoData *GeoData_P)
 {
   // 2D meshes used for axisymmetric calculations should have the minimum
   // x-coordinate *exactly* equal to 0: snap x coordinate of all vertices of 2D
@@ -403,7 +395,7 @@ static void Geo_SnapNodes(struct GeoData * GeoData_P)
   if(GeoData_P->Dimension != DIM_2D || fabs(GeoData_P->Xmin) > 1e-13) return;
   int snaps = 0;
   for(int i = 0; i < List_Nbr(GeoData_P->Nodes); i++) {
-    Geo_Node *n = (Geo_Node*)List_Pointer(GeoData_P->Nodes, i);
+    Geo_Node *n = (Geo_Node *)List_Pointer(GeoData_P->Nodes, i);
     if(fabs(n->x) < 1e-13) {
       n->x = 0.;
       snaps++;
@@ -414,14 +406,14 @@ static void Geo_SnapNodes(struct GeoData * GeoData_P)
                   (snaps > 1) ? "s" : "");
 }
 
-static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
+static void Geo_ReadFileWithGmsh(struct GeoData *GeoData_P)
 {
 #if defined(HAVE_GMSH)
   gmsh::open(name);
 
   /* N O D E S */
 
-  struct Geo_Node     Geo_Node ;
+  struct Geo_Node Geo_Node;
 
   std::vector<std::size_t> nodeTags;
   std::vector<double> coord;
@@ -429,26 +421,27 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   gmsh::model::mesh::getNodes(nodeTags, coord, parametricCoord, -1, -1);
 
   if(GeoData_P->Nodes == NULL)
-    GeoData_P->Nodes = List_Create(nodeTags.size(), 1000, sizeof(struct Geo_Node)) ;
+    GeoData_P->Nodes =
+      List_Create(nodeTags.size(), 1000, sizeof(struct Geo_Node));
 
-  for(unsigned int i = 0; i < nodeTags.size(); i++){
+  for(unsigned int i = 0; i < nodeTags.size(); i++) {
     Geo_Node.Num = nodeTags[i];
-    Geo_Node.x = coord[3*i + 0];
-    Geo_Node.y = coord[3*i + 1];
-    Geo_Node.z = coord[3*i + 2];
-    if(Flag_MSH_SCALING != 1.0){
+    Geo_Node.x = coord[3 * i + 0];
+    Geo_Node.y = coord[3 * i + 1];
+    Geo_Node.z = coord[3 * i + 2];
+    if(Flag_MSH_SCALING != 1.0) {
       Geo_Node.x *= Flag_MSH_SCALING;
       Geo_Node.y *= Flag_MSH_SCALING;
       Geo_Node.z *= Flag_MSH_SCALING;
     }
-    List_Add(GeoData_P->Nodes, &Geo_Node) ;
+    List_Add(GeoData_P->Nodes, &Geo_Node);
 
-    if(!i){
+    if(!i) {
       GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
       GeoData_P->Ymin = GeoData_P->Ymax = Geo_Node.y;
       GeoData_P->Zmin = GeoData_P->Zmax = Geo_Node.z;
     }
-    else{
+    else {
       GeoData_P->Xmin = std::min(GeoData_P->Xmin, Geo_Node.x);
       GeoData_P->Xmax = std::max(GeoData_P->Xmax, Geo_Node.x);
       GeoData_P->Ymin = std::min(GeoData_P->Ymin, Geo_Node.y);
@@ -458,15 +451,17 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
     }
   }
 
-  if(GeoData_P->Xmin != GeoData_P->Xmax &&
-     GeoData_P->Ymin != GeoData_P->Ymax &&
+  if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax &&
      GeoData_P->Zmin != GeoData_P->Zmax)
     GeoData_P->Dimension = DIM_3D;
-  else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
+  else if(GeoData_P->Xmin != GeoData_P->Xmax &&
+          GeoData_P->Ymin != GeoData_P->Ymax)
     GeoData_P->Dimension = DIM_2D;
-  else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
+  else if(GeoData_P->Xmin != GeoData_P->Xmax &&
+          GeoData_P->Zmin != GeoData_P->Zmax)
     GeoData_P->Dimension = DIM_2D;
-  else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
+  else if(GeoData_P->Ymin != GeoData_P->Ymax &&
+          GeoData_P->Zmin != GeoData_P->Zmax)
     GeoData_P->Dimension = DIM_2D;
   else if(GeoData_P->Xmin != GeoData_P->Xmax)
     GeoData_P->Dimension = DIM_1D;
@@ -477,87 +472,90 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
   else
     GeoData_P->Dimension = DIM_0D;
 
-
   GeoData_P->CharacteristicLength =
-  sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
-       SQU(GeoData_P->Ymax - GeoData_P->Ymin) +
-       SQU(GeoData_P->Zmax - GeoData_P->Zmin));
-  if(!GeoData_P->CharacteristicLength)
-    GeoData_P->CharacteristicLength = 1.;
+    sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
+         SQU(GeoData_P->Ymax - GeoData_P->Ymin) +
+         SQU(GeoData_P->Zmax - GeoData_P->Zmin));
+  if(!GeoData_P->CharacteristicLength) GeoData_P->CharacteristicLength = 1.;
 
   coord.clear();
   parametricCoord.clear();
 
   /*  E L E M E N T S  */
 
-  struct Geo_Element  Geo_Element ;
+  struct Geo_Element Geo_Element;
 
   std::vector<int> elementTypes;
-  std::vector< std::vector<std::size_t> > elementTags;
-  std::vector< std::vector<std::size_t> > elementNodeTags;
-  gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags, -1, -1);
+  std::vector<std::vector<std::size_t> > elementTags;
+  std::vector<std::vector<std::size_t> > elementNodeTags;
+  gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags, -1,
+                                 -1);
 
   std::size_t nbr = 0, maxTag = 0;
-  for(unsigned int i = 0; i < elementTypes.size(); i++){
+  for(unsigned int i = 0; i < elementTypes.size(); i++) {
     nbr += elementTags[i].size();
     for(unsigned int j = 0; j < elementTags[i].size(); j++)
       maxTag = std::max(maxTag, elementTags[i][j]);
   }
 
-  if (GeoData_P->Elements == NULL)
-    GeoData_P->Elements = List_Create(nbr, 1000, sizeof(struct Geo_Element)) ;
+  if(GeoData_P->Elements == NULL)
+    GeoData_P->Elements = List_Create(nbr, 1000, sizeof(struct Geo_Element));
 
-  Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0 ;
-  Geo_Element.NumEdges = Geo_Element.NumFacets = NULL ;
+  Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0;
+  Geo_Element.NumEdges = Geo_Element.NumFacets = NULL;
 
   gmsh::vectorpair dimTags;
   gmsh::model::getEntities(dimTags, -1);
-  for(unsigned int entity = 0; entity < dimTags.size(); entity++){
+  for(unsigned int entity = 0; entity < dimTags.size(); entity++) {
     gmsh::model::mesh::getElements(elementTypes, elementTags, elementNodeTags,
-                                   dimTags[entity].first, dimTags[entity].second);
+                                   dimTags[entity].first,
+                                   dimTags[entity].second);
     std::vector<int> physicalsTags;
-    gmsh::model::getPhysicalGroupsForEntity(dimTags[entity].first,
-                                            dimTags[entity].second, physicalsTags);
+    gmsh::model::getPhysicalGroupsForEntity(
+      dimTags[entity].first, dimTags[entity].second, physicalsTags);
 
-    for(unsigned int phys = 0; phys < physicalsTags.size(); phys++){
-      for(unsigned int i = 0; i < elementTypes.size(); i++){
-        Geo_Element.Type = Gmsh2GetDP(elementTypes[i]) ;
-        Geo_Element.NbrNodes = elementNodeTags[i].size()/elementTags[i].size();
-        for(unsigned int j = 0; j < elementTags[i].size(); j++){
+    for(unsigned int phys = 0; phys < physicalsTags.size(); phys++) {
+      for(unsigned int i = 0; i < elementTypes.size(); i++) {
+        Geo_Element.Type = Gmsh2GetDP(elementTypes[i]);
+        Geo_Element.NbrNodes =
+          elementNodeTags[i].size() / elementTags[i].size();
+        for(unsigned int j = 0; j < elementTags[i].size(); j++) {
           // if more than one physical group, create new elements (with new
           // tags) for all additional groups - this is consistent with the
           // behavior of the old MSH2 file format
           Geo_Element.Num = (phys == 0) ? elementTags[i][j] : ++maxTag;
           Geo_Element.Region = physicalsTags[phys];
           Geo_Element.ElementaryRegion = dimTags[entity].second;
-          Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-          for (int k = 0; k < Geo_Element.NbrNodes; k++)
-            Geo_Element.NumNodes[k] = elementNodeTags[i][Geo_Element.NbrNodes*j + k];
-          if(Geo_Element.Region < 0){
+          Geo_Element.NumNodes =
+            (int *)Malloc(Geo_Element.NbrNodes * sizeof(int));
+          for(int k = 0; k < Geo_Element.NbrNodes; k++)
+            Geo_Element.NumNodes[k] =
+              elementNodeTags[i][Geo_Element.NbrNodes * j + k];
+          if(Geo_Element.Region < 0) {
             Geo_ReverseElement(&Geo_Element);
             Geo_Element.Region = -Geo_Element.Region;
           }
-          List_Add(GeoData_P->Elements, &Geo_Element) ;
+          List_Add(GeoData_P->Elements, &Geo_Element);
         }
       }
     }
   }
 
-  List_Sort(GeoData_P->Elements, fcmp_Elm) ;
+  List_Sort(GeoData_P->Elements, fcmp_Elm);
 
   // Keep track of periodic nodes correspondance, if any
-  for(unsigned int entity = 0; entity < dimTags.size(); entity++){
+  for(unsigned int entity = 0; entity < dimTags.size(); entity++) {
     int tagMaster;
     std::vector<std::size_t> nodeTags, nodeTagsMaster;
     std::vector<double> affineTransform;
-    gmsh::model::mesh::getPeriodicNodes(dimTags[entity].first, dimTags[entity].second,
-                                        tagMaster, nodeTags, nodeTagsMaster,
-                                        affineTransform);
-    if(!nodeTags.empty()){
+    gmsh::model::mesh::getPeriodicNodes(
+      dimTags[entity].first, dimTags[entity].second, tagMaster, nodeTags,
+      nodeTagsMaster, affineTransform);
+    if(!nodeTags.empty()) {
       if(!GeoData_P->PeriodicNodes)
         GeoData_P->PeriodicNodes =
           List_Create(nodeTags.size(), 1000, sizeof(TwoInt));
-      for(std::size_t i = 0; i < nodeTags.size(); i++){
+      for(std::size_t i = 0; i < nodeTags.size(); i++) {
         TwoInt pair = {(int)nodeTags[i], (int)nodeTagsMaster[i]};
         List_Add(GeoData_P->PeriodicNodes, &pair);
       }
@@ -572,47 +570,44 @@ static void Geo_ReadFileWithGmsh(struct GeoData * GeoData_P)
 #endif
 }
 
-void Geo_ReadFile(struct GeoData * GeoData_P)
+void Geo_ReadFile(struct GeoData *GeoData_P)
 {
-  int                 Nbr, i, j, Type, iDummy, Format, Size, NbTags ;
-  double              Version = 1.0 ;
-  struct Geo_Node     Geo_Node ;
-  struct Geo_Element  Geo_Element ;
-  char                String[256] = "" ;
-  int                 binary = 0, swap = 0;
+  int Nbr, i, j, Type, iDummy, Format, Size, NbTags;
+  double Version = 1.0;
+  struct Geo_Node Geo_Node;
+  struct Geo_Element Geo_Element;
+  char String[256] = "";
+  int binary = 0, swap = 0;
   std::map<int, std::vector<int> > entities[4];
 
-  while (1) {
-
+  while(1) {
     do {
-      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
-        break;
-    } while (String[0] != '$') ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO)) break;
+    } while(String[0] != '$');
 
-    if (feof(File_GEO))
-      break ;
+    if(feof(File_GEO)) break;
 
     /*  F O R M A T  */
 
     if(!strncmp(&String[1], "MeshFormat", 10)) {
-
       if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3) return;
-      if(Version < 2.0){
-        Message::Error("Unsupported or unknown mesh file version (%g)", Version);
+      if(Version < 2.0) {
+        Message::Error("Unsupported or unknown mesh file version (%g)",
+                       Version);
         return;
       }
-      else if(Version > 3.1){
+      else if(Version > 3.1) {
         Geo_ReadFileWithGmsh(GeoData_P);
         return;
       }
 
-      if(Format){
+      if(Format) {
         binary = 1;
         Message::Info("Mesh is in binary format");
         int one;
         if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
-        if(one != 1){
+        if(one != 1) {
           swap = 1;
           Message::Info("Swapping bytes from binary file");
         }
@@ -622,22 +617,21 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     /* P H Y S I C A L   N A M E S */
 
     else if(!strncmp(&String[1], "PhysicalNames", 13)) {
-
       // GetDP does not currently use the name information
 
-      if(!fgets(String, sizeof(String), File_GEO)) return ;
+      if(!fgets(String, sizeof(String), File_GEO)) return;
       int numNames;
-      if(sscanf(String, "%d", &numNames) != 1) return ;
+      if(sscanf(String, "%d", &numNames) != 1) return;
       for(int i = 0; i < numNames; i++) {
         int dim = -1, num;
-        if(Version > 2.0){
-          if(fscanf(File_GEO, "%d", &dim) != 1) return ;
+        if(Version > 2.0) {
+          if(fscanf(File_GEO, "%d", &dim) != 1) return;
         }
-        if(fscanf(File_GEO, "%d", &num) != 1) return ;
-        if(!fgets(String, sizeof(String), File_GEO)) return ;
+        if(fscanf(File_GEO, "%d", &num) != 1) return;
+        if(!fgets(String, sizeof(String), File_GEO)) return;
         std::string name = ExtractDoubleQuotedString(String, 256);
-        Message::Debug("Physical group %d (dim %d) has name %s",
-                       num, dim, name.c_str());
+        Message::Debug("Physical group %d (dim %d) has name %s", num, dim,
+                       name.c_str());
       }
     }
 
@@ -646,15 +640,16 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     else if(!strncmp(&String[1], "Entities", 8)) {
       if(!fgets(String, sizeof(String), File_GEO)) return;
       int num[4];
-      if(sscanf(String, "%d %d %d %d", &num[0], &num[1], &num[2], &num[3]) != 4) return;
+      if(sscanf(String, "%d %d %d %d", &num[0], &num[1], &num[2], &num[3]) != 4)
+        return;
       for(int dim = 0; dim < 4; dim++) {
         for(int j = 0; j < num[dim]; j++) {
           int num;
           if(fscanf(File_GEO, "%d", &num) != 1) return;
           int nbound = 0;
-          if(dim > 0){
+          if(dim > 0) {
             if(fscanf(File_GEO, "%d", &nbound) != 1) return;
-            for(int k = 0; k < nbound; k++){
+            for(int k = 0; k < nbound; k++) {
               int dummy;
               if(fscanf(File_GEO, "%d", &dummy) != 1) return;
             }
@@ -662,14 +657,15 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           int nphys;
           if(fscanf(File_GEO, "%d", &nphys) != 1) return;
           std::vector<int> physicals(nphys);
-          for(int k = 0; k < nphys; k++){
+          for(int k = 0; k < nphys; k++) {
             if(fscanf(File_GEO, "%d", &physicals[k]) != 1) return;
           }
           entities[dim][num] = physicals;
-          if(nphys > 1){
-            Message::Error("GetDP does not support multiple physical groups per element:"
-                           " elementary entity %d belongs to %d physical groups",
-                           num, nphys);
+          if(nphys > 1) {
+            Message::Error(
+              "GetDP does not support multiple physical groups per element:"
+              " elementary entity %d belongs to %d physical groups",
+              num, nphys);
             return;
           }
         }
@@ -678,11 +674,9 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
     /*  N O D E S  */
 
-    else if (!strncmp(&String[1], "NOE", 3) ||
-	     !strncmp(&String[1], "NOD", 3) ||
-	     !strncmp(&String[1], "Nodes", 5) ||
-             !strncmp(&String[1], "ParametricNodes", 15)) {
-
+    else if(!strncmp(&String[1], "NOE", 3) || !strncmp(&String[1], "NOD", 3) ||
+            !strncmp(&String[1], "Nodes", 5) ||
+            !strncmp(&String[1], "ParametricNodes", 15)) {
       bool parametric =
         !strncmp(&String[1], "ParametricNodes", 15) || (Version >= 3.0);
 
@@ -690,16 +684,16 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
       if(sscanf(String, "%d", &Nbr) != 1) return;
       Message::Debug("%d nodes", Nbr);
 
-      if (GeoData_P->Nodes == NULL)
-	GeoData_P->Nodes = List_Create(Nbr, 1000, sizeof(struct Geo_Node)) ;
+      if(GeoData_P->Nodes == NULL)
+        GeoData_P->Nodes = List_Create(Nbr, 1000, sizeof(struct Geo_Node));
 
-      for (i = 0 ; i < Nbr ; i++) {
-        if(!parametric){
-          if(!binary){
-            if(fscanf(File_GEO, "%d %lf %lf %lf",
-                      &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) != 4)
+      for(i = 0; i < Nbr; i++) {
+        if(!parametric) {
+          if(!binary) {
+            if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Node.Num, &Geo_Node.x,
+                      &Geo_Node.y, &Geo_Node.z) != 4)
               return;
-            if(Flag_MSH_SCALING != 1.0){
+            if(Flag_MSH_SCALING != 1.0) {
               Geo_Node.x *= Flag_MSH_SCALING;
               Geo_Node.y *= Flag_MSH_SCALING;
               Geo_Node.z *= Flag_MSH_SCALING;
@@ -707,200 +701,206 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
           }
           else {
             if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
+            if(swap) swapBytes((char *)&Geo_Node.Num, sizeof(int), 1);
             double xyz[3];
             if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
-            if(swap) swapBytes((char*)xyz, sizeof(double), 3);
+            if(swap) swapBytes((char *)xyz, sizeof(double), 3);
             Geo_Node.x = xyz[0];
             Geo_Node.y = xyz[1];
             Geo_Node.z = xyz[2];
-            if(Flag_MSH_SCALING != 1.0){
+            if(Flag_MSH_SCALING != 1.0) {
               Geo_Node.x *= Flag_MSH_SCALING;
               Geo_Node.y *= Flag_MSH_SCALING;
               Geo_Node.z *= Flag_MSH_SCALING;
             }
           }
         }
-        else{
+        else {
           int dim = -1, entity;
-          if(!binary){
-            if(Version < 3.0){
-              if(fscanf(File_GEO, "%d %lf %lf %lf %d %d",
-                        &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z,
-                        &dim, &entity) != 6) return;
-              if(Flag_MSH_SCALING != 1.0){
+          if(!binary) {
+            if(Version < 3.0) {
+              if(fscanf(File_GEO, "%d %lf %lf %lf %d %d", &Geo_Node.Num,
+                        &Geo_Node.x, &Geo_Node.y, &Geo_Node.z, &dim,
+                        &entity) != 6)
+                return;
+              if(Flag_MSH_SCALING != 1.0) {
                 Geo_Node.x *= Flag_MSH_SCALING;
                 Geo_Node.y *= Flag_MSH_SCALING;
                 Geo_Node.z *= Flag_MSH_SCALING;
               }
             }
-            else{
-              if(fscanf(File_GEO, "%d %lf %lf %lf %d",
-                        &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z,
-                        &entity) != 5) return;
-              if(Flag_MSH_SCALING != 1.0){
+            else {
+              if(fscanf(File_GEO, "%d %lf %lf %lf %d", &Geo_Node.Num,
+                        &Geo_Node.x, &Geo_Node.y, &Geo_Node.z, &entity) != 5)
+                return;
+              if(Flag_MSH_SCALING != 1.0) {
                 Geo_Node.x *= Flag_MSH_SCALING;
                 Geo_Node.y *= Flag_MSH_SCALING;
                 Geo_Node.z *= Flag_MSH_SCALING;
               }
-              if(entity){
+              if(entity) {
                 if(fscanf(File_GEO, "%d", &dim) != 1) return;
               }
             }
           }
-          else{
+          else {
             if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
+            if(swap) swapBytes((char *)&Geo_Node.Num, sizeof(int), 1);
             double xyz[3];
             if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
-            if(swap) swapBytes((char*)xyz, sizeof(double), 3);
-            if(Version < 3.0){
+            if(swap) swapBytes((char *)xyz, sizeof(double), 3);
+            if(Version < 3.0) {
               if(fread(&dim, sizeof(int), 1, File_GEO) != 1) return;
-              if(swap) swapBytes((char*)&dim, sizeof(int), 1);
+              if(swap) swapBytes((char *)&dim, sizeof(int), 1);
               if(fread(&entity, sizeof(int), 1, File_GEO) != 1) return;
-              if(swap) swapBytes((char*)&entity, sizeof(int), 1);
+              if(swap) swapBytes((char *)&entity, sizeof(int), 1);
             }
-            else{
+            else {
               if(fread(&entity, sizeof(int), 1, File_GEO) != 1) return;
-              if(swap) swapBytes((char*)&entity, sizeof(int), 1);
-              if(entity){
+              if(swap) swapBytes((char *)&entity, sizeof(int), 1);
+              if(entity) {
                 if(fread(&dim, sizeof(int), 1, File_GEO) != 1) return;
-                if(swap) swapBytes((char*)&dim, sizeof(int), 1);
+                if(swap) swapBytes((char *)&dim, sizeof(int), 1);
               }
             }
             Geo_Node.x = xyz[0];
             Geo_Node.y = xyz[1];
             Geo_Node.z = xyz[2];
-            if(Flag_MSH_SCALING != 1.0){
+            if(Flag_MSH_SCALING != 1.0) {
               Geo_Node.x *= Flag_MSH_SCALING;
               Geo_Node.y *= Flag_MSH_SCALING;
               Geo_Node.z *= Flag_MSH_SCALING;
             }
           }
-          if(dim == 1 && (Version < 3.0 || entity)){
+          if(dim == 1 && (Version < 3.0 || entity)) {
             double u[1];
-            if(!binary){
+            if(!binary) {
               if(fscanf(File_GEO, "%lf", &u[0]) != 1) return;
             }
-            else{
+            else {
               if(fread(u, sizeof(double), 1, File_GEO) != 1) return;
-              if(swap) swapBytes((char*)u, sizeof(double), 1);
+              if(swap) swapBytes((char *)u, sizeof(double), 1);
             }
           }
-          else if(dim == 2 && (Version < 3.0 || entity)){
+          else if(dim == 2 && (Version < 3.0 || entity)) {
             double uv[2];
-            if(!binary){
+            if(!binary) {
               if(fscanf(File_GEO, "%lf %lf", &uv[0], &uv[1]) != 2) return;
             }
-            else{
+            else {
               if(fread(uv, sizeof(double), 2, File_GEO) != 2) return;
-              if(swap) swapBytes((char*)uv, sizeof(double), 2);
+              if(swap) swapBytes((char *)uv, sizeof(double), 2);
             }
           }
-          else if(dim == 3 && Version >= 3.0 && entity){
+          else if(dim == 3 && Version >= 3.0 && entity) {
             double uvw[3];
-            if(!binary){
-              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) != 3)
+            if(!binary) {
+              if(fscanf(File_GEO, "%lf %lf %lf", &uvw[0], &uvw[1], &uvw[2]) !=
+                 3)
                 return;
             }
-            else{
+            else {
               if(fread(uvw, sizeof(double), 3, File_GEO) != 2) return;
-              if(swap) swapBytes((char*)uvw, sizeof(double), 3);
+              if(swap) swapBytes((char *)uvw, sizeof(double), 3);
             }
           }
         }
-	List_Add(GeoData_P->Nodes, &Geo_Node) ;
-	if(!i){
-	  GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
-	  GeoData_P->Ymin = GeoData_P->Ymax = Geo_Node.y;
-	  GeoData_P->Zmin = GeoData_P->Zmax = Geo_Node.z;
-	}
-	else{
-	  GeoData_P->Xmin = std::min(GeoData_P->Xmin, Geo_Node.x);
-	  GeoData_P->Xmax = std::max(GeoData_P->Xmax, Geo_Node.x);
-	  GeoData_P->Ymin = std::min(GeoData_P->Ymin, Geo_Node.y);
-	  GeoData_P->Ymax = std::max(GeoData_P->Ymax, Geo_Node.y);
-	  GeoData_P->Zmin = std::min(GeoData_P->Zmin, Geo_Node.z);
-	  GeoData_P->Zmax = std::max(GeoData_P->Zmax, Geo_Node.z);
-	}
+        List_Add(GeoData_P->Nodes, &Geo_Node);
+        if(!i) {
+          GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
+          GeoData_P->Ymin = GeoData_P->Ymax = Geo_Node.y;
+          GeoData_P->Zmin = GeoData_P->Zmax = Geo_Node.z;
+        }
+        else {
+          GeoData_P->Xmin = std::min(GeoData_P->Xmin, Geo_Node.x);
+          GeoData_P->Xmax = std::max(GeoData_P->Xmax, Geo_Node.x);
+          GeoData_P->Ymin = std::min(GeoData_P->Ymin, Geo_Node.y);
+          GeoData_P->Ymax = std::max(GeoData_P->Ymax, Geo_Node.y);
+          GeoData_P->Zmin = std::min(GeoData_P->Zmin, Geo_Node.z);
+          GeoData_P->Zmax = std::max(GeoData_P->Zmax, Geo_Node.z);
+        }
       }
 
       if(GeoData_P->Xmin != GeoData_P->Xmax &&
-	 GeoData_P->Ymin != GeoData_P->Ymax &&
-	 GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = DIM_3D;
-      else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
-	GeoData_P->Dimension = DIM_2D;
-      else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = DIM_2D;
-      else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = DIM_2D;
+         GeoData_P->Ymin != GeoData_P->Ymax &&
+         GeoData_P->Zmin != GeoData_P->Zmax)
+        GeoData_P->Dimension = DIM_3D;
+      else if(GeoData_P->Xmin != GeoData_P->Xmax &&
+              GeoData_P->Ymin != GeoData_P->Ymax)
+        GeoData_P->Dimension = DIM_2D;
+      else if(GeoData_P->Xmin != GeoData_P->Xmax &&
+              GeoData_P->Zmin != GeoData_P->Zmax)
+        GeoData_P->Dimension = DIM_2D;
+      else if(GeoData_P->Ymin != GeoData_P->Ymax &&
+              GeoData_P->Zmin != GeoData_P->Zmax)
+        GeoData_P->Dimension = DIM_2D;
       else if(GeoData_P->Xmin != GeoData_P->Xmax)
-	GeoData_P->Dimension = DIM_1D;
+        GeoData_P->Dimension = DIM_1D;
       else if(GeoData_P->Ymin != GeoData_P->Ymax)
-	GeoData_P->Dimension = DIM_1D;
+        GeoData_P->Dimension = DIM_1D;
       else if(GeoData_P->Zmin != GeoData_P->Zmax)
-	GeoData_P->Dimension = DIM_1D;
+        GeoData_P->Dimension = DIM_1D;
       else
-	GeoData_P->Dimension = DIM_0D;
+        GeoData_P->Dimension = DIM_0D;
 
       GeoData_P->CharacteristicLength =
-	sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
-	     SQU(GeoData_P->Ymax - GeoData_P->Ymin) +
-	     SQU(GeoData_P->Zmax - GeoData_P->Zmin));
-      if(!GeoData_P->CharacteristicLength)
-	GeoData_P->CharacteristicLength = 1.;
+        sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) +
+             SQU(GeoData_P->Ymax - GeoData_P->Ymin) +
+             SQU(GeoData_P->Zmax - GeoData_P->Zmin));
+      if(!GeoData_P->CharacteristicLength) GeoData_P->CharacteristicLength = 1.;
     }
 
     /*  E L E M E N T S  */
 
-    else if (!strncmp(&String[1], "ELM", 3) ||
-	     !strncmp(&String[1], "Elements", 8)) {
-
+    else if(!strncmp(&String[1], "ELM", 3) ||
+            !strncmp(&String[1], "Elements", 8)) {
       if(!fgets(String, sizeof(String), File_GEO)) return;
       if(sscanf(String, "%d", &Nbr) != 1) return;
       Message::Debug("%d elements", Nbr);
 
-      if (GeoData_P->Elements == NULL)
-	GeoData_P->Elements =
-	  List_Create(Nbr, 1000, sizeof(struct Geo_Element)) ;
+      if(GeoData_P->Elements == NULL)
+        GeoData_P->Elements =
+          List_Create(Nbr, 1000, sizeof(struct Geo_Element));
 
-      Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0 ;
-      Geo_Element.NumEdges = Geo_Element.NumFacets = NULL ;
+      Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0;
+      Geo_Element.NumEdges = Geo_Element.NumFacets = NULL;
 
-      if (!binary){
-	for (i = 0 ; i < Nbr ; i++) {
-	  if(Version == 1.0){
-	    if(fscanf(File_GEO, "%d %d %d %d %d",
-                      &Geo_Element.Num, &Type, &Geo_Element.Region,
-                      &Geo_Element.ElementaryRegion, &Geo_Element.NbrNodes) != 5)
+      if(!binary) {
+        for(i = 0; i < Nbr; i++) {
+          if(Version == 1.0) {
+            if(fscanf(File_GEO, "%d %d %d %d %d", &Geo_Element.Num, &Type,
+                      &Geo_Element.Region, &Geo_Element.ElementaryRegion,
+                      &Geo_Element.NbrNodes) != 5)
               return;
-	    Geo_Element.Type = Gmsh2GetDP(Type) ;
-	  }
-	  else if(Version < 3.0){
-	    if(fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags) != 3)
+            Geo_Element.Type = Gmsh2GetDP(Type);
+          }
+          else if(Version < 3.0) {
+            if(fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags) !=
+               3)
               return;
-	    Geo_Element.Region = Geo_Element.ElementaryRegion = 1;
-	    for(j = 0; j < NbTags; j++){
-	      if(fscanf(File_GEO, "%d", &iDummy) != 1) return;
-	      if(j == 0)
-		Geo_Element.Region = iDummy;
+            Geo_Element.Region = Geo_Element.ElementaryRegion = 1;
+            for(j = 0; j < NbTags; j++) {
+              if(fscanf(File_GEO, "%d", &iDummy) != 1) return;
+              if(j == 0)
+                Geo_Element.Region = iDummy;
               else if(j == 1)
                 Geo_Element.ElementaryRegion = iDummy;
-	      /* ignore any other tags for now */
-	    }
-	    Geo_Element.Type = Gmsh2GetDP(Type) ;
-	    Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
-	  }
-          else{
+              /* ignore any other tags for now */
+            }
+            Geo_Element.Type = Gmsh2GetDP(Type);
+            Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
+          }
+          else {
             int numData;
-	    if(fscanf(File_GEO, "%d %d %d %d", &Geo_Element.Num, &Type,
-                      &Geo_Element.ElementaryRegion, &numData) != 4) return;
-	    Geo_Element.Type = Gmsh2GetDP(Type) ;
-	    Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
-            std::vector<int> phys = entities[Geo_GetDimOfElement(Geo_Element.Type)]
-              [Geo_Element.ElementaryRegion];
-            if(phys.empty()){
+            if(fscanf(File_GEO, "%d %d %d %d", &Geo_Element.Num, &Type,
+                      &Geo_Element.ElementaryRegion, &numData) != 4)
+              return;
+            Geo_Element.Type = Gmsh2GetDP(Type);
+            Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
+            std::vector<int> phys =
+              entities[Geo_GetDimOfElement(Geo_Element.Type)]
+                      [Geo_Element.ElementaryRegion];
+            if(phys.empty()) {
               Message::Error("No physical group provided for element %d",
                              Geo_Element.Num);
               return;
@@ -909,86 +909,95 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
               Geo_Element.Region = phys[0];
 
             /* ignore any other tags for now */
-            for(j = 0; j < numData - Geo_Element.NbrNodes; j++){
+            for(j = 0; j < numData - Geo_Element.NbrNodes; j++) {
               if(fscanf(File_GEO, "%d", &iDummy) != 1) return;
             }
           }
 
-	  Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++){
-	    if(fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) != 1)
-              return;
+          Geo_Element.NumNodes =
+            (int *)Malloc(Geo_Element.NbrNodes * sizeof(int));
+          for(j = 0; j < Geo_Element.NbrNodes; j++) {
+            if(fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) != 1) return;
           }
-          if(Geo_Element.Region < 0){
+          if(Geo_Element.Region < 0) {
             Geo_ReverseElement(&Geo_Element);
             Geo_Element.Region = -Geo_Element.Region;
           }
 
-	  List_Add(GeoData_P->Elements, &Geo_Element) ;
-	}
+          List_Add(GeoData_P->Elements, &Geo_Element);
+        }
       }
       else {
-        if(Version < 3.0){
+        if(Version < 3.0) {
           int numElementsPartial = 0;
-          while(numElementsPartial < Nbr){
+          while(numElementsPartial < Nbr) {
             int header[3];
             if(fread(header, sizeof(int), 3, File_GEO) != 3) return;
-            if(swap) swapBytes((char*)header, sizeof(int), 3);
+            if(swap) swapBytes((char *)header, sizeof(int), 3);
             Type = header[0];
             int numElms = header[1];
             int numTags = header[2];
-            Geo_Element.Type = Gmsh2GetDP(Type) ;
+            Geo_Element.Type = Gmsh2GetDP(Type);
             Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
             unsigned int n = 1 + numTags + Geo_Element.NbrNodes;
-            int *data = (int *)Malloc(n * sizeof(int)) ;
+            int *data = (int *)Malloc(n * sizeof(int));
             for(i = 0; i < numElms; i++) {
               if(fread(data, sizeof(int), n, File_GEO) != n) return;
-              if(swap) swapBytes((char*)data, sizeof(int), n);
+              if(swap) swapBytes((char *)data, sizeof(int), n);
               Geo_Element.Num = data[0];
               Geo_Element.Region = (numTags > 0) ? data[1] : 0;
               Geo_Element.ElementaryRegion = (numTags > 1) ? data[2] : 0;
-              Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-              for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
-                Geo_Element.NumNodes[j] = data[numTags + 1 + j] ;
-              List_Add(GeoData_P->Elements, &Geo_Element) ;
+              Geo_Element.NumNodes =
+                (int *)Malloc(Geo_Element.NbrNodes * sizeof(int));
+              for(j = 0; j < Geo_Element.NbrNodes; j++)
+                Geo_Element.NumNodes[j] = data[numTags + 1 + j];
+              List_Add(GeoData_P->Elements, &Geo_Element);
             }
             Free(data);
             numElementsPartial += numElms;
           }
         }
-        else{
-          for (i = 0 ; i < Nbr ; i++) {
+        else {
+          for(i = 0; i < Nbr; i++) {
             int numData;
             if(fread(&Geo_Element.Num, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&Geo_Element.Num, sizeof(int), 1);
+            if(swap) swapBytes((char *)&Geo_Element.Num, sizeof(int), 1);
             if(fread(&Type, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&Type, sizeof(int), 1);
-            if(fread(&Geo_Element.ElementaryRegion, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&Geo_Element.ElementaryRegion, sizeof(int), 1);
+            if(swap) swapBytes((char *)&Type, sizeof(int), 1);
+            if(fread(&Geo_Element.ElementaryRegion, sizeof(int), 1, File_GEO) !=
+               1)
+              return;
+            if(swap)
+              swapBytes((char *)&Geo_Element.ElementaryRegion, sizeof(int), 1);
             if(fread(&numData, sizeof(int), 1, File_GEO) != 1) return;
-            if(swap) swapBytes((char*)&numData, sizeof(int), 1);
+            if(swap) swapBytes((char *)&numData, sizeof(int), 1);
             std::vector<int> data;
-            if(numData > 0){
+            if(numData > 0) {
               data.resize(numData);
-              if((int)fread(&data[0], sizeof(int), numData, File_GEO) != numData) return;
-              if(swap) swapBytes((char*)&data[0], sizeof(int), numData);
+              if((int)fread(&data[0], sizeof(int), numData, File_GEO) !=
+                 numData)
+                return;
+              if(swap) swapBytes((char *)&data[0], sizeof(int), numData);
             }
-            Geo_Element.Type = Gmsh2GetDP(Type) ;
+            Geo_Element.Type = Gmsh2GetDP(Type);
             Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
-            Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-            if((int)data.size() >= Geo_Element.NbrNodes){
-              for (j = 0 ; j < Geo_Element.NbrNodes ; j++){
-                Geo_Element.NumNodes[j] = data[numData - Geo_Element.NbrNodes + j] ;
+            Geo_Element.NumNodes =
+              (int *)Malloc(Geo_Element.NbrNodes * sizeof(int));
+            if((int)data.size() >= Geo_Element.NbrNodes) {
+              for(j = 0; j < Geo_Element.NbrNodes; j++) {
+                Geo_Element.NumNodes[j] =
+                  data[numData - Geo_Element.NbrNodes + j];
               }
             }
-            else{
+            else {
               Message::Error("Missing node tags in element %d",
                              Geo_Element.Num);
               return;
             }
-            std::vector<int> phys = entities[Geo_GetDimOfElement(Geo_Element.Type)]
-              [Geo_Element.ElementaryRegion];
-            if(phys.empty()){
+            std::vector<int> phys =
+              entities[Geo_GetDimOfElement(Geo_Element.Type)]
+                      [Geo_Element.ElementaryRegion];
+            if(phys.empty()) {
               Message::Error("No physical group provided for element %d",
                              Geo_Element.Num);
               return;
@@ -996,114 +1005,106 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
             else
               Geo_Element.Region = phys[0];
 
-            if(Geo_Element.Region < 0){
+            if(Geo_Element.Region < 0) {
               Geo_ReverseElement(&Geo_Element);
               Geo_Element.Region = -Geo_Element.Region;
             }
 
-            List_Add(GeoData_P->Elements, &Geo_Element) ;
+            List_Add(GeoData_P->Elements, &Geo_Element);
           }
         }
       }
 
-      List_Sort(GeoData_P->Elements, fcmp_Elm) ;
-
+      List_Sort(GeoData_P->Elements, fcmp_Elm);
     }
 
     do {
-      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
-        break;
-    } while (String[0] != '$') ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO)) break;
+    } while(String[0] != '$');
 
-  }   /* while 1 ... */
-
+  } /* while 1 ... */
 
   Geo_SnapNodes(GeoData_P);
 }
 
-void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
+void Geo_ReadFileAdapt(struct GeoData *GeoData_P)
 {
-  struct Geo_Element Geo_Element, * Geo_Element_P ;
-  int        Nbr, i, Index_GeoElement ;
-  double     E, H, P, Max_Order = -1.0 ;
-  char       String[256] ;
+  struct Geo_Element Geo_Element, *Geo_Element_P;
+  int Nbr, i, Index_GeoElement;
+  double E, H, P, Max_Order = -1.0;
+  char String[256];
 
-  Nbr = List_Nbr(GeoData_P->Elements) ;
+  Nbr = List_Nbr(GeoData_P->Elements);
 
-  if(!GeoData_P->H){
-    GeoData_P->H = (double*)Malloc((Nbr+2)*sizeof(double)) ;
-    for (i = 0 ; i < Nbr ; i++) GeoData_P->H[i+1] = -1.0 ;
+  if(!GeoData_P->H) {
+    GeoData_P->H = (double *)Malloc((Nbr + 2) * sizeof(double));
+    for(i = 0; i < Nbr; i++) GeoData_P->H[i + 1] = -1.0;
   }
-  if(!GeoData_P->P){
-    GeoData_P->P = (double*)Malloc((Nbr+2)*sizeof(double)) ;
-    for (i = 0 ; i < Nbr ; i++) GeoData_P->P[i+1] = -1.0 ;
+  if(!GeoData_P->P) {
+    GeoData_P->P = (double *)Malloc((Nbr + 2) * sizeof(double));
+    for(i = 0; i < Nbr; i++) GeoData_P->P[i + 1] = -1.0;
   }
 
-  while (1) {
-
+  while(1) {
     do {
-      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
-        break ;
-    } while (String[0] != '$') ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO)) break;
+    } while(String[0] != '$');
 
-    if (feof(File_GEO))  break ;
+    if(feof(File_GEO)) break;
 
-    if (!strncmp(&String[1], "Adapt", 5)) {
-      if(fscanf(File_GEO, "%d", &Nbr) != 1){
+    if(!strncmp(&String[1], "Adapt", 5)) {
+      if(fscanf(File_GEO, "%d", &Nbr) != 1) {
         Message::Error("Could not read adapation data");
         break;
       }
-      for (i = 0 ; i < Nbr ; i++) {
-	if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) != 4){
+      for(i = 0; i < Nbr; i++) {
+        if(fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) !=
+           4) {
           Message::Error("Could not read adaptation data");
           break;
         }
-	if(!(Geo_Element_P = (struct Geo_Element *)
-	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm))){
-	  Message::Error("Element %d not found in database", Geo_Element.Num) ;
+        if(!(Geo_Element_P = (struct Geo_Element *)List_PQuery(
+               GeoData_P->Elements, &Geo_Element, fcmp_Elm))) {
+          Message::Error("Element %d not found in database", Geo_Element.Num);
           break;
         }
-	Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P) ;
-	GeoData_P->H[Index_GeoElement+1] = H ;
-	GeoData_P->P[Index_GeoElement+1] = P ;
-	if(P > Max_Order) Max_Order = P ;
+        Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P);
+        GeoData_P->H[Index_GeoElement + 1] = H;
+        GeoData_P->P[Index_GeoElement + 1] = P;
+        if(P > Max_Order) Max_Order = P;
       }
     }
 
     do {
-      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO))
-        break;
-    } while (String[0] != '$') ;
+      if(!fgets(String, sizeof(String), File_GEO) || feof(File_GEO)) break;
+    } while(String[0] != '$');
 
-  }   /* while 1 ... */
+  } /* while 1 ... */
 
-  if(Flag_ORDER < 0) Flag_ORDER = Max_Order ;
+  if(Flag_ORDER < 0) Flag_ORDER = Max_Order;
 
-  Message::Info("Maximum interpolation order = %g", Flag_ORDER) ;
+  Message::Info("Maximum interpolation order = %g", Flag_ORDER);
 }
 
 /* ------------------------------------------------------------------------ */
 /*  f c m p _ E l m   &   f c m p _ N o d                                   */
 /* ------------------------------------------------------------------------ */
 
-int fcmp_Elm(const void * a, const void * b)
+int fcmp_Elm(const void *a, const void *b)
 {
-  return  ((struct Geo_Element *)a)->Num - ((struct Geo_Element *)b)->Num ;
+  return ((struct Geo_Element *)a)->Num - ((struct Geo_Element *)b)->Num;
 }
 
-int fcmp_Nod(const void * a, const void * b)
+int fcmp_Nod(const void *a, const void *b)
 {
-  return  ((struct Geo_Node *)a)->Num - ((struct Geo_Node *)b)->Num ;
+  return ((struct Geo_Node *)a)->Num - ((struct Geo_Node *)b)->Num;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t N b r G e o E l e m e n t s                               */
 /* ------------------------------------------------------------------------ */
 
-int Geo_GetNbrGeoElements(void)
-{
-  return(List_Nbr(CurrentGeoData->Elements)) ;
-}
+int Geo_GetNbrGeoElements(void) { return (List_Nbr(CurrentGeoData->Elements)); }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t G e o E l e m e n t                                       */
@@ -1111,18 +1112,18 @@ int Geo_GetNbrGeoElements(void)
 
 struct Geo_Element *Geo_GetGeoElement(int Index_Element)
 {
-  return((struct Geo_Element *)List_Pointer(CurrentGeoData->Elements,
-						  Index_Element)) ;
+  return ((struct Geo_Element *)List_Pointer(CurrentGeoData->Elements,
+                                             Index_Element));
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t G e o E l e m e n t I n d e x                             */
 /* ------------------------------------------------------------------------ */
 
-int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement)
+int Geo_GetGeoElementIndex(struct Geo_Element *GeoElement)
 {
-  return(GeoElement -
-	       (struct Geo_Element*)List_Pointer(CurrentGeoData->Elements, 0)) ;
+  return (GeoElement -
+          (struct Geo_Element *)List_Pointer(CurrentGeoData->Elements, 0));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1131,22 +1132,19 @@ int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement)
 
 struct Geo_Element *Geo_GetGeoElementOfNum(int Num_Element)
 {
-  struct Geo_Element  elm ;
+  struct Geo_Element elm;
 
-  elm.Num = Num_Element ;
+  elm.Num = Num_Element;
 
-  return((struct Geo_Element*)List_PQuery(CurrentGeoData->Elements,
-						&elm, fcmp_Elm)) ;
+  return ((struct Geo_Element *)List_PQuery(CurrentGeoData->Elements, &elm,
+                                            fcmp_Elm));
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t N b r G e o N o d e s                                     */
 /* ------------------------------------------------------------------------ */
 
-int Geo_GetNbrGeoNodes(void)
-{
-  return(List_Nbr(CurrentGeoData->Nodes)) ;
-}
+int Geo_GetNbrGeoNodes(void) { return (List_Nbr(CurrentGeoData->Nodes)); }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t G e o N o d e                                             */
@@ -1154,8 +1152,7 @@ int Geo_GetNbrGeoNodes(void)
 
 struct Geo_Node *Geo_GetGeoNode(int Index_Node)
 {
-  return((struct Geo_Node *)List_Pointer(CurrentGeoData->Nodes,
-					       Index_Node)) ;
+  return ((struct Geo_Node *)List_Pointer(CurrentGeoData->Nodes, Index_Node));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1164,34 +1161,36 @@ struct Geo_Node *Geo_GetGeoNode(int Index_Node)
 
 struct Geo_Node *Geo_GetGeoNodeOfNum(int Num_Node)
 {
-  struct Geo_Node  node ;
+  struct Geo_Node node;
 
-  node.Num = Num_Node ;
+  node.Num = Num_Node;
 
-  return((struct Geo_Node*)List_PQuery(CurrentGeoData->Nodes,
-					     &node, fcmp_Nod)) ;
+  return (
+    (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes, &node, fcmp_Nod));
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t N o d e s C o o r d i n a t e s                           */
 /* ------------------------------------------------------------------------ */
 
-void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
-			     double * x, double * y, double * z)
+void Geo_GetNodesCoordinates(int Nbr_Node, int *Num_Node, double *x, double *y,
+                             double *z)
 {
-  int    i ;
-  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+  int i;
+  struct Geo_Node Geo_Node, *Geo_Node_P;
 
-  for (i = 0 ; i < Nbr_Node ; i++) {
-    Geo_Node.Num = abs(Num_Node[i]) ;
+  for(i = 0; i < Nbr_Node; i++) {
+    Geo_Node.Num = abs(Num_Node[i]);
 
-    if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
-      Message::Error("Node %d does not exist", Geo_Node.Num) ;
+    if(!(Geo_Node_P = (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes,
+                                                     &Geo_Node, fcmp_Nod))) {
+      Message::Error("Node %d does not exist", Geo_Node.Num);
       break;
     }
 
-    x[i] = Geo_Node_P->x ;  y[i] = Geo_Node_P->y ;  z[i] = Geo_Node_P->z ;
+    x[i] = Geo_Node_P->x;
+    y[i] = Geo_Node_P->y;
+    z[i] = Geo_Node_P->z;
   }
 }
 
@@ -1199,78 +1198,77 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
 /*  G e o _ S e t N o d e s C o o r d i n a t e s                           */
 /* ------------------------------------------------------------------------ */
 
-void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
-			     double * x, double * y, double * z)
+void Geo_SetNodesCoordinates(int Nbr_Node, int *Num_Node, double *x, double *y,
+                             double *z)
 {
-  int    i ;
-  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+  int i;
+  struct Geo_Node Geo_Node, *Geo_Node_P;
 
-  for (i = 0 ; i < Nbr_Node ; i++) {
-    Geo_Node.Num = abs(Num_Node[i]) ;
+  for(i = 0; i < Nbr_Node; i++) {
+    Geo_Node.Num = abs(Num_Node[i]);
 
-    if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
-      Message::Error("Node %d does not exist", Geo_Node.Num) ;
+    if(!(Geo_Node_P = (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes,
+                                                     &Geo_Node, fcmp_Nod))) {
+      Message::Error("Node %d does not exist", Geo_Node.Num);
       break;
     }
 
-    Geo_Node_P->x = x[i] ;  Geo_Node_P->y = y[i] ;  Geo_Node_P->z = z[i] ;
+    Geo_Node_P->x = x[i];
+    Geo_Node_P->y = y[i];
+    Geo_Node_P->z = z[i];
   }
 }
 
-void Geo_SetNodesCoordinatesX(int Nbr_Node, int * Num_Node,
-			     double *x)
+void Geo_SetNodesCoordinatesX(int Nbr_Node, int *Num_Node, double *x)
 {
-  int    i ;
-  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+  int i;
+  struct Geo_Node Geo_Node, *Geo_Node_P;
 
-  for (i = 0 ; i < Nbr_Node ; i++) {
-    Geo_Node.Num = abs(Num_Node[i]) ;
+  for(i = 0; i < Nbr_Node; i++) {
+    Geo_Node.Num = abs(Num_Node[i]);
 
-    if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
-      Message::Error("Node %d does not exist", Geo_Node.Num) ;
+    if(!(Geo_Node_P = (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes,
+                                                     &Geo_Node, fcmp_Nod))) {
+      Message::Error("Node %d does not exist", Geo_Node.Num);
       break;
     }
 
-    Geo_Node_P->x = x[i] ;
+    Geo_Node_P->x = x[i];
   }
 }
 
-void Geo_SetNodesCoordinatesY(int Nbr_Node, int * Num_Node,
-			     double *y)
+void Geo_SetNodesCoordinatesY(int Nbr_Node, int *Num_Node, double *y)
 {
-  int    i ;
-  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+  int i;
+  struct Geo_Node Geo_Node, *Geo_Node_P;
 
-  for (i = 0 ; i < Nbr_Node ; i++) {
-    Geo_Node.Num = abs(Num_Node[i]) ;
+  for(i = 0; i < Nbr_Node; i++) {
+    Geo_Node.Num = abs(Num_Node[i]);
 
-    if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
-      Message::Error("Node %d does not exist", Geo_Node.Num) ;
+    if(!(Geo_Node_P = (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes,
+                                                     &Geo_Node, fcmp_Nod))) {
+      Message::Error("Node %d does not exist", Geo_Node.Num);
       break;
     }
 
-    Geo_Node_P->y = y[i] ;
+    Geo_Node_P->y = y[i];
   }
 }
 
-void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
-			     double *z)
+void Geo_SetNodesCoordinatesZ(int Nbr_Node, int *Num_Node, double *z)
 {
-  int    i ;
-  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+  int i;
+  struct Geo_Node Geo_Node, *Geo_Node_P;
 
-  for (i = 0 ; i < Nbr_Node ; i++) {
-    Geo_Node.Num = abs(Num_Node[i]) ;
+  for(i = 0; i < Nbr_Node; i++) {
+    Geo_Node.Num = abs(Num_Node[i]);
 
-    if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
-      Message::Error("Node %d does not exist", Geo_Node.Num) ;
+    if(!(Geo_Node_P = (struct Geo_Node *)List_PQuery(CurrentGeoData->Nodes,
+                                                     &Geo_Node, fcmp_Nod))) {
+      Message::Error("Node %d does not exist", Geo_Node.Num);
       break;
     }
 
-    Geo_Node_P->z = z[i] ;
+    Geo_Node_P->z = z[i];
   }
 }

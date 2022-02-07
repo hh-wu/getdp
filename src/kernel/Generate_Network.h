@@ -8,6 +8,7 @@
 
 #include "ProData.h"
 
-struct ConstraintActive * Generate_Network(char *Name, List_T * ConstraintPerRegion_L);
+struct ConstraintActive *Generate_Network(char *Name,
+                                          List_T *ConstraintPerRegion_L);
 
 #endif

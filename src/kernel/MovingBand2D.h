@@ -8,7 +8,7 @@
 
 #include "ProData.h"
 
-void Init_MovingBand2D(struct Group * Group_P);
-void Mesh_MovingBand2D(struct Group * Group_P);
+void Init_MovingBand2D(struct Group *Group_P);
+void Mesh_MovingBand2D(struct Group *Group_P);
 
 #endif

@@ -12,37 +12,31 @@
 
 struct Brick {
   List_T *p[3];
-} ;
+};
 
 struct ElementBox {
-  double  Xmin, Xmax ;
-  double  Ymin, Ymax ;
-  double  Zmin, Zmax ;
-} ;
+  double Xmin, Xmax;
+  double Ymin, Ymax;
+  double Zmin, Zmax;
+};
 
 struct PointElement {
   double d;
   double xp, yp, zp;
   int ElementIndex;
-} ;
+};
 
-void Free_SearchGrid(struct Grid * Grid);
+void Free_SearchGrid(struct Grid *Grid);
 
-void InWhichElement(struct Grid *Grid,
-		    List_T *ExcludeRegion,
-		    struct Element * Element,
-		    int Flag,
-		    double  x, double  y, double  z,
-		    double *u, double *v, double *w);
+void InWhichElement(struct Grid *Grid, List_T *ExcludeRegion,
+                    struct Element *Element, int Flag, double x, double y,
+                    double z, double *u, double *v, double *w);
 
-int PointInElement (struct Element * Element,
-                    List_T *ExcludeRegion_L,
-                    double  x, double  y, double  z,
-                    double *u, double *v, double *w,
-                    double tol);
+int PointInElement(struct Element *Element, List_T *ExcludeRegion_L, double x,
+                   double y, double z, double *u, double *v, double *w,
+                   double tol);
 
-void xyz2uvwInAnElement(struct Element *Element,
-			double  x, double  y, double  z,
-			double *u, double *v, double *w);
+void xyz2uvwInAnElement(struct Element *Element, double x, double y, double z,
+                        double *u, double *v, double *w);
 
 #endif

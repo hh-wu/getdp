@@ -8,14 +8,12 @@
 
 #include "ProData.h"
 
-void Pos_FemInterpolation(struct Element * Element,
-			  struct QuantityStorage * QuantityStorage_P0,
-			  struct QuantityStorage * QuantityStorage_P,
-			  int Type_Quantity, int Type_Operator,
-			  int Type_Dimension, int UseXYZ,
-			  double u, double v, double w,
-			  double x, double y, double z,
-			  double Val[], int * Type_Value,
-			  int Flag_ChangeOfCoordinates);
+void Pos_FemInterpolation(struct Element *Element,
+                          struct QuantityStorage *QuantityStorage_P0,
+                          struct QuantityStorage *QuantityStorage_P,
+                          int Type_Quantity, int Type_Operator,
+                          int Type_Dimension, int UseXYZ, double u, double v,
+                          double w, double x, double y, double z, double Val[],
+                          int *Type_Value, int Flag_ChangeOfCoordinates);
 
 #endif

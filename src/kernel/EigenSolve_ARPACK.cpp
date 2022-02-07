@@ -21,17 +21,17 @@
 #include "MallocUtils.h"
 #include "OS.h"
 
-#define SQU(a)     ((a)*(a))
-#define TWO_PI     6.2831853071795865
+#define SQU(a) ((a) * (a))
+#define TWO_PI 6.2831853071795865
 
-extern struct CurrentData Current ;
-extern char   *Name_Path ;
+extern struct CurrentData Current;
+extern char *Name_Path;
 
 struct EigenPar {
   double prec;
-  int    size;
-  int    reortho;
-} ;
+  int size;
+  int reortho;
+};
 
 #if defined(HAVE_NO_UNDERSCORE)
 #define znaupd_ znaupd
@@ -39,28 +39,29 @@ struct EigenPar {
 #endif
 
 extern "C" {
-  typedef struct {double re; double im;} complex_16;
-  extern void znaupd_(int *ido, char *bmat, int *n,
-		      char *which, int *nev, double *tol, complex_16 resid[],
-		      int *ncv, complex_16 v[], int *ldv, int iparam[],
-		      int ipntr[], complex_16 workd[], complex_16 workl[], int *lworkl,
-		      double rwork[], int *info);
-  extern void zneupd_(unsigned int *rvec, char *howmny, unsigned int select[],
-		      complex_16 d[], complex_16 z[], int *ldz, complex_16 *sigma,
-		      complex_16 workev[], char *bmat, int *n, char *which,
-		      int *nev, double *tol, complex_16 resid[], int *ncv,
-		      complex_16 v[], int *ldv, int iparam[], int ipntr[],
-		      complex_16 workd[], complex_16 workl[], int *lworkl,
-		      double rwork[], int *info);
+typedef struct {
+  double re;
+  double im;
+} complex_16;
+extern void znaupd_(int *ido, char *bmat, int *n, char *which, int *nev,
+                    double *tol, complex_16 resid[], int *ncv, complex_16 v[],
+                    int *ldv, int iparam[], int ipntr[], complex_16 workd[],
+                    complex_16 workl[], int *lworkl, double rwork[], int *info);
+extern void zneupd_(unsigned int *rvec, char *howmny, unsigned int select[],
+                    complex_16 d[], complex_16 z[], int *ldz, complex_16 *sigma,
+                    complex_16 workev[], char *bmat, int *n, char *which,
+                    int *nev, double *tol, complex_16 resid[], int *ncv,
+                    complex_16 v[], int *ldv, int iparam[], int ipntr[],
+                    complex_16 workd[], complex_16 workl[], int *lworkl,
+                    double rwork[], int *info);
 }
 
 static void EigenGetDouble(const char *text, double *d)
 {
   char str[256];
   printf("%s (default=%.16g): ", text, *d);
-  if(fgets(str, sizeof(str), stdin)){
-    if(strlen(str) && strcmp(str, "\n"))
-      *d = atof(str);
+  if(fgets(str, sizeof(str), stdin)) {
+    if(strlen(str) && strcmp(str, "\n")) *d = atof(str);
   }
 }
 
@@ -68,9 +69,8 @@ static void EigenGetInt(const char *text, int *i)
 {
   char str[256];
   printf("%s (default=%d): ", text, *i);
-  if(fgets(str, sizeof(str), stdin)){
-    if(strlen(str) && strcmp(str, "\n"))
-      *i = atoi(str);
+  if(fgets(str, sizeof(str), stdin)) {
+    if(strlen(str) && strcmp(str, "\n")) *i = atoi(str);
   }
 }
 
@@ -90,15 +90,15 @@ void EigenPar(const char *filename, struct EigenPar *par)
   fp = FOpen(path, "r");
   if(fp) {
     Message::Info("Loading eigenproblem parameter file '%s'", path);
-    if(fscanf(fp, "%lf %d %d", &par->prec, &par->reortho, &par->size) != 3){
+    if(fscanf(fp, "%lf %d %d", &par->prec, &par->reortho, &par->size) != 3) {
       Message::Error("Could not read parameters");
     }
     fclose(fp);
   }
-  else{
+  else {
     fp = FOpen(path, "w");
-    if(fp){
-      if(!Message::UseOnelab()){
+    if(fp) {
+      if(!Message::UseOnelab()) {
         /* get parameters from command line */
         EigenGetDouble("Precision", &par->prec);
         EigenGetInt("Reorthogonalization", &par->reortho);
@@ -108,21 +108,22 @@ void EigenPar(const char *filename, struct EigenPar *par)
       fprintf(fp, "%.16g\n", par->prec);
       fprintf(fp, "%d\n", par->reortho);
       fprintf(fp, "%d\n", par->size);
-      fprintf(fp,
-	      "/*\n"
-	      "   The numbers above are the parameters for the numerical\n"
-	      "   eigenvalue problem:\n"
-	      "\n"
-	      "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
-	      "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
-	      "   size = size of the Krylov basis\n"
-	      "\n"
-	      "   The shift is given in the .pro file because its choice relies\n"
-	      "   on physical considerations.\n"
-	      "*/");
+      fprintf(
+        fp, "/*\n"
+            "   The numbers above are the parameters for the numerical\n"
+            "   eigenvalue problem:\n"
+            "\n"
+            "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
+            "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 "
+            "(default=0) \n"
+            "   size = size of the Krylov basis\n"
+            "\n"
+            "   The shift is given in the .pro file because its choice relies\n"
+            "   on physical considerations.\n"
+            "*/");
       fclose(fp);
     }
-    else{
+    else {
       Message::Error("Unable to open file '%s'", path);
     }
   }
@@ -142,35 +143,36 @@ static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
   int i, j;
   double re, im;
   int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
-  for(i = 0; i < N; i++){
+  for(i = 0; i < N; i++) {
     re = in[i].re;
     im = in[i].im;
     j = i * incr;
     if(Current.NbrHar == 2)
-      LinAlg_SetComplexInVector(re, im, out, j, j+1);
+      LinAlg_SetComplexInVector(re, im, out, j, j + 1);
     else
       LinAlg_SetDoubleInVector(re, out, j);
   }
   LinAlg_AssembleVector(out);
 }
 
-static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out2)
+static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1,
+                              gVector *out2)
 {
   int i, j;
   double re, im;
   int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
-  for(i = 0; i < N/2; i++){
+  for(i = 0; i < N / 2; i++) {
     j = i * incr;
     re = in[i].re;
     im = in[i].im;
     if(Current.NbrHar == 2)
-      LinAlg_SetComplexInVector(re, im, out1, j, j+1);
+      LinAlg_SetComplexInVector(re, im, out1, j, j + 1);
     else
       LinAlg_SetDoubleInVector(re, out1, j);
-    re = in[N/2+i].re;
-    im = in[N/2+i].im;
+    re = in[N / 2 + i].re;
+    im = in[N / 2 + i].im;
     if(Current.NbrHar == 2)
-      LinAlg_SetComplexInVector(re, im, out2, j, j+1);
+      LinAlg_SetComplexInVector(re, im, out2, j, j + 1);
     else
       LinAlg_SetDoubleInVector(re, out2, j);
   }
@@ -184,13 +186,13 @@ static void GetDP2Arpack(gVector *in, complex_16 *out)
   double re, im = 0.;
   int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   LinAlg_GetVectorSize(in, &N);
-  for(i = 0; i < N; i += incr){
+  for(i = 0; i < N; i += incr) {
     if(Current.NbrHar == 2)
-      LinAlg_GetComplexInVector(&re, &im, in, i, i+1);
+      LinAlg_GetComplexInVector(&re, &im, in, i, i + 1);
     else
       LinAlg_GetDoubleInVector(&re, in, i);
-    out[i/incr].re = re;
-    out[i/incr].im = im;
+    out[i / incr].re = re;
+    out[i / incr].im = im;
   }
 }
 
@@ -200,24 +202,25 @@ static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
   double re, im = 0.;
   int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   LinAlg_GetVectorSize(in1, &N);
-  for(i = 0; i < N; i += incr){
+  for(i = 0; i < N; i += incr) {
     if(Current.NbrHar == 2)
-      LinAlg_GetComplexInVector(&re, &im, in1, i, i+1);
+      LinAlg_GetComplexInVector(&re, &im, in1, i, i + 1);
     else
       LinAlg_GetDoubleInVector(&re, in1, i);
-    out[i/incr].re = re;
-    out[i/incr].im = im;
+    out[i / incr].re = re;
+    out[i / incr].im = im;
     if(Current.NbrHar == 2)
-      LinAlg_GetComplexInVector(&re, &im, in2, i, i+1);
+      LinAlg_GetComplexInVector(&re, &im, in2, i, i + 1);
     else
       LinAlg_GetDoubleInVector(&re, in2, i);
-    out[N/incr + i/incr].re = re;
-    out[N/incr + i/incr].im = im;
+    out[N / incr + i / incr].re = re;
+    out[N / incr + i / incr].im = im;
   }
 }
 
-void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
-                       double shift_r, double shift_i, int FilterExpressionIndex)
+void EigenSolve_ARPACK(struct DofData *DofData_P, int NumEigenvalues,
+                       double shift_r, double shift_i,
+                       int FilterExpressionIndex)
 {
   struct EigenPar eigenpar;
   struct Solution Solution_S;
@@ -226,7 +229,8 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   double tmp, d1, d2, abs, arg;
   complex_16 f, omega, omega2;
 
-  gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
+  gMatrix *K =
+    &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *L = &DofData_P->M2; /* matrix associated with Dt terms */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
   gMatrix D; /* temp matrix for quadratic eigenvalue problem */
@@ -240,31 +244,34 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
   /* Warn if we are not in harmonic regime (we won't be able to compute/store
      complex eigenvectors) */
-  if(Current.NbrHar != 2){
-    Message::Info("EigenSolve will only store the real part of the eigenvectors; "
-                  "Define the system with \"Type Complex\" if this is an issue");
+  if(Current.NbrHar != 2) {
+    Message::Info(
+      "EigenSolve will only store the real part of the eigenvectors; "
+      "Define the system with \"Type Complex\" if this is an issue");
   }
 
 #if defined(HAVE_PETSC) && !defined(PETSC_USE_COMPLEX)
-  if(Current.NbrHar == 2){
-    Message::Warning("Using PETSc in real arithmetic for complex-simulated-real matrices");
+  if(Current.NbrHar == 2) {
+    Message::Warning(
+      "Using PETSc in real arithmetic for complex-simulated-real matrices");
   }
 #endif
 
   /* Sanity checks */
   if(DofData_P->Flag_Init[7] || DofData_P->Flag_Init[6] ||
-     DofData_P->Flag_Init[5] || DofData_P->Flag_Init[4]){
-    Message::Error("High order polynomial and non-linear EVP only available with SLEPc");
+     DofData_P->Flag_Init[5] || DofData_P->Flag_Init[4]) {
+    Message::Error(
+      "High order polynomial and non-linear EVP only available with SLEPc");
     return;
   }
-  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
-    Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]) {
+    Message::Error("No System available for EigenSolve: check 'DtDt' and "
+                   "'GenerateSeparate'");
     return;
   }
 
   /* Check if we have a "quadratic" evp (- w^2 M x + i w L x + K x = 0) */
-  if(DofData_P->Flag_Init[2])
-    quad_evp = 1;
+  if(DofData_P->Flag_Init[2]) quad_evp = 1;
 
   /* Get eigenproblem parameters */
   EigenPar("eigen.par", &eigenpar);
@@ -273,8 +280,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
   n = DofData_P->NbrDof / incr;
 
-  if(quad_evp)
-    n *= 2;
+  if(quad_evp) n *= 2;
 
   ido = 0;
   /* Reverse communication flag.  IDO must be zero on the first
@@ -314,7 +320,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      BMAT = 'I' -> standard eigenvalue problem A*x = lambda*x
      BMAT = 'G' -> generalized eigenvalue problem A*x = lambda*M*x */
 
-  which = (char*)"LM";
+  which = (char *)"LM";
   /* Which eigenvalues we want:
      SM = smallest magnitude ( magnitude = absolute value )
      LM = largest magnitude
@@ -328,9 +334,10 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      Therefore, you'll be able to compute AT MOST n-2 eigenvalues! */
 
   /* sanity check */
-  if(nev >= n-1){
-    Message::Warning("NumEigenvalues too large (%d < %d): setting to %d", nev, n-1, n-2);
-    nev = n-2;
+  if(nev >= n - 1) {
+    Message::Warning("NumEigenvalues too large (%d < %d): setting to %d", nev,
+                     n - 1, n - 2);
+    nev = n - 2;
   }
 
   tol = eigenpar.prec; /* 1.e-4; */
@@ -340,7 +347,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      DEFAULT = dlamch('EPS')  (machine precision as computed
            by the LAPACK auxiliary subroutine dlamch). */
 
-  resid = (complex_16*)Malloc(n * sizeof(complex_16));
+  resid = (complex_16 *)Malloc(n * sizeof(complex_16));
   /* On INPUT:
      If INFO .EQ. 0, a random initial residual vector is used.
      If INFO .NE. 0, RESID contains the initial residual vector,
@@ -359,16 +366,18 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      in the matrix-vector operation OP*x. */
 
   /* sanity checks */
-  if(ncv <= nev){
-    Message::Warning("Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
+  if(ncv <= nev) {
+    Message::Warning("Krylov space size too small (%d <= %d), setting to %d",
+                     ncv, nev, nev * 2);
     ncv = nev * 2;
   }
-  if(ncv > n){
-    Message::Warning("Krylov space size too large (%d > %d), setting to %d", ncv, n, n);
+  if(ncv > n) {
+    Message::Warning("Krylov space size too large (%d > %d), setting to %d",
+                     ncv, n, n);
     ncv = n;
   }
 
-  v = (complex_16*)Malloc(n * ncv * sizeof(complex_16));
+  v = (complex_16 *)Malloc(n * ncv * sizeof(complex_16));
   /* At the end of calculations, here will be stored the Arnoldi basis
      vectors */
 
@@ -464,21 +473,21 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
                 of the upper Hessenberg matrix H. Only referenced by
                 zneupd if RVEC = .TRUE. See Remark 2 below. */
 
-  workd = (complex_16*)Malloc(3 * n * sizeof(complex_16));
+  workd = (complex_16 *)Malloc(3 * n * sizeof(complex_16));
   /* Distributed array to be used in the basic Arnoldi iteration
      for reverse communication.  The user should not use WORKD
      as temporary workspace during the iteration !!!!!!!!!!
      See Data Distribution Note below. */
 
-  lworkl = 3*ncv*ncv + 5*ncv;
+  lworkl = 3 * ncv * ncv + 5 * ncv;
   /* Dimension of the "workl" vector (see below). On must have:
      lworkl >= 3*ncv*ncv + 5*ncv */
 
-  workl = (complex_16*)Malloc(lworkl * sizeof(complex_16));
+  workl = (complex_16 *)Malloc(lworkl * sizeof(complex_16));
   /* Private (replicated) array on each PE or array allocated on
      the front end.  See Data Distribution Note below. */
 
-  rwork = (double*)Malloc(ncv * sizeof(double));
+  rwork = (double *)Malloc(ncv * sizeof(double));
   /* Used as workspace */
 
   info = 0;
@@ -522,15 +531,15 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* What do we want: Ritz or Schur vectors? For Schur, choose: howmny
      = 'P' */
 
-  select = (unsigned int*)Malloc(ncv * sizeof(unsigned int));
+  select = (unsigned int *)Malloc(ncv * sizeof(unsigned int));
   /* Internal workspace */
 
-  d = (complex_16*)Malloc(nev * sizeof(complex_16));
+  d = (complex_16 *)Malloc(nev * sizeof(complex_16));
   /* Vector containing the "nev" eigenvalues computed.
      VERY IMPORTANT: on line 69 of zneupd.f they say it should be nev+1;
      this is wrong, for see line 283 where it is declared as d(nev) */
 
-  z = (complex_16*)Malloc(n * nev * sizeof(complex_16));
+  z = (complex_16 *)Malloc(n * nev * sizeof(complex_16));
   /* On exit, if RVEC = .TRUE. and HOWMNY = 'A', then the columns of
      Z represents approximate eigenvectors (Ritz vectors) corresponding
      to the NCONV=IPARAM(5) Ritz values for eigensystem
@@ -551,10 +560,10 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* The shift. Not used in this case: we deal with the shift "by
      hand". */
 
-  workev = (complex_16*)Malloc(2 * ncv * sizeof(complex_16));
+  workev = (complex_16 *)Malloc(2 * ncv * sizeof(complex_16));
   /* Workspace */
 
-  if(bmat != 'I' || iparam[6] != 1){
+  if(bmat != 'I' || iparam[6] != 1) {
     Message::Error("General and/or shift-invert mode should not be used");
     return;
   }
@@ -563,13 +572,13 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      PETSc, the shifting can be very slow if the masks are very
      different, for example if we are in real arithmetic and have one
      real matrix and one complex "simulated-real" matrix */
-  if(!quad_evp){
+  if(!quad_evp) {
     LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof);
     LinAlg_CreateVector(&v2, &DofData_P->Solver, DofData_P->NbrDof);
     /* K = K - shift * M */
-    LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ;
+    LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K);
   }
-  else{
+  else {
     /* This is an explanation of our approach to a quadratic
        eigenvalue problem i.e. - w^2 M x + i w L x + K x = 0.  This
        system is equivalent to (y = i w x) and (i w M y + i w L x + K
@@ -599,7 +608,8 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     LinAlg_CreateVector(&w1, &DofData_P->Solver, DofData_P->NbrDof);
     LinAlg_CreateVector(&w2, &DofData_P->Solver, DofData_P->NbrDof);
 
-    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
+    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof,
+                        DofData_P->NbrDof);
     /* D = -(shift^2 * M + shift * L + K) */
     LinAlg_CopyMatrix(M, &D);
     LinAlg_AddMatrixProdMatrixDouble(L, &D, shift_r, &D);
@@ -611,73 +621,72 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   k = 0;
   do {
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
-	    ipntr, workd, workl, &lworkl, rwork, &info);
-    if(ido == 1 || ido == -1){
-      Message::Info("Arpack iteration %d", k+1);
+            ipntr, workd, workl, &lworkl, rwork, &info);
+    if(ido == 1 || ido == -1) {
+      Message::Info("Arpack iteration %d", k + 1);
 
-      if(!quad_evp){
-	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
-	LinAlg_ProdMatrixVector(M, &v1, &v2);
-	if(!k)
-	  LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
-	else
-	  LinAlg_SolveAgain(K, &v2, &DofData_P->Solver, &v1);
-	GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
+      if(!quad_evp) {
+        Arpack2GetDP(n, &workd[ipntr[0] - 1], &v1);
+        LinAlg_ProdMatrixVector(M, &v1, &v2);
+        if(!k)
+          LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
+        else
+          LinAlg_SolveAgain(K, &v2, &DofData_P->Solver, &v1);
+        GetDP2Arpack(&v1, &workd[ipntr[1] - 1]);
       }
-      else{
-	Arpack2GetDPSplit(n, &workd[ipntr[0]-1], &x, &y);
-	LinAlg_ProdMatrixVector(M, &y, &w2);
-	LinAlg_ProdMatrixVector(L, &x, &v1);
-	LinAlg_AddVectorVector(&v1, &w2, &v1);
-	LinAlg_ProdMatrixVector(M, &x, &w1);
-	LinAlg_AddVectorProdVectorDouble(&v1, &w1, shift_r, &v1);
-	if(!k)
-	  LinAlg_Solve(&D, &v1, &DofData_P->Solver, &w1);
-	else
-	  LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w1);
-	LinAlg_ProdMatrixVector(K, &x, &v1);
-	LinAlg_ProdVectorDouble(&v1, -1., &v1);
-	LinAlg_AddVectorProdVectorDouble(&v1, &w2, shift_r, &v1);
-	LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w2);
-	GetDP2ArpackMerge(&w1, &w2, &workd[ipntr[1]-1]);
+      else {
+        Arpack2GetDPSplit(n, &workd[ipntr[0] - 1], &x, &y);
+        LinAlg_ProdMatrixVector(M, &y, &w2);
+        LinAlg_ProdMatrixVector(L, &x, &v1);
+        LinAlg_AddVectorVector(&v1, &w2, &v1);
+        LinAlg_ProdMatrixVector(M, &x, &w1);
+        LinAlg_AddVectorProdVectorDouble(&v1, &w1, shift_r, &v1);
+        if(!k)
+          LinAlg_Solve(&D, &v1, &DofData_P->Solver, &w1);
+        else
+          LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w1);
+        LinAlg_ProdMatrixVector(K, &x, &v1);
+        LinAlg_ProdVectorDouble(&v1, -1., &v1);
+        LinAlg_AddVectorProdVectorDouble(&v1, &w2, shift_r, &v1);
+        LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w2);
+        GetDP2ArpackMerge(&w1, &w2, &workd[ipntr[1] - 1]);
       }
 
       k++;
     }
-    else if(ido == 99){
+    else if(ido == 99) {
       /* We're done! */
       break;
     }
-    else{
+    else {
       Message::Info("Arpack code = %d (ignored)", info);
     }
-  } while (1);
+  } while(1);
 
   Message::Info("Arpack required %d iterations", k);
 
   /* Testing for errors */
-  if(info == 0){
-    /* OK */
+  if(info == 0) { /* OK */
   }
-  else if(info == 1){
+  else if(info == 1) {
     Message::Warning("Maxmimum number of iteration reached in EigenSolve");
   }
-  else if(info == 2){
+  else if(info == 2) {
     Message::Warning("No shifts could be applied during a cycle of the");
     Message::Warning("Implicitly restarted Arnoldi iteration. One possibility");
     Message::Warning("is to increase the size of NCV relative to NEV.");
   }
-  else if(info < 0){
+  else if(info < 0) {
     Message::Error("Arpack code = %d", info);
   }
-  else{
+  else {
     Message::Warning("Arpack code = %d (unknown)", info);
   }
 
   /* Call to zneupd for post-processing */
   zneupd_(&rvec, &howmny, select, d, z, &ldz, &sigma, workev, &bmat, &n, which,
-	  &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd, workl, &lworkl,
-	  rwork, &info);
+          &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd, workl,
+          &lworkl, rwork, &info);
 
   /* Test for errors */
   if(info != 0)
@@ -686,24 +695,24 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* Compute the unshifted eigenvalues and print them, and store the
      associated eigenvectors */
   newsol = 0;
-  for (k = 0; k < nev; k++){
+  for(k = 0; k < nev; k++) {
     /* Unshift the eigenvalues */
     tmp = SQU(d[k].re) + SQU(d[k].im);
-    d[k].re = shift_r + d[k].re/tmp;
-    d[k].im = shift_i - d[k].im/tmp;
+    d[k].re = shift_r + d[k].re / tmp;
+    d[k].im = shift_i - d[k].im / tmp;
 
-    if(!quad_evp){
+    if(!quad_evp) {
       /* Eigenvalue = omega^2 */
       omega2.re = d[k].re;
       omega2.im = d[k].im;
       abs = sqrt(SQU(omega2.re) + SQU(omega2.im));
       arg = atan2(omega2.im, omega2.re);
-      omega.re = sqrt(abs) * cos(0.5*arg);
-      omega.im = sqrt(abs) * sin(0.5*arg);
+      omega.re = sqrt(abs) * cos(0.5 * arg);
+      omega.im = sqrt(abs) * sin(0.5 * arg);
       f.re = omega.re / TWO_PI;
       f.im = omega.im / TWO_PI;
     }
-    else{
+    else {
       /* Eigenvalue = i*omega */
       omega.re = d[k].im;
       omega.im = -d[k].re;
@@ -713,14 +722,14 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       f.im = omega.im / TWO_PI;
     }
 
-    Message::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i",
-                  k+1, omega2.re, (omega2.im > 0) ? "+" :  "-",
+    Message::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i", k + 1, omega2.re,
+                  (omega2.im > 0) ? "+" : "-",
                   (omega2.im > 0) ? omega2.im : -omega2.im);
-    Message::Info("                  w = %.12e %s %.12e * i",
-                  omega.re, (omega.im > 0) ? "+" : "-",
+    Message::Info("                  w = %.12e %s %.12e * i", omega.re,
+                  (omega.im > 0) ? "+" : "-",
                   (omega.im > 0) ? omega.im : -omega.im);
-    Message::Info("                  f = %.12e %s %.12e * i",
-                  f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
+    Message::Info("                  f = %.12e %s %.12e * i", f.re,
+                  (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
 
     /* Update the current value of Time and TimeImag so that
        $EigenvalueReal and $EigenvalueImag are up-to-date */
@@ -728,18 +737,21 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Current.TimeImag = omega.im;
 
     // test filter expression and continue without storing if false
-    if(FilterExpressionIndex >= 0){
+    if(FilterExpressionIndex >= 0) {
       struct Value val;
-      Get_ValueOfExpressionByIndex(FilterExpressionIndex, NULL, 0., 0., 0., &val);
-      if(!val.Val[0]){
+      Get_ValueOfExpressionByIndex(FilterExpressionIndex, NULL, 0., 0., 0.,
+                                   &val);
+      if(!val.Val[0]) {
         Message::Debug("Skipping eigenvalue %g + i * %g", omega.re, omega.im);
         continue;
       }
     }
 
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Re(Omega)",
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+                                     "/Re(Omega)",
                                    std::vector<double>(1, omega.re));
-    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Im(Omega)",
+    Message::AddOnelabNumberChoice(Message::GetOnelabClientName() +
+                                     "/Im(Omega)",
                                    std::vector<double>(1, omega.im));
 
     if(newsol) {
@@ -747,8 +759,8 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       Solution_S.TimeFunctionValues = NULL;
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
       List_Add(DofData_P->Solutions, &Solution_S);
-      DofData_P->CurrentSolution = (struct Solution*)
-	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
+      DofData_P->CurrentSolution = (struct Solution *)List_Pointer(
+        DofData_P->Solutions, List_Nbr(DofData_P->Solutions) - 1);
     }
     newsol = 1;
 
@@ -759,14 +771,14 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
     int incr = (Current.NbrHar == 2) ? gCOMPLEX_INCREMENT : 1;
-    for(l = 0; l < DofData_P->NbrDof; l += incr){
+    for(l = 0; l < DofData_P->NbrDof; l += incr) {
       j = l / incr;
-      if(Current.NbrHar == 2){
-        LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im,
-                                  &DofData_P->CurrentSolution->x, l, l+1);
+      if(Current.NbrHar == 2) {
+        LinAlg_SetComplexInVector(z[k * n + j].re, z[k * n + j].im,
+                                  &DofData_P->CurrentSolution->x, l, l + 1);
       }
-      else{
-        LinAlg_SetDoubleInVector(z[k*n+j].re,
+      else {
+        LinAlg_SetDoubleInVector(z[k * n + j].re,
                                  &DofData_P->CurrentSolution->x, l);
       }
     }
@@ -775,22 +787,21 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
        them in L-infty norm so that the absolute value of the largest
        element is 1 */
     tmp = 0.;
-    for(l = 0; l < DofData_P->NbrDof; l += incr){
-      if(Current.NbrHar == 2){
-        LinAlg_GetComplexInVector(&d1, &d2,
-                                  &DofData_P->CurrentSolution->x, l, l+1);
+    for(l = 0; l < DofData_P->NbrDof; l += incr) {
+      if(Current.NbrHar == 2) {
+        LinAlg_GetComplexInVector(&d1, &d2, &DofData_P->CurrentSolution->x, l,
+                                  l + 1);
         abs = sqrt(SQU(d1) + SQU(d2));
       }
-      else{
-        LinAlg_GetDoubleInVector(&d1,
-                                 &DofData_P->CurrentSolution->x, l);
+      else {
+        LinAlg_GetDoubleInVector(&d1, &DofData_P->CurrentSolution->x, l);
         abs = sqrt(SQU(d1));
       }
       if(abs > tmp) tmp = abs;
     }
     if(tmp > 1.e-16)
-      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1./tmp,
-			      &DofData_P->CurrentSolution->x);
+      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1. / tmp,
+                              &DofData_P->CurrentSolution->x);
 
     /* Increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
@@ -798,11 +809,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   }
 
   /* Deallocate */
-  if(!quad_evp){
+  if(!quad_evp) {
     LinAlg_DestroyVector(&v1);
     LinAlg_DestroyVector(&v2);
   }
-  else{
+  else {
     LinAlg_DestroyVector(&x);
     LinAlg_DestroyVector(&y);
     LinAlg_DestroyVector(&v1);

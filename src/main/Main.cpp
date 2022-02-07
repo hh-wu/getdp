@@ -25,7 +25,8 @@ static char *toUTF8(wchar_t *src)
 {
   if(!src) return nullptr;
   size_t srclen = wcslen(src);
-  int len = WideCharToMultiByte(CP_UTF8, 0, src, srclen, 0, 0, nullptr, nullptr);
+  int len =
+    WideCharToMultiByte(CP_UTF8, 0, src, srclen, 0, 0, nullptr, nullptr);
   char *out = new char[len + 1];
   if(out) {
     WideCharToMultiByte(CP_UTF8, 0, src, srclen, out, len, nullptr, nullptr);
@@ -36,9 +37,8 @@ static char *toUTF8(wchar_t *src)
 
 int wmain(int argc, wchar_t *wargv[], wchar_t *envp[])
 {
-  char **argv = new char*[argc + 1];
-  for(int i = 0; i < argc; i++)
-    argv[i] = toUTF8(wargv[i]);
+  char **argv = new char *[argc + 1];
+  for(int i = 0; i < argc; i++) argv[i] = toUTF8(wargv[i]);
   argv[argc] = nullptr;
 
 #else
@@ -54,8 +54,7 @@ int main(int argc, char **argv)
 #else
   Init_ProblemStructure();
   Read_ProblemPreamble();
-  if(argc > 1)
-    Read_ProblemStructure(argv[1]);
+  if(argc > 1) Read_ProblemStructure(argv[1]);
   Finalize_ProblemStructure();
   Print_ProblemStructure();
 #endif

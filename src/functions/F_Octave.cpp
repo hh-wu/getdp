@@ -8,7 +8,7 @@
 #include "F.h"
 #include "Message.h"
 
-extern struct CurrentData Current ;
+extern struct CurrentData Current;
 
 // This file defines a simple interface to Octave.
 //
@@ -60,10 +60,10 @@ extern struct CurrentData Current ;
 
 void F_Octave(F_ARG)
 {
-  if(!Fct->String){
-    Message::Error("Missing Octave expression: use Octave[arguments]{\"expression\"}");
-    for (int k = 0; k < Current.NbrHar; k++)
-      V->Val[MAX_DIM * k] = 0. ;
+  if(!Fct->String) {
+    Message::Error(
+      "Missing Octave expression: use Octave[arguments]{\"expression\"}");
+    for(int k = 0; k < Current.NbrHar; k++) V->Val[MAX_DIM * k] = 0.;
     V->Type = SCALAR;
     return;
   }
@@ -71,16 +71,16 @@ void F_Octave(F_ARG)
   // we could do this more efficiently by directly storing the values in octave
   // (instead of parsing)
   std::string expr;
-  for(int i = 0; i < Fct->NbrArguments; i++){
+  for(int i = 0; i < Fct->NbrArguments; i++) {
     char tmp[256];
-    if((A + i)->Type == SCALAR){
+    if((A + i)->Type == SCALAR) {
       if(Current.NbrHar == 2)
-        sprintf(tmp, "input{%d} = %.16g+%.16gi;", i + 1,
-                (A + i)->Val[0], (A + i)->Val[MAX_DIM]);
+        sprintf(tmp, "input{%d} = %.16g+%.16gi;", i + 1, (A + i)->Val[0],
+                (A + i)->Val[MAX_DIM]);
       else
         sprintf(tmp, "input{%d} = %.16g;", i + 1, (A + i)->Val[0]);
     }
-    else{
+    else {
       Message::Error("Non-scalar Octave arguments not coded yet");
     }
     expr += tmp;
@@ -92,17 +92,17 @@ void F_Octave(F_ARG)
 
   // FIXME: it seems like we cannot evaluate several octave statements at
   // once !?!?
-  //out = eval_string(expr.c_str(), false, status);
-  //if(status) Message::Error("Octave evaluation error");
+  // out = eval_string(expr.c_str(), false, status);
+  // if(status) Message::Error("Octave evaluation error");
 
   // FIXME: this will break when semi-colons are present in expressions for
   // something else than statement boundaries
   std::string::size_type first = 0;
-  while(1){
+  while(1) {
     std::string::size_type last = expr.find_first_of(";", first);
     std::string str = expr.substr(first, last - first + 1);
-    if(str.size()){
-      //Message::Info("Evaluating %s", str.c_str());
+    if(str.size()) {
+      // Message::Info("Evaluating %s", str.c_str());
       out = eval_string(str.c_str(), false, status);
       if(status) Message::Error("Octave evaluation error");
     }
@@ -110,23 +110,21 @@ void F_Octave(F_ARG)
     first = last + 1;
   }
 
-  for (int k = 0; k < Current.NbrHar; k++)
-    for (int j = 0; j < 9; j++)
-      V->Val[MAX_DIM * k + j] = 0. ;
+  for(int k = 0; k < Current.NbrHar; k++)
+    for(int j = 0; j < 9; j++) V->Val[MAX_DIM * k + j] = 0.;
 
-  if(out.is_real_scalar()){
+  if(out.is_real_scalar()) {
     V->Val[0] = out.double_value();
     V->Type = SCALAR;
   }
-  else if(out.is_complex_scalar()){
+  else if(out.is_complex_scalar()) {
     V->Val[0] = out.complex_value().real();
     V->Val[MAX_DIM] = out.complex_value().imag();
     V->Type = SCALAR;
   }
-  else if(out.is_real_matrix() ||
-          out.is_complex_matrix()){
+  else if(out.is_real_matrix() || out.is_complex_matrix()) {
     Message::Error("Octave matrix output not coded yet");
-    V->Type = VECTOR ;
+    V->Type = VECTOR;
   }
 }
 
@@ -134,9 +132,10 @@ void F_Octave(F_ARG)
 
 void F_Octave(F_ARG)
 {
-  Message::Error("You need to compile GetDP with Octave support to use Octave functions");
-  V->Val[0] = 0. ;
-  V->Type = SCALAR ;
+  Message::Error(
+    "You need to compile GetDP with Octave support to use Octave functions");
+  V->Val[0] = 0.;
+  V->Type = SCALAR;
 }
 
 #endif

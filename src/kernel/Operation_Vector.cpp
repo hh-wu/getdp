@@ -39,55 +39,47 @@
 #define VV_ERASE_IF_EXISTS 3
 #define VV_CLEAR_ALL 4
 int manageVectorMap(int action, char *name, gVector **vector,
-                          struct DofData *DofData_P)
+                    struct DofData *DofData_P)
 {
   // Global map that is never freed
   static std::map<std::string, gVector> vectorMap;
 
-  if(action == VV_INITIALIZE){ /* Nothing to do*/ }
-  else if(action == VV_GET_IF_EXISTS)
-  {
+  if(action == VV_INITIALIZE) { /* Nothing to do*/
+  }
+  else if(action == VV_GET_IF_EXISTS) {
     std::map<std::string, gVector>::iterator it = vectorMap.find(name);
     if(it != vectorMap.end())
       *vector = &it->second;
     else
       return 1;
   }
-  else if(action == VV_GET_AND_ADD_IF_NOT_EXIST)
-  {
+  else if(action == VV_GET_AND_ADD_IF_NOT_EXIST) {
     std::map<std::string, gVector>::iterator it = vectorMap.find(name);
-    if(it != vectorMap.end()){
-      *vector = &it->second;
-    }
-    else{
+    if(it != vectorMap.end()) { *vector = &it->second; }
+    else {
       gVector n;
-      LinAlg_CreateVector(&n, &DofData_P->Solver, DofData_P->NbrDof) ;
+      LinAlg_CreateVector(&n, &DofData_P->Solver, DofData_P->NbrDof);
       vectorMap[name] = n;
       *vector = &vectorMap[name];
     }
   }
-  else if(action == VV_ERASE_IF_EXISTS)
-  {
+  else if(action == VV_ERASE_IF_EXISTS) {
     std::map<std::string, gVector>::iterator it = vectorMap.find(name);
-    if(it != vectorMap.end())
-    {
+    if(it != vectorMap.end()) {
       LinAlg_DestroyVector(&it->second);
       vectorMap.erase(name);
     }
     else
       return 1;
   }
-  else if(action == VV_CLEAR_ALL)
-  {
+  else if(action == VV_CLEAR_ALL) {
     for(std::map<std::string, gVector>::iterator it = vectorMap.begin();
-        it != vectorMap.end(); it++)
-    {
+        it != vectorMap.end(); it++) {
       LinAlg_DestroyVector(&it->second);
     }
     vectorMap.clear();
   }
-  else
-  {
+  else {
     Message::Error("Non valid action for manageVectorMap");
   }
   return 0;
@@ -102,10 +94,10 @@ void Operation_CopyVector(struct Operation *Operation_P,
   gVector *from = 0, *to = 0, tmp;
 
   if(Operation_P->Case.Copy.useList)
-    LinAlg_CreateVector(&tmp, &DofData_P->Solver, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&tmp, &DofData_P->Solver, DofData_P->NbrDof);
 
-  if(Operation_P->Type == OPERATION_COPYSOLUTION){
-    if(DofData_P->CurrentSolution){
+  if(Operation_P->Type == OPERATION_COPYSOLUTION) {
+    if(DofData_P->CurrentSolution) {
       if(Operation_P->Case.Copy.from)
         to = &DofData_P->CurrentSolution->x;
       else
@@ -114,152 +106,158 @@ void Operation_CopyVector(struct Operation *Operation_P,
     else
       Message::Error("No current solution available to copy");
   }
-  else if(Operation_P->Type == OPERATION_COPYRHS){
+  else if(Operation_P->Type == OPERATION_COPYRHS) {
     if(Operation_P->Case.Copy.from)
       to = &DofData_P->b;
     else
       from = &DofData_P->b;
   }
-  else if(Operation_P->Type == OPERATION_COPYRESIDUAL){
+  else if(Operation_P->Type == OPERATION_COPYRESIDUAL) {
     if(Operation_P->Case.Copy.from)
       to = &DofData_P->res;
     else
       from = &DofData_P->res;
   }
-  else if(Operation_P->Type == OPERATION_COPYINCREMENT){
+  else if(Operation_P->Type == OPERATION_COPYINCREMENT) {
     if(Operation_P->Case.Copy.from)
       to = &DofData_P->dx;
     else
       from = &DofData_P->dx;
   }
-  else{
+  else {
     Message::Error("Copy operation not implemented yet");
   }
 
-  if(Operation_P->Case.Copy.from){
-    if(Operation_P->Case.Copy.useList){
+  if(Operation_P->Case.Copy.from) {
+    if(Operation_P->Case.Copy.useList) {
       Constant *c = Get_ParserConstant(Operation_P->Case.Copy.from);
-      if(c && c->Type == VAR_LISTOFFLOAT){
-        if(List_Nbr(c->Value.List) == DofData_P->NbrDof){
-          for(int i = 0; i < List_Nbr(c->Value.List); i++){
-            double d; List_Read(c->Value.List, i, &d);
+      if(c && c->Type == VAR_LISTOFFLOAT) {
+        if(List_Nbr(c->Value.List) == DofData_P->NbrDof) {
+          for(int i = 0; i < List_Nbr(c->Value.List); i++) {
+            double d;
+            List_Read(c->Value.List, i, &d);
             LinAlg_SetDoubleInVector(d, &tmp, i);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
         }
-        else if(List_Nbr(c->Value.List) == 2 * DofData_P->NbrDof){
-          for(int i = 0, j = 0; i < List_Nbr(c->Value.List); i += 2, j++){
-            double d1; List_Read(c->Value.List, i, &d1);
-            double d2; List_Read(c->Value.List, i + 1, &d2);
+        else if(List_Nbr(c->Value.List) == 2 * DofData_P->NbrDof) {
+          for(int i = 0, j = 0; i < List_Nbr(c->Value.List); i += 2, j++) {
+            double d1;
+            List_Read(c->Value.List, i, &d1);
+            double d2;
+            List_Read(c->Value.List, i + 1, &d2);
             LinAlg_SetComplexInVector(d1, d2, &tmp, j, j);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
         }
-        else{
+        else {
           Message::Error("Incompatible sizes for vector copy");
         }
       }
-      else if(GetDPNumbers.count(Operation_P->Case.Copy.from)){
+      else if(GetDPNumbers.count(Operation_P->Case.Copy.from)) {
         std::vector<double> &v = GetDPNumbers[Operation_P->Case.Copy.from];
-        if((int)v.size() == DofData_P->NbrDof){
-          for(unsigned int i = 0; i < v.size(); i++){
+        if((int)v.size() == DofData_P->NbrDof) {
+          for(unsigned int i = 0; i < v.size(); i++) {
             LinAlg_SetDoubleInVector(v[i], &tmp, i);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
         }
-        else if((int)v.size() == 2 * DofData_P->NbrDof){
-          for(unsigned int i = 0; i < v.size(); i += 2){
-            LinAlg_SetComplexInVector(v[i], v[i+1], &tmp, i/2, i/2);
+        else if((int)v.size() == 2 * DofData_P->NbrDof) {
+          for(unsigned int i = 0; i < v.size(); i += 2) {
+            LinAlg_SetComplexInVector(v[i], v[i + 1], &tmp, i / 2, i / 2);
           }
           LinAlg_AssembleVector(&tmp);
           from = &tmp;
         }
-        else{
+        else {
           Message::Error("Incompatible sizes for vector copy");
         }
       }
-      else{
+      else {
         Message::Error("Non-existant list `%s()' to copy from",
                        Operation_P->Case.Copy.from);
       }
     }
-    else{
-      if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.Copy.from, &from, DofData_P))
+    else {
+      if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.Copy.from, &from,
+                         DofData_P))
         Message::Error("Non-existant vector `%s' to copy from",
                        Operation_P->Case.Copy.from);
     }
   }
 
-  if(Operation_P->Case.Copy.to){
-    if(Operation_P->Case.Copy.useList){
-      to = &tmp;
-    }
-    else{
-      manageVectorMap(VV_GET_AND_ADD_IF_NOT_EXIST, Operation_P->Case.Copy.to, &to, DofData_P);
+  if(Operation_P->Case.Copy.to) {
+    if(Operation_P->Case.Copy.useList) { to = &tmp; }
+    else {
+      manageVectorMap(VV_GET_AND_ADD_IF_NOT_EXIST, Operation_P->Case.Copy.to,
+                      &to, DofData_P);
     }
   }
 
-  if(from && to){
+  if(from && to) {
     int n1, n2;
     LinAlg_GetVectorSize(from, &n1);
     LinAlg_GetVectorSize(to, &n2);
     if(n1 == n2)
       LinAlg_CopyVector(from, to);
     else
-      Message::Error("Incompatible sizes for vector copy (%d != %d)",
-                     n1, n2);
+      Message::Error("Incompatible sizes for vector copy (%d != %d)", n1, n2);
   }
-  else{
+  else {
     Message::Error("Missing vector for copy");
   }
 
-  if(Operation_P->Case.Copy.useList){
-    if(Operation_P->Case.Copy.to){
+  if(Operation_P->Case.Copy.useList) {
+    if(Operation_P->Case.Copy.to) {
       // create list directly in GetDPNumbers: using parser constants here is
       // useless since we can never access it
       std::vector<double> v;
-      for(int i = 0; i < DofData_P->NbrDof; i++){
+      for(int i = 0; i < DofData_P->NbrDof; i++) {
         gScalar s;
         LinAlg_GetScalarInVector(&s, to, i);
-        if(gSCALAR_SIZE == 2){
-          double d1, d2; LinAlg_GetComplexInScalar(&d1, &d2, &s);
-          v.push_back(d1); v.push_back(d2);
+        if(gSCALAR_SIZE == 2) {
+          double d1, d2;
+          LinAlg_GetComplexInScalar(&d1, &d2, &s);
+          v.push_back(d1);
+          v.push_back(d2);
         }
-        else{
-          double d; LinAlg_GetDoubleInScalar(&d, &s);
+        else {
+          double d;
+          LinAlg_GetDoubleInScalar(&d, &s);
           v.push_back(d);
         }
       }
       GetDPNumbers[Operation_P->Case.Copy.to] = v;
     }
-    LinAlg_DestroyVector(&tmp) ;
+    LinAlg_DestroyVector(&tmp);
   }
 }
 
 void Operation_AddVector(struct Operation *Operation_P,
-                          struct DofData *DofData_P)
+                         struct DofData *DofData_P)
 {
   struct Value Value;
-  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.alphaIndex,
-              NULL, 0., 0., 0., &Value);
+  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.alphaIndex, NULL, 0.,
+                               0., 0., &Value);
   double alpha = Value.Val[0];
-  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.betaIndex,
-              NULL, 0., 0., 0., &Value);
+  Get_ValueOfExpressionByIndex(Operation_P->Case.AddVector.betaIndex, NULL, 0.,
+                               0., 0., &Value);
   double beta = Value.Val[0];
 
   gVector *v1, *v2, *v3;
   // Checking if v1 and v2 exist. If not: error.
-  if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.AddVector.v1, &v1, DofData_P))
-    Message::Error("Non-existant vector `%s'",
-                    Operation_P->Case.AddVector.v1);
-  if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.AddVector.v2, &v2, DofData_P))
-    Message::Error("Non-existant vector `%s'",
-                    Operation_P->Case.AddVector.v2);
+  if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.AddVector.v1, &v1,
+                     DofData_P))
+    Message::Error("Non-existant vector `%s'", Operation_P->Case.AddVector.v1);
+  if(manageVectorMap(VV_GET_IF_EXISTS, Operation_P->Case.AddVector.v2, &v2,
+                     DofData_P))
+    Message::Error("Non-existant vector `%s'", Operation_P->Case.AddVector.v2);
   // Checking if v3 exists. If not: create it.
-  manageVectorMap(VV_GET_AND_ADD_IF_NOT_EXIST, Operation_P->Case.AddVector.v3, &v3, DofData_P);
+  manageVectorMap(VV_GET_AND_ADD_IF_NOT_EXIST, Operation_P->Case.AddVector.v3,
+                  &v3, DofData_P);
   // Check the sizes and perform the operation if OK
   int n1, n2, n3;
   LinAlg_GetVectorSize(v1, &n1);
@@ -280,22 +278,21 @@ void Operation_AddVector(struct Operation *Operation_P,
   // */
 }
 
-void Operation_ClearVectors( struct Operation *Operation_P,
+void Operation_ClearVectors(struct Operation *Operation_P,
                             struct DofData *DofData_P)
 {
-  if (List_Nbr(Operation_P->Case.ClearVectors.Names)==0)
-  {
+  if(List_Nbr(Operation_P->Case.ClearVectors.Names) == 0) {
     Message::Info("ClearVectors: Clear All Vectors");
     manageVectorMap(VV_CLEAR_ALL, NULL, NULL, DofData_P);
   }
 
-  for(int i = 0; i < List_Nbr(Operation_P->Case.ClearVectors.Names); i++){
+  for(int i = 0; i < List_Nbr(Operation_P->Case.ClearVectors.Names); i++) {
     char *s;
     List_Read(Operation_P->Case.ClearVectors.Names, i, &s);
 
-    if(manageVectorMap(VV_ERASE_IF_EXISTS,s, NULL, DofData_P))
-      Message::Info("ClearVectors: Unknown Vector %s",  s);
+    if(manageVectorMap(VV_ERASE_IF_EXISTS, s, NULL, DofData_P))
+      Message::Info("ClearVectors: Unknown Vector %s", s);
     else
-      Message::Info("ClearVectors: Clear Vector %s",  s);
+      Message::Info("ClearVectors: Clear Vector %s", s);
   }
 }

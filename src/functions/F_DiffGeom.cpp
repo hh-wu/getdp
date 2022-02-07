@@ -31,28 +31,24 @@
 //   Output:
 //      (3-k)-form coefficient vector
 //
-void  F_Hodge(F_ARG)
+void F_Hodge(F_ARG)
 {
   int k;
-  struct Value  detS;
+  struct Value detS;
   struct Value *S;
 
   k = Fct->Para[0];
-  S = A+1;
+  S = A + 1;
 
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      (S->Type != TENSOR_DIAG &&
-       S->Type != TENSOR_SYM &&
-       S->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     (S->Type != TENSOR_DIAG && S->Type != TENSOR_SYM && S->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'Hodge'");
 
   Cal_DetValue(S, &detS);
   detS.Val[0] = sqrt(fabs(detS.Val[0]));
 
   switch(k) {
-  case 0:
-    Cal_ProductValue(&detS, A, V);
-    break;
+  case 0: Cal_ProductValue(&detS, A, V); break;
   case 1:
     Cal_InvertValue(S, S);
     Cal_ProductValue(S, A, V);
@@ -67,9 +63,7 @@ void  F_Hodge(F_ARG)
     Cal_InvertValue(&detS, &detS);
     Cal_ProductValue(&detS, A, V);
     break;
-  default:
-    Message::Error("Invalid parameter for function 'Hodge'");
-    break;
+  default: Message::Error("Invalid parameter for function 'Hodge'"); break;
   }
 }
 
@@ -85,10 +79,10 @@ void  F_Hodge(F_ARG)
 //   Output:
 //      scalar
 //
-void  F_InnerProduct(F_ARG)
+void F_InnerProduct(F_ARG)
 {
   int k;
-  struct Value  detS;
+  struct Value detS;
   struct Value *S;
   struct Value *V1;
   struct Value *V2;
@@ -96,21 +90,16 @@ void  F_InnerProduct(F_ARG)
   k = Fct->Para[0];
 
   V1 = A;
-  V2 = A+1;
-  S = A+2;
+  V2 = A + 1;
+  S = A + 2;
 
-  if( (V1->Type != SCALAR && V1->Type != VECTOR) ||
-      (V2->Type != SCALAR && V2->Type != VECTOR) ||
-      (V2->Type != V1->Type) ||
-      (S->Type != TENSOR_DIAG &&
-       S->Type != TENSOR_SYM &&
-       S->Type != TENSOR))
+  if((V1->Type != SCALAR && V1->Type != VECTOR) ||
+     (V2->Type != SCALAR && V2->Type != VECTOR) || (V2->Type != V1->Type) ||
+     (S->Type != TENSOR_DIAG && S->Type != TENSOR_SYM && S->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'InnerProduct'");
 
   switch(k) {
-  case 0:
-    Cal_CopyValue(V2, V);
-    break;
+  case 0: Cal_CopyValue(V2, V); break;
   case 1:
     Cal_InvertValue(S, S);
     Cal_ProductValue(S, V2, V);
@@ -142,18 +131,17 @@ void  F_InnerProduct(F_ARG)
 //   Output:
 //      k-vector coefficient vector
 //
-void  F_Sharp(F_ARG)
+void F_Sharp(F_ARG)
 {
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      ((A+1)->Type != TENSOR_DIAG &&
-       (A+1)->Type != TENSOR_SYM &&
-       (A+1)->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     ((A + 1)->Type != TENSOR_DIAG && (A + 1)->Type != TENSOR_SYM &&
+      (A + 1)->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'Sharp'");
 
-  if( Fct->Para[0] > 3 || Fct->Para[0] < 0 )
+  if(Fct->Para[0] > 3 || Fct->Para[0] < 0)
     Message::Error("Invalid parameter for function 'Sharp'");
 
-  Cal_InvertValue(A+1, A+1);
+  Cal_InvertValue(A + 1, A + 1);
   F_Flat(Fct, A, V);
 }
 
@@ -168,42 +156,32 @@ void  F_Sharp(F_ARG)
 //   Output:
 //      k-form coefficient vector
 //
-void  F_Flat(F_ARG)
+void F_Flat(F_ARG)
 {
   int k;
-  struct Value  detS;
+  struct Value detS;
   struct Value *S;
 
   k = Fct->Para[0];
-  S = A+1;
+  S = A + 1;
 
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      (S->Type != TENSOR_DIAG &&
-       S->Type != TENSOR_SYM &&
-       S->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     (S->Type != TENSOR_DIAG && S->Type != TENSOR_SYM && S->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'Flat'");
 
   Cal_DetValue(S, &detS);
   detS.Val[0] = sqrt(fabs(detS.Val[0]));
 
   switch(k) {
-  case 0:
-    Cal_CopyValue(A, V);
-    break;
-  case 1:
-    Cal_ProductValue(S, A, V);
-    break;
+  case 0: Cal_CopyValue(A, V); break;
+  case 1: Cal_ProductValue(S, A, V); break;
   case 2:
     Cal_InvertValue(S, S);
     Cal_ProductValue(S, A, V);
     Cal_ProductValue(&detS, V, V);
     break;
-  case 3:
-    Cal_ProductValue(&detS, A, V);
-    break;
-  default:
-    Message::Error("Invalid parameter for function 'Flat'");
-    break;
+  case 3: Cal_ProductValue(&detS, A, V); break;
+  default: Message::Error("Invalid parameter for function 'Flat'"); break;
   }
 }
 
@@ -219,9 +197,9 @@ void  F_Flat(F_ARG)
 //   Output:
 //      (k1+k2)-form or (k1+k2)-vector coefficient vector
 //
-void  F_WedgeProduct(F_ARG)
+void F_WedgeProduct(F_ARG)
 {
-  int k1,k2;
+  int k1, k2;
   struct Value *V1;
   struct Value *V2;
 
@@ -229,25 +207,25 @@ void  F_WedgeProduct(F_ARG)
   k2 = Fct->Para[0];
 
   V1 = A;
-  V2 = A+1;
+  V2 = A + 1;
 
-  if( (V1->Type != SCALAR && V1->Type != VECTOR) ||
-      (V2->Type != SCALAR && V2->Type != VECTOR) )
+  if((V1->Type != SCALAR && V1->Type != VECTOR) ||
+     (V2->Type != SCALAR && V2->Type != VECTOR))
     Message::Error("Wrong type of arguments for function 'WedgeProduct'");
   if(k1 < 0 || k1 > 3 || k2 < 0 || k2 > 3)
     Message::Error("Invalid parameter for function 'WedgeProduct'");
 
-  if( k1 == 0 || k2 == 0 || (k1 == 1 && k2 == 2) || (k1 == 2 && k2 == 1) )
+  if(k1 == 0 || k2 == 0 || (k1 == 1 && k2 == 2) || (k1 == 2 && k2 == 1))
     Cal_ProductValue(V1, V2, V);
-  else if( k1 == 1 && k2 == 1 )
+  else if(k1 == 1 && k2 == 1)
     Cal_CrossProductValue(V1, V2, V);
-  else if( k1 + k2 > 3 )
+  else if(k1 + k2 > 3)
     Cal_ZeroValue(V);
   else
     Message::Error("Missing implementation in 'WedgeProduct'");
 }
 
-void  F_TensorProduct(F_ARG)
+void F_TensorProduct(F_ARG)
 {
   Message::Error("'TensorProduct' not implemented");
 }
@@ -263,7 +241,7 @@ void  F_TensorProduct(F_ARG)
 //   Output:
 //      (k-1)-form coefficient vector
 //
-void  F_InteriorProduct(F_ARG)
+void F_InteriorProduct(F_ARG)
 {
   int k;
   struct Value *V1;
@@ -272,20 +250,15 @@ void  F_InteriorProduct(F_ARG)
   k = Fct->Para[0];
 
   V1 = A;
-  V2 = A+1;
+  V2 = A + 1;
 
-  if( V1->Type != VECTOR ||
-      (V2->Type != SCALAR && V2->Type != VECTOR) )
+  if(V1->Type != VECTOR || (V2->Type != SCALAR && V2->Type != VECTOR))
     Message::Error("Wrong type of arguments for function 'InteriorProduct'");
 
   switch(k) {
   case 1:
-  case 3:
-    Cal_ProductValue(V1, V2, V);
-    break;
-  case 2:
-    Cal_CrossProductValue(V1, V2, V);
-    break;
+  case 3: Cal_ProductValue(V1, V2, V); break;
+  case 2: Cal_CrossProductValue(V1, V2, V); break;
   default:
     Message::Error("Invalid parameter for function 'InteriorProduct'");
     break;
@@ -303,18 +276,17 @@ void  F_InteriorProduct(F_ARG)
 //   Output:
 //      k-form coefficient vector
 //
-void  F_PullBack(F_ARG)
+void F_PullBack(F_ARG)
 {
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      ((A+1)->Type != TENSOR_DIAG &&
-       (A+1)->Type != TENSOR_SYM &&
-       (A+1)->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     ((A + 1)->Type != TENSOR_DIAG && (A + 1)->Type != TENSOR_SYM &&
+      (A + 1)->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'PullBack'");
 
-  if( Fct->Para[0] < 0 || Fct->Para[0] > 3 )
+  if(Fct->Para[0] < 0 || Fct->Para[0] > 3)
     Message::Error("Invalid parameter for function 'PullBack'");
 
-  Cal_TransposeValue(A+1, A+1);
+  Cal_TransposeValue(A + 1, A + 1);
   F_PushForward(Fct, A, V);
 }
 
@@ -329,20 +301,16 @@ void  F_PullBack(F_ARG)
 //   Output:
 //      metric tensor coefficient matrix
 //
-void  F_PullBackMetric(F_ARG)
+void F_PullBackMetric(F_ARG)
 {
   struct Value *S;
   struct Value *J;
 
-  J = A+1;
+  J = A + 1;
   S = A;
 
-  if( (S->Type != TENSOR_DIAG &&
-       S->Type != TENSOR_SYM &&
-       S->Type != TENSOR) ||
-      (J->Type != TENSOR_DIAG &&
-       J->Type != TENSOR_SYM &&
-       J->Type != TENSOR))
+  if((S->Type != TENSOR_DIAG && S->Type != TENSOR_SYM && S->Type != TENSOR) ||
+     (J->Type != TENSOR_DIAG && J->Type != TENSOR_SYM && J->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'PullBackMetric'");
 
   Cal_ProductValue(S, J, V);
@@ -361,19 +329,18 @@ void  F_PullBackMetric(F_ARG)
 //   Output:
 //      k-form coefficient vector
 //
-void  F_InvPullBack(F_ARG)
+void F_InvPullBack(F_ARG)
 {
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      ((A+1)->Type != TENSOR_DIAG &&
-       (A+1)->Type != TENSOR_SYM &&
-       (A+1)->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     ((A + 1)->Type != TENSOR_DIAG && (A + 1)->Type != TENSOR_SYM &&
+      (A + 1)->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'InvPullBack'");
 
-  if( Fct->Para[0] < 0 || Fct->Para[0] > 3 )
+  if(Fct->Para[0] < 0 || Fct->Para[0] > 3)
     Message::Error("Invalid parameter for function 'InvPullBack'");
 
-  Cal_InvertValue(A+1, A+1);
-  Cal_TransposeValue(A+1, A+1);
+  Cal_InvertValue(A + 1, A + 1);
+  Cal_TransposeValue(A + 1, A + 1);
   F_PushForward(Fct, A, V);
 }
 
@@ -388,28 +355,22 @@ void  F_InvPullBack(F_ARG)
 //   Output:
 //      k-vector coefficient vector
 //
-void  F_PushForward(F_ARG)
+void F_PushForward(F_ARG)
 {
   int k;
   struct Value *J;
-  struct Value  detJ;
+  struct Value detJ;
 
   k = Fct->Para[0];
-  J = A+1;
+  J = A + 1;
 
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      (J->Type != TENSOR_DIAG &&
-       J->Type != TENSOR_SYM &&
-       J->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     (J->Type != TENSOR_DIAG && J->Type != TENSOR_SYM && J->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'PushForward'");
 
   switch(k) {
-  case 0:
-    Cal_CopyValue(A, V);
-    break;
-  case 1:
-    Cal_ProductValue(J, A, V);
-    break;
+  case 0: Cal_CopyValue(A, V); break;
+  case 1: Cal_ProductValue(J, A, V); break;
   case 2:
     Cal_InvertValue(J, J);
     Cal_TransposeValue(J, J);
@@ -438,17 +399,16 @@ void  F_PushForward(F_ARG)
 //   Output:
 //      k-vector coefficient vector
 //
-void  F_InvPushForward(F_ARG)
+void F_InvPushForward(F_ARG)
 {
-  if( (A->Type != SCALAR && A->Type != VECTOR) ||
-      ((A+1)->Type != TENSOR_DIAG &&
-       (A+1)->Type != TENSOR_SYM &&
-       (A+1)->Type != TENSOR))
+  if((A->Type != SCALAR && A->Type != VECTOR) ||
+     ((A + 1)->Type != TENSOR_DIAG && (A + 1)->Type != TENSOR_SYM &&
+      (A + 1)->Type != TENSOR))
     Message::Error("Wrong type of arguments for function 'InvPushForward'");
 
-  if( Fct->Para[0] < 0 || Fct->Para[0] > 3 )
+  if(Fct->Para[0] < 0 || Fct->Para[0] > 3)
     Message::Error("Invalid parameter for function 'InvPushForward'");
 
-  Cal_InvertValue(A+1, A+1);
+  Cal_InvertValue(A + 1, A + 1);
   F_PushForward(Fct, A, V);
 }

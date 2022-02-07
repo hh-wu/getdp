@@ -9,8 +9,7 @@
 #include "Pos_Element.h"
 #include "ListUtils.h"
 
-void Cal_Iso(struct PostElement *PE, List_T *list,
-	     double val, double vmin, double vmax,
-	     int DecomposeInSimplex) ;
+void Cal_Iso(struct PostElement *PE, List_T *list, double val, double vmin,
+             double vmax, int DecomposeInSimplex);
 
 #endif

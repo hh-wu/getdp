@@ -10,93 +10,91 @@
 /*  B F _ V o l u m e                                                       */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumVolume   Message::Error("Wrong Volume number in 'BF_Volume'")
+#define WrongNumVolume Message::Error("Wrong Volume number in 'BF_Volume'")
 
-void BF_Volume(struct Element * Element, int NumVolume,
-	       double u, double v, double w,  double *s)
+void BF_Volume(struct Element *Element, int NumVolume, double u, double v,
+               double w, double *s)
 {
-  switch (Element->Type) {
-  case POINT_ELEMENT :
+  switch(Element->Type) {
+  case POINT_ELEMENT:
     switch(NumVolume) {
-    case 1  : *s = 1. ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 1.; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case LINE :
+  case LINE:
     switch(NumVolume) {
-    case 1  : *s = 0.5 ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 0.5; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case TRIANGLE :
+  case TRIANGLE:
     switch(NumVolume) {
-    case 1  : *s = 2. ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 2.; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case QUADRANGLE :
+  case QUADRANGLE:
     switch(NumVolume) {
-    case 1  : *s = 0.25 ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 0.25; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case TETRAHEDRON :
+  case TETRAHEDRON:
     switch(NumVolume) {
-    case 1  : *s = 6. ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 6.; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case HEXAHEDRON :
+  case HEXAHEDRON:
     switch(NumVolume) {
-    case 1  : *s = 0.125 ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 0.125; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case PRISM :
+  case PRISM:
     switch(NumVolume) {
-    case 1  : *s = 1. ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 1.; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  case PYRAMID :
+  case PYRAMID:
     switch(NumVolume) {
-    case 1  : *s = 3./4. ; break ;
-    default : WrongNumVolume ;
+    case 1: *s = 3. / 4.; break;
+    default: WrongNumVolume;
     }
-    break ;
+    break;
 
-  default :
-    Message::Error("Unknown type of Element in BF_Volume");
-    break ;
+  default: Message::Error("Unknown type of Element in BF_Volume"); break;
   }
 }
 
 #undef WrongNumVolume
 
-void BF_VolumeX(struct Element * Element, int NumVolume,
-		double u, double v, double w,  double *s)
+void BF_VolumeX(struct Element *Element, int NumVolume, double u, double v,
+                double w, double *s)
 {
   s[1] = s[2] = 0.;
-  BF_Volume (Element, NumVolume, u, v, w, &s[0]) ;
+  BF_Volume(Element, NumVolume, u, v, w, &s[0]);
 }
 
-void BF_VolumeY(struct Element * Element, int NumVolume,
-		double u, double v, double w,  double *s)
+void BF_VolumeY(struct Element *Element, int NumVolume, double u, double v,
+                double w, double *s)
 {
   s[0] = s[2] = 0.;
-  BF_Volume (Element, NumVolume, u, v, w, &s[1]) ;
+  BF_Volume(Element, NumVolume, u, v, w, &s[1]);
 }
 
-void BF_VolumeZ(struct Element * Element, int NumVolume,
-		double u, double v, double w,  double *s)
+void BF_VolumeZ(struct Element *Element, int NumVolume, double u, double v,
+                double w, double *s)
 {
   s[0] = s[1] = 0.;
-  BF_Volume (Element, NumVolume, u, v, w, &s[2]) ;
+  BF_Volume(Element, NumVolume, u, v, w, &s[2]);
 }

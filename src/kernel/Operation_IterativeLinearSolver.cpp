@@ -13,7 +13,7 @@
 #include "Message.h"
 #include "OS.h"
 
-extern struct CurrentData Current ;
+extern struct CurrentData Current;
 
 // for performance tests
 //#define TIMER
@@ -25,15 +25,15 @@ extern struct CurrentData Current ;
 #include <gmsh/PView.h>
 #include <gmsh/PViewData.h>
 
-
-#if ((PETSC_VERSION_RELEASE == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
+#if((PETSC_VERSION_RELEASE == 0) ||                                            \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 7)))
 #define PetscViewerSetFormat(A, B) PetscViewerPushFormat(A, B)
 #endif
 
 static void _try(int ierr)
 {
   CHKERRCONTINUE(ierr);
-  if(PetscUnlikely(ierr)){
+  if(PetscUnlikely(ierr)) {
     const char *text;
     PetscErrorMessage(ierr, &text, 0);
     Message::Error("PETSc error: %s", text);
@@ -41,30 +41,32 @@ static void _try(int ierr)
   }
 }
 
-class ILS{
+class ILS {
   // A new communicator can be created. If some processes have no work they must
   // be excluded from the communicator to avoir dead-lock
- private:
+private:
   // current cpu number and total number of cpus
   static MPI_Comm _comm;
   static int _commRank, _commSize;
- public:
-  static int GetCommRank(){ return _commRank; }
-  static int GetCommSize(){ return _commSize; }
-  static MPI_Comm GetComm(){ return _comm; }
+
+public:
+  static int GetCommRank() { return _commRank; }
+  static int GetCommSize() { return _commSize; }
+  static MPI_Comm GetComm() { return _comm; }
 };
 
 MPI_Comm ILS::_comm = MPI_COMM_WORLD;
 int ILS::_commRank = 0;
 int ILS::_commSize = 1;
 
-class ILSField{
- public:
+class ILSField {
+public:
   // number of Fields in this class
   PetscInt nb_field;
   // total number of elements of all fields in this class
   PetscInt n_elem;
-  // GmshTag[j] = tag of field j (in getdp/gmsh, ie : outside IterativeLinearSolver)
+  // GmshTag[j] = tag of field j (in getdp/gmsh, ie : outside
+  // IterativeLinearSolver)
   std::vector<PetscInt> GmshTag;
   // ILSTag[j] = local tag of field j in the function IterativeLinearSolver
   // (usefull for MyField).
@@ -88,7 +90,7 @@ class ILSField{
   std::vector<std::vector<PetscInt> > theirSizeV;
   // GmshTag of the fields that must be received by the current MPI processe
   // (concatenation of myNeighbor)
-  std::vector<PetscInt>               FieldToReceive;
+  std::vector<PetscInt> FieldToReceive;
   // RankToSend[j] returns the rank to which the j^th local field must be sent
   std::vector<std::vector<PetscInt> > RankToSend;
   // CPU Time
@@ -99,27 +101,27 @@ class ILSField{
   // (ILSTag) Indeed, ILS can renumber the field in another way than gmsh/getdp
   int GetILSTagFromGmshTag(int gTag)
   {
-    for (int j = 0; j < nb_field ; j++)
+    for(int j = 0; j < nb_field; j++)
       if(GmshTag[j] == gTag) return ILSTag[j];
-    return -1; //error
+    return -1; // error
   }
   int GetRankFromGmshTag(int gTag)
   {
-    for (int j = 0; j < nb_field ; j++)
+    for(int j = 0; j < nb_field; j++)
       if(GmshTag[j] == gTag) return rank[j];
-    return -1; //error
+    return -1; // error
   }
   int GetRankFromILSTag(int ilsTag)
   {
-    for (int j = 0; j < nb_field ; j++)
+    for(int j = 0; j < nb_field; j++)
       if(ILSTag[j] == ilsTag) return rank[j];
-    return -1; //error
+    return -1; // error
   }
   int GetGmshTagFromRank(int irank)
   {
-    for (int j = 0; j < nb_field ; j++)
+    for(int j = 0; j < nb_field; j++)
       if(rank[j] == irank) return GmshTag[j];
-    return -1; //error
+    return -1; // error
   }
 };
 
@@ -131,7 +133,7 @@ bool ILSField::areNeighbor = false;
 static ILSField *MyStaticField = 0, *AllStaticField = 0;
 
 // Matrix Free structure (Matrix Shell)
-typedef struct{
+typedef struct {
   char *LinearSystemType;
   ILSField *MyField;
   ILSField *AllField;
@@ -148,9 +150,9 @@ static PView *GetViewByTag(int tag)
   return view;
 }
 
-static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
-                               struct Operation *Operation_P,
-                               std::vector<std::vector<std::vector<double> > > *B_std)
+static PetscErrorCode
+InitData(ILSField *MyField, ILSField *AllField, struct Operation *Operation_P,
+         std::vector<std::vector<std::vector<double> > > *B_std)
 {
   int mpi_comm_size = Message::GetCommSize();
   int mpi_comm_rank = Message::GetCommRank();
@@ -159,19 +161,20 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   int counter = 0;
 
   // number of fields owned by me and the other tasks
-  MyField->nb_field = List_Nbr(Operation_P->Case.IterativeLinearSolver.MyFieldTag);
+  MyField->nb_field =
+    List_Nbr(Operation_P->Case.IterativeLinearSolver.MyFieldTag);
   tab_nb_field_loc.resize(mpi_comm_size);
-  MPI_Allgather(&MyField->nb_field, 1, MPI_INT, &tab_nb_field_loc[0],
-                1, MPI_INT, PETSC_COMM_WORLD);
+  MPI_Allgather(&MyField->nb_field, 1, MPI_INT, &tab_nb_field_loc[0], 1,
+                MPI_INT, PETSC_COMM_WORLD);
 
   AllField->nb_field = 0;
-  for (int irank = 0 ; irank < mpi_comm_size ; irank ++)
+  for(int irank = 0; irank < mpi_comm_size; irank++)
     AllField->nb_field += tab_nb_field_loc[irank];
 
   // displacement vector (for MPI_AllGatherV)
   displs[0] = 0;
-  for (int irank = 1 ; irank < mpi_comm_size ; irank ++)
-    displs[irank] = tab_nb_field_loc[irank-1] + displs[irank-1];
+  for(int irank = 1; irank < mpi_comm_size; irank++)
+    displs[irank] = tab_nb_field_loc[irank - 1] + displs[irank - 1];
 
   // Tag of the fields owned by me ....
   MyField->GmshTag.resize(MyField->nb_field);
@@ -189,11 +192,11 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   AllField->GmshTag.resize(AllField->nb_field);
   AllField->rank.resize(AllField->nb_field);
   AllField->ILSTag.resize(AllField->nb_field);
-  for (int iField = 0; iField < AllField->nb_field ; iField ++)
+  for(int iField = 0; iField < AllField->nb_field; iField++)
     AllField->ILSTag[iField] = iField;
   MPI_Allgatherv(&MyField->GmshTag[0], MyField->nb_field, MPI_INT,
-                 &AllField->GmshTag[0], &tab_nb_field_loc[0], &displs[0], MPI_INT,
-                 PETSC_COMM_WORLD);
+                 &AllField->GmshTag[0], &tab_nb_field_loc[0], &displs[0],
+                 MPI_INT, PETSC_COMM_WORLD);
   MPI_Allgatherv(&MyField->rank[0], MyField->nb_field, MPI_INT,
                  &AllField->rank[0], &tab_nb_field_loc[0], &displs[0], MPI_INT,
                  PETSC_COMM_WORLD);
@@ -202,7 +205,7 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   (*B_std).resize(MyField->nb_field);
   MyField->n_elem = 0;
   MyField->size.resize(MyField->nb_field);
-  for(int iField = 0; iField < MyField->nb_field; iField ++) {
+  for(int iField = 0; iField < MyField->nb_field; iField++) {
     (*B_std)[iField].resize(2);
     int d;
     PView *view = GetViewByTag(MyField->GmshTag[iField]);
@@ -213,26 +216,26 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   }
 
   // Share information on the size of the local fields with other tasks
-  MPI_Allreduce(&MyField->n_elem, &AllField->n_elem, 1, MPI_INT,
-                MPI_SUM, PETSC_COMM_WORLD);
+  MPI_Allreduce(&MyField->n_elem, &AllField->n_elem, 1, MPI_INT, MPI_SUM,
+                PETSC_COMM_WORLD);
   AllField->size.resize(AllField->nb_field);
   MPI_Allgatherv(&MyField->size[0], MyField->nb_field, MPI_INT,
                  &AllField->size[0], &tab_nb_field_loc[0], &displs[0], MPI_INT,
                  PETSC_COMM_WORLD);
 
-  // Compute the starting/ending index in the futur Petsc Vec containing all the Gmsh fields
+  // Compute the starting/ending index in the futur Petsc Vec containing all the
+  // Gmsh fields
   AllField->iStart.resize(AllField->nb_field);
   AllField->iEnd.resize(AllField->nb_field);
   MyField->iStart.resize(MyField->nb_field);
   MyField->iEnd.resize(MyField->nb_field);
   AllField->iStart[0] = 0;
   counter = 0;
-  for(int j = 0; j < AllField->nb_field; j++){
-    if(j > 0)
-      AllField->iStart[j] = AllField->iEnd[j-1] + 1;
+  for(int j = 0; j < AllField->nb_field; j++) {
+    if(j > 0) AllField->iStart[j] = AllField->iEnd[j - 1] + 1;
     AllField->iEnd[j] = AllField->iStart[j] + AllField->size[j] - 1;
     // Store in MyField if I am in charge of the Field
-    if(AllField->rank[j] == mpi_comm_rank){
+    if(AllField->rank[j] == mpi_comm_rank) {
       MyField->iStart[counter] = AllField->iStart[j];
       MyField->iEnd[counter] = AllField->iEnd[j];
       counter++;
@@ -242,37 +245,38 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
   // Who are my Neighbors for the Broadcast ? At the time of writing, GetDP does
   // not manage 2D Lists. Thus, to act as-if, the list of neighbors is composed
   // as follows:
-  //   NeighborFieldTag = {n_0, ... n_0 GmshTag ... , n_1,  ... n_1 GmshTag, ...}
+  //   NeighborFieldTag = {n_0, ... n_0 GmshTag ... , n_1,  ... n_1 GmshTag,
+  //   ...}
   // For example, if
   //   MyFieldTag = {0, 3}
   //   NeighborFieldTag = {2, 5, 1, 3, 2, 4, 6}
   // This mean that current process is in charge of Field with GmshTag 0 and 7.
   // Field of GmshTag 0 has 2 neighbors : fields of GmshTag 5 and 1
   // Field of GmshTag 7 has 3 neighbors : fields of GmshTag 2, 4 and 6
-  // (if GetDP changes and accepts lists of lists, then this trick should be useless
-  // and changed !)
+  // (if GetDP changes and accepts lists of lists, then this trick should be
+  // useless and changed !)
   int nNeighbor_aux = 0;
-  nNeighbor_aux = List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
+  nNeighbor_aux =
+    List_Nbr(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag);
 
   // make every process agreed on whether there is neighbor or not
-  if(mpi_comm_size < 2){
-    ILSField::areNeighbor = false;
-  }
-  else{
-    //suppose it's true
+  if(mpi_comm_size < 2) { ILSField::areNeighbor = false; }
+  else {
+    // suppose it's true
     ILSField::areNeighbor = true;
-    //share info on neighbor
+    // share info on neighbor
     int bool_neigh = (nNeighbor_aux > 0);
     std::vector<int> tab_bool_neigh(mpi_comm_size);
-    MPI_Allgather(&bool_neigh, 1, MPI_INT, &tab_bool_neigh[0], 1,
-                  MPI_INT, MPI_COMM_WORLD);
-    for(int irank = 0; irank < mpi_comm_size ; irank ++)
+    MPI_Allgather(&bool_neigh, 1, MPI_INT, &tab_bool_neigh[0], 1, MPI_INT,
+                  MPI_COMM_WORLD);
+    for(int irank = 0; irank < mpi_comm_size; irank++)
       if(tab_bool_neigh[irank] == 0 && AllField->GetGmshTagFromRank(irank) >= 0)
-        // if one process has no neighbord AND is charge of some fields (=is a worker)
+        // if one process has no neighbord AND is charge of some fields (=is a
+        // worker)
         ILSField::areNeighbor = false;
   }
 
-  if(ILSField::areNeighbor){
+  if(ILSField::areNeighbor) {
     int cpt_neigh = 0; // counter in list IterativeLinearSolver.NeighborFieldTag
     // for every field, RankToSend contain the rank of the process in need of
     // the field
@@ -283,41 +287,42 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
     MyField->FieldToReceive.resize(AllField->nb_field - MyField->nb_field);
     int cpt_recv = 0;
     // read through every neighbors
-    for(int ifield = 0 ; ifield < MyField->nb_field ; ifield++){
+    for(int ifield = 0; ifield < MyField->nb_field; ifield++) {
       double d;
       List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag,
                 cpt_neigh, &d);
       int n_neigh = (int)d;
       cpt_send = 0;
-      //at maximum n_neigh process to send this view
+      // at maximum n_neigh process to send this view
       MyField->RankToSend[ifield].resize(n_neigh);
-      for(int j = 0; j < n_neigh ; j++){
-        //counter in list NeighborFieldTag
-        cpt_neigh ++;
+      for(int j = 0; j < n_neigh; j++) {
+        // counter in list NeighborFieldTag
+        cpt_neigh++;
         List_Read(Operation_P->Case.IterativeLinearSolver.NeighborFieldTag,
                   cpt_neigh, &d);
         int GmshTag_newneigh = (int)d;
         // Check if not already stored (either because this process is in charge
         // of the field or due to a doublon)
         bool isStored = false;
-        for(int i = 0; i < MyField->nb_field ; i++){
-          if(GmshTag_newneigh == MyField->GmshTag[i]){
+        for(int i = 0; i < MyField->nb_field; i++) {
+          if(GmshTag_newneigh == MyField->GmshTag[i]) {
             isStored = true;
             break;
           }
         }
-        for(int i = 0; i < cpt_recv ; i++){
-          if(GmshTag_newneigh == MyField->FieldToReceive[i]){
+        for(int i = 0; i < cpt_recv; i++) {
+          if(GmshTag_newneigh == MyField->FieldToReceive[i]) {
             isStored = true;
             break;
           }
         }
         // in case it's not already store
-        if(!isStored){
+        if(!isStored) {
           MyField->FieldToReceive[cpt_recv] = GmshTag_newneigh;
           cpt_recv++;
         }
-        // check if stored in the table of Mpi processes which will receive this field
+        // check if stored in the table of Mpi processes which will receive this
+        // field
         isStored = false;
         int rank_new_neigh =
           AllField->rank[AllField->GetILSTagFromGmshTag(GmshTag_newneigh)];
@@ -325,14 +330,15 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
         // Maybe this process is in charge of this field..
         if(rank_new_neigh == mpi_comm_rank)
           isStored = true;
-        else{ //...or maybe it is already stored ...
-          for(int i = 0; i < cpt_send ; i++){
-            if(rank_new_neigh == MyField->RankToSend[ifield][i]){
+        else { //...or maybe it is already stored ...
+          for(int i = 0; i < cpt_send; i++) {
+            if(rank_new_neigh == MyField->RankToSend[ifield][i]) {
               isStored = true;
-              break; }
+              break;
+            }
           }
         }
-        if(!isStored){ // not already stored
+        if(!isStored) { // not already stored
           MyField->RankToSend[ifield][cpt_send] = rank_new_neigh;
           cpt_send++;
         }
@@ -349,28 +355,29 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
     // Exchange information on the size of the PView (Field) with the neighbors
     MyField->myN.resize(MyField->nb_field);
     MyField->mySizeV.resize(MyField->nb_field);
-    std::vector< MPI_Request > tab_request(0);
-    for (int mfield = 0 ; mfield < MyField->nb_field ; mfield ++){
+    std::vector<MPI_Request> tab_request(0);
+    for(int mfield = 0; mfield < MyField->nb_field; mfield++) {
       // Measure the size of the vectors of Field of local number mfield
-      std::vector< std::vector<double>* > V(24);
+      std::vector<std::vector<double> *> V(24);
       MyField->myN[mfield].resize(24);
       MyField->mySizeV[mfield].resize(24);
       int GmshTag = MyField->GmshTag[mfield];
       PView *view = GetViewByTag(GmshTag);
       view->getData()->getListPointers(&(MyField->myN[mfield][0]), &V[0]);
-      for(int j = 0 ; j < 24 ; j++)
+      for(int j = 0; j < 24; j++)
         MyField->mySizeV[mfield][j] = (*(V[j])).size();
       // Exchange information about the sizes (mySizeV and myN)
       int n_proc_to_send = MyField->RankToSend[mfield].size();
-      for(int j = 0 ; j < n_proc_to_send ; j++){
+      for(int j = 0; j < n_proc_to_send; j++) {
         MPI_Request sendN, sendSizeV;
-        int tagN = 10*GmshTag + 1;
-        int tagSizeV = 10*GmshTag + 2;
+        int tagN = 10 * GmshTag + 1;
+        int tagSizeV = 10 * GmshTag + 2;
         // send vector myN and mysizeV
         MPI_Isend(&(MyField->myN[mfield][0]), 24, MPI_INT,
                   MyField->RankToSend[mfield][j], tagN, MPI_COMM_WORLD, &sendN);
         MPI_Isend(&(MyField->mySizeV[mfield][0]), 24, MPI_INT,
-                  MyField->RankToSend[mfield][j], tagSizeV, MPI_COMM_WORLD, &sendSizeV);
+                  MyField->RankToSend[mfield][j], tagSizeV, MPI_COMM_WORLD,
+                  &sendSizeV);
         tab_request.push_back(sendN);
         tab_request.push_back(sendSizeV);
       }
@@ -378,28 +385,28 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
     // Receive information from the other process
     MyField->theirN.resize(MyField->nb_field_to_receive);
     MyField->theirSizeV.resize(MyField->nb_field_to_receive);
-    for (int ifield = 0 ; ifield < MyField->nb_field_to_receive ; ifield ++){
+    for(int ifield = 0; ifield < MyField->nb_field_to_receive; ifield++) {
       MPI_Request recvN, recvSizeV;
       // receive information on vectors N and sizeV from the other
       int fieldGmshTag = MyField->FieldToReceive[ifield];
       int fieldILSTag = AllField->GetILSTagFromGmshTag(fieldGmshTag);
       int rank_emiter = AllField->rank[fieldILSTag];
-      int tagN = 10*fieldGmshTag + 1;
-      int tagSizeV = 10*fieldGmshTag + 2;
+      int tagN = 10 * fieldGmshTag + 1;
+      int tagSizeV = 10 * fieldGmshTag + 2;
       // resize before receiving
       MyField->theirN[ifield].resize(24);
       MyField->theirSizeV[ifield].resize(24);
       // Receive
       MPI_Irecv(&(MyField->theirN[ifield][0]), 24, MPI_INT, rank_emiter, tagN,
                 MPI_COMM_WORLD, &recvN);
-      MPI_Irecv(&(MyField->theirSizeV[ifield][0]), 24, MPI_INT, rank_emiter, tagSizeV,
-                MPI_COMM_WORLD, &recvSizeV);
+      MPI_Irecv(&(MyField->theirSizeV[ifield][0]), 24, MPI_INT, rank_emiter,
+                tagSizeV, MPI_COMM_WORLD, &recvSizeV);
       tab_request.push_back(recvN);
       tab_request.push_back(recvSizeV);
     }
 
     // check if reception is ok
-    std::vector< MPI_Status > tab_status;
+    std::vector<MPI_Status> tab_status;
     MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
   }
 
@@ -411,82 +418,83 @@ static PetscErrorCode InitData(ILSField *MyField, ILSField *AllField,
 }
 
 // Communicate PViews
-static PetscErrorCode PViewBCast(ILSField MyField, ILSField AllField,
-                                 const std::set<int> &fieldsToSkip=std::set<int>())
+static PetscErrorCode
+PViewBCast(ILSField MyField, ILSField AllField,
+           const std::set<int> &fieldsToSkip = std::set<int>())
 {
   if(Message::GetCommSize() == 1) // serial: all views are available to everyone
     PetscFunctionReturn(0);
 
-  if(!(ILSField::areNeighbor)){
+  if(!(ILSField::areNeighbor)) {
     // broadcast all views
-    for (int iField = 0 ; iField < AllField.nb_field ; iField++){
+    for(int iField = 0; iField < AllField.nb_field; iField++) {
       int GmshTag = AllField.GmshTag[iField];
       int fieldRank = AllField.rank[iField];
-      std::vector< std::vector<double>* > V(24);
+      std::vector<std::vector<double> *> V(24);
       std::vector<int> sizeV(24);
       std::vector<int> N(24);
       int masterRank = fieldRank;
       MPI_Comm fieldcomm = MPI_COMM_WORLD;
       int mpi_fieldcomm_rank = Message::GetCommRank();
-      if(mpi_fieldcomm_rank == fieldRank){
+      if(mpi_fieldcomm_rank == fieldRank) {
         PView *view = GetViewByTag(GmshTag);
         view->getData()->getListPointers(&N[0], &V[0]);
-        for(int j = 0 ; j < 24 ; j++)
-          sizeV[j] = (*(V[j])).size();
+        for(int j = 0; j < 24; j++) sizeV[j] = (*(V[j])).size();
       }
       // Transfer PView
       MPI_Bcast(&N[0], 24, MPI_INT, masterRank, fieldcomm);
       MPI_Bcast(&sizeV[0], 24, MPI_INT, masterRank, fieldcomm);
-      for(int j = 0; j < 24 ; j ++){
-        if(mpi_fieldcomm_rank != masterRank){
+      for(int j = 0; j < 24; j++) {
+        if(mpi_fieldcomm_rank != masterRank) {
           V[j] = new std::vector<double>;
           (*(V[j])).resize(sizeV[j]);
         }
-        if(sizeV[j] > 0) //avoid useless BCast
+        if(sizeV[j] > 0) // avoid useless BCast
           MPI_Bcast(&(*(V[j]))[0], sizeV[j], MPI_DOUBLE, masterRank, fieldcomm);
       }
       // All other tasks of the communicator create/update the views
-      if(mpi_fieldcomm_rank != masterRank){
+      if(mpi_fieldcomm_rank != masterRank) {
         PView *view = new PView(GmshTag);
         view->getData()->importLists(&N[0], &V[0]);
-        for(int j = 0 ; j < 24 ; j++)
-          delete V[j] ;
+        for(int j = 0; j < 24; j++) delete V[j];
       }
     }
   }
-  else{
+  else {
     // With a specification on the neighbors, asynchronous Send/Recv (only with
     // the neighbors)
-    std::vector< MPI_Request > tab_request(0);
+    std::vector<MPI_Request> tab_request(0);
     // send my PView to my neighbors
-    for (int ifield = 0 ; ifield < MyField.nb_field ; ifield ++){
+    for(int ifield = 0; ifield < MyField.nb_field; ifield++) {
       int GmshTag = MyField.GmshTag[ifield];
       // don't send field if explicitely asked to skip it
       if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       PView *view = GetViewByTag(GmshTag);
-      std::vector< std::vector<double>* > V_send(24);
+      std::vector<std::vector<double> *> V_send(24);
       std::vector<int> N(24);
       view->getData()->getListPointers(&N[0], &V_send[0]);
-      for (int j = 0 ; j < 24 ; j ++){
+      for(int j = 0; j < 24; j++) {
         int tag = 100 * GmshTag + j;
         int n_data = MyField.mySizeV[ifield][j];
-        if(n_data > 0){
-          //Loop on the receiver
-          for (unsigned int ineigh = 0 ; ineigh < MyField.RankToSend[ifield].size() ;
-               ineigh ++){
+        if(n_data > 0) {
+          // Loop on the receiver
+          for(unsigned int ineigh = 0;
+              ineigh < MyField.RankToSend[ifield].size(); ineigh++) {
             MPI_Request sendV;
             int receiver = MyField.RankToSend[ifield][ineigh];
             MPI_Isend(&(*(V_send[j]))[0], n_data, MPI_DOUBLE, receiver, tag,
                       MPI_COMM_WORLD, &sendV);
             tab_request.push_back(sendV);
-            Message::Debug("Rank %d has sent %d", Message::GetCommRank(), GmshTag);
+            Message::Debug("Rank %d has sent %d", Message::GetCommRank(),
+                           GmshTag);
           }
         }
       }
     }
-    //receive all the PView I need
-    std::vector< std::vector< std::vector<double>* > > V_recv(MyField.nb_field_to_receive);
-    for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++){
+    // receive all the PView I need
+    std::vector<std::vector<std::vector<double> *> > V_recv(
+      MyField.nb_field_to_receive);
+    for(int ifield = 0; ifield < MyField.nb_field_to_receive; ifield++) {
       int GmshTag = MyField.FieldToReceive[ifield];
       // don't receive field if explicitely asked to skip it
       if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
@@ -494,33 +502,33 @@ static PetscErrorCode PViewBCast(ILSField MyField, ILSField AllField,
       V_recv[ifield].resize(24);
       std::vector<int> N(24);
       // allocate memory
-      for (int j = 0 ; j < 24 ; j ++){
+      for(int j = 0; j < 24; j++) {
         V_recv[ifield][j] = new std::vector<double>;
         (*(V_recv[ifield][j])).resize(MyField.theirSizeV[ifield][j]);
       }
-      for (int j = 0 ; j < 24 ; j ++){
+      for(int j = 0; j < 24; j++) {
         int n_data = MyField.theirSizeV[ifield][j];
-        if(n_data > 0){
+        if(n_data > 0) {
           MPI_Request recvV;
-          int tag = 100*GmshTag + j;
+          int tag = 100 * GmshTag + j;
           MPI_Irecv(&(*(V_recv[ifield][j]))[0], n_data, MPI_DOUBLE, sender, tag,
                     MPI_COMM_WORLD, &recvV);
           tab_request.push_back(recvV);
-          Message::Debug("Rank %d has received %d", Message::GetCommRank(), GmshTag);
+          Message::Debug("Rank %d has received %d", Message::GetCommRank(),
+                         GmshTag);
         }
       }
     }
     // check if reception is ok
-    std::vector< MPI_Status > tab_status(tab_request.size());
+    std::vector<MPI_Status> tab_status(tab_request.size());
     MPI_Waitall(tab_request.size(), &tab_request[0], &tab_status[0]);
-    for (int ifield = 0 ; ifield < MyField.nb_field_to_receive ; ifield ++){
+    for(int ifield = 0; ifield < MyField.nb_field_to_receive; ifield++) {
       int GmshTag = MyField.FieldToReceive[ifield];
       if(fieldsToSkip.find(GmshTag) != fieldsToSkip.end()) continue;
       PView *view = new PView(GmshTag);
-      view->getData()->importLists(&MyField.theirN[ifield][0], &V_recv[ifield][0]);
-      for (int j = 0 ; j < 24 ; j ++){
-	delete V_recv[ifield][j];
-      }
+      view->getData()->importLists(&MyField.theirN[ifield][0],
+                                   &V_recv[ifield][0]);
+      for(int j = 0; j < 24; j++) { delete V_recv[ifield][j]; }
     }
   }
   PetscFunctionReturn(0);
@@ -528,54 +536,55 @@ static PetscErrorCode PViewBCast(ILSField MyField, ILSField AllField,
 
 // Copy a STD Vector (std_vec) to a PETSc VEc (petsc_vec)
 // In fact, copy the local part only of the PETSc Vec
-static PetscErrorCode STD_vector_to_PETSc_Vec
-  (std::vector<std::vector<std::vector<double> > > std_vec,
-   Vec petsc_vec, ILSField *Local)
+static PetscErrorCode
+STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<double> > > std_vec,
+                        Vec petsc_vec, ILSField *Local)
 {
   PetscInt nb_view = Local->nb_field;
 
-  for (int cpt_view = 0; cpt_view < nb_view; cpt_view++){
+  for(int cpt_view = 0; cpt_view < nb_view; cpt_view++) {
     int nb_element = Local->size[cpt_view];
     std::vector<PetscScalar> val;
     std::vector<PetscInt> ix;
-    if(Current.NbrHar == 2){
+    if(Current.NbrHar == 2) {
 #if defined(PETSC_USE_COMPLEX)
       val.resize(nb_element);
       ix.resize(nb_element);
 #else
-      val.resize(2*nb_element);
-      ix.resize(2*nb_element);
+      val.resize(2 * nb_element);
+      ix.resize(2 * nb_element);
 #endif
     }
-    else{
+    else {
       val.resize(nb_element);
       ix.resize(nb_element);
     }
-    for (int i = 0 ; i < nb_element ; i++){
-      if(Current.NbrHar == 2){
+    for(int i = 0; i < nb_element; i++) {
+      if(Current.NbrHar == 2) {
 #if defined(PETSC_USE_COMPLEX)
         ix[i] = Local->iStart[cpt_view] + i;
-        val[i] = std_vec[cpt_view][0][i] + PETSC_i*std_vec[cpt_view][1][i];
+        val[i] = std_vec[cpt_view][0][i] + PETSC_i * std_vec[cpt_view][1][i];
 #else
-        ix[2*i] = 2*Local->iStart[cpt_view] + 2*i;
-        ix[2*i+1] = 2*Local->iStart[cpt_view] + 2*i+1;
-        val[2*i] = std_vec[cpt_view][0][i];
-        val[2*i+1] = std_vec[cpt_view][1][i];
+        ix[2 * i] = 2 * Local->iStart[cpt_view] + 2 * i;
+        ix[2 * i + 1] = 2 * Local->iStart[cpt_view] + 2 * i + 1;
+        val[2 * i] = std_vec[cpt_view][0][i];
+        val[2 * i + 1] = std_vec[cpt_view][1][i];
 #endif
       }
-      else{
+      else {
         ix[i] = Local->iStart[cpt_view] + i;
         val[i] = std_vec[cpt_view][0][i];
       }
     }
-    if(Current.NbrHar == 2){
+    if(Current.NbrHar == 2) {
 #if defined(PETSC_USE_COMPLEX)
       _try(VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES));
 #else
-      _try(VecSetValues(petsc_vec, 2*nb_element, &ix[0], &val[0], INSERT_VALUES));
+      _try(VecSetValues(petsc_vec, 2 * nb_element, &ix[0], &val[0],
+                        INSERT_VALUES));
 #endif
     }
-    else{
+    else {
       _try(VecSetValues(petsc_vec, nb_element, &ix[0], &val[0], INSERT_VALUES));
     }
   }
@@ -587,48 +596,48 @@ static PetscErrorCode STD_vector_to_PETSc_Vec
 
 // Copy Petsc Vec to a std::vector
 // Send ONLY THE LOCAL Part of the PETSC VEC !
-static PetscErrorCode PETSc_Vec_to_STD_Vec
-  (Vec petsc_vec, ILSField *Local,
-   std::vector<std::vector<std::vector<double> > > *std_vec)
+static PetscErrorCode
+PETSc_Vec_to_STD_Vec(Vec petsc_vec, ILSField *Local,
+                     std::vector<std::vector<std::vector<double> > > *std_vec)
 {
   PetscScalar val;
   int nb_view = Local->nb_field;
 
   // initializing std_vec
   (*std_vec).resize(Local->nb_field);
-  for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
+  for(int cpt_view = 0; cpt_view < nb_view; cpt_view++) {
     int nb_elem = Local->size[cpt_view];
-    if(Current.NbrHar == 2){
+    if(Current.NbrHar == 2) {
       (*std_vec)[cpt_view].resize(2);
       (*std_vec)[cpt_view][0].resize(nb_elem);
       (*std_vec)[cpt_view][1].resize(nb_elem);
     }
-    else{
+    else {
       (*std_vec)[cpt_view].resize(1);
       (*std_vec)[cpt_view][0].resize(nb_elem);
     }
   }
 
-  for (int cpt_view = 0 ; cpt_view < nb_view ; cpt_view++){
+  for(int cpt_view = 0; cpt_view < nb_view; cpt_view++) {
     int nb_element = Local->size[cpt_view];
     int iStart = Local->iStart[cpt_view];
-    for (int j = 0 ; j < nb_element ; j++) {
+    for(int j = 0; j < nb_element; j++) {
       int cpt = iStart + j;
-      if(Current.NbrHar == 2){
+      if(Current.NbrHar == 2) {
 #if defined(PETSC_USE_COMPLEX)
         _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
         (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
 #else
-        int cpt2 = 2*iStart + 2*j;
+        int cpt2 = 2 * iStart + 2 * j;
         _try(VecGetValues(petsc_vec, 1, &cpt2, &val));
         (*std_vec)[cpt_view][0][j] = (double)(val);
-        int cpt3 = 2*iStart + 2*j+1;
+        int cpt3 = 2 * iStart + 2 * j + 1;
         _try(VecGetValues(petsc_vec, 1, &cpt3, &val));
         (*std_vec)[cpt_view][1][j] = (double)(val);
 #endif
       }
-      else{
+      else {
         _try(VecGetValues(petsc_vec, 1, &cpt, &val));
         (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
       }
@@ -644,7 +653,7 @@ static PetscErrorCode CreateILSMat(ILSMat **shell)
   ILSMat *newctx;
   std::vector<PetscInt> vec_indice, vec_size;
 
-  newctx = (ILSMat*)malloc(sizeof(ILSMat));
+  newctx = (ILSMat *)malloc(sizeof(ILSMat));
   newctx->MyField = NULL;
   newctx->AllField = NULL;
   newctx->LinearSystemType = NULL;
@@ -688,14 +697,14 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   double t_start = MPI_Wtime(), t_end;
 #endif
 
-  _try(MatShellGetContext(A, (void**)&ctx));
+  _try(MatShellGetContext(A, (void **)&ctx));
   LinearSystemType = ctx->LinearSystemType;
 
   // convert X to a std vector
   _try(PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec));
 
   // Update PViews
-  for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
+  for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->fromVector(std_vec[cpt_view]);
   }
@@ -714,11 +723,10 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 #ifdef TIMER
   tTreatment_start = MPI_Wtime();
 #endif
-  Treatment_Operation(ctx->Resolution_P,
-                      ctx->Operation_P->Case.IterativeLinearSolver.Operations_Ax,
-                      ctx->DofData_P0,
-                      ctx->GeoData_P0,
-                      NULL, NULL);
+  Treatment_Operation(
+    ctx->Resolution_P,
+    ctx->Operation_P->Case.IterativeLinearSolver.Operations_Ax, ctx->DofData_P0,
+    ctx->GeoData_P0, NULL, NULL);
 #ifdef TIMER
   tTreatment_end = MPI_Wtime();
 #endif
@@ -734,10 +742,10 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   _try(STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField));
 
   // Set Y = X - Y
-  if(!strcmp(LinearSystemType,"I-A"))
-    _try(VecAYPX(Y, -1.,X));
-  else if(!strcmp(LinearSystemType,"I+A"))
-    _try(VecAYPX(Y, 1.,X));
+  if(!strcmp(LinearSystemType, "I-A"))
+    _try(VecAYPX(Y, -1., X));
+  else if(!strcmp(LinearSystemType, "I+A"))
+    _try(VecAYPX(Y, 1., X));
 
 #ifdef TIMER
   // time computation
@@ -749,8 +757,9 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
   ctx->MyField->TimeTreatment.push_back(t_Treatment);
   ctx->MyField->TimeBcast.push_back(t_Bcast);
   ctx->MyField->TimeIt.push_back(t_MatMult);
-  Message::Info(3, "Processus %d ended iteration in %g seconds with %g for communication",
-                Message::GetCommRank(), t_MatMult, t_Bcast);
+  Message::Info(
+    3, "Processus %d ended iteration in %g seconds with %g for communication",
+    Message::GetCommRank(), t_MatMult, t_Bcast);
 #endif
   _try(PetscBarrier((PetscObject)PETSC_NULL));
   PetscFunctionReturn(0);
@@ -761,7 +770,7 @@ static PetscErrorCode MatMultILSMat(Mat A, Vec X, Vec Y)
 static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
 {
   const PetscScalar one = 1., zero = 0.;
-  PetscInt n_proc, m,n, m_loc, n_loc;
+  PetscInt n_proc, m, n, m_loc, n_loc;
   PetscInt m_start, m_end, vec_m_start, vec_m_end;
 
   _try(MPI_Comm_size(PETSC_COMM_WORLD, &n_proc));
@@ -774,21 +783,20 @@ static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
   _try(MatGetOwnershipRange((*IterationMatrix), &m_start, &m_end));
   _try(MatGetLocalSize((*IterationMatrix), &m_loc, &n_loc));
   _try(MatMPIAIJSetPreallocation((*IterationMatrix), m_loc, PETSC_NULL,
-                                 n-m_loc, PETSC_NULL));
+                                 n - m_loc, PETSC_NULL));
   std::vector<PetscInt> ix(m);
-  for(PetscInt i = 0; i<m; i++)
-    ix[i] = m_start + i;
+  for(PetscInt i = 0; i < m; i++) ix[i] = m_start + i;
 
   Vec ej, Aej;
   _try(VecCreateSeq(PETSC_COMM_SELF, m, &ej));
   _try(VecDuplicate(ej, &Aej));
   _try(VecGetOwnershipRange(ej, &vec_m_start, &vec_m_end));
 
-  for(int cpt=0;cpt<n;cpt++){
-    Message::Info(3, "Column number %d over %d", cpt, n-1);
+  for(int cpt = 0; cpt < n; cpt++) {
+    Message::Info(3, "Column number %d over %d", cpt, n - 1);
     std::vector<PetscScalar> vec_temp(n);
     _try(VecSet(ej, zero));
-    if(cpt >= vec_m_start && cpt<vec_m_end)
+    if(cpt >= vec_m_start && cpt < vec_m_end)
       _try(VecSetValues(ej, 1., &cpt, &one, INSERT_VALUES));
     _try(VecAssemblyBegin(ej));
     _try(VecAssemblyEnd(ej));
@@ -797,7 +805,7 @@ static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
     _try(VecGetValues(Aej, m_loc, &ix[0], &vec_temp[0]));
     _try(MatSetValues((*IterationMatrix), m_loc, &ix[0], 1, &cpt, &vec_temp[0],
                       INSERT_VALUES));
-    if(cpt%100 == 0){ // flushing
+    if(cpt % 100 == 0) { // flushing
       _try(MatAssemblyBegin((*IterationMatrix), MAT_FLUSH_ASSEMBLY));
       _try(MatAssemblyEnd((*IterationMatrix), MAT_FLUSH_ASSEMBLY));
     }
@@ -808,13 +816,14 @@ static PetscErrorCode BuildIterationMatrix(Mat A, Mat *IterationMatrix)
 }
 
 // Print Iteration Matrix into file_IterationMatrix.m (matlab reading)
-static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varname)
+static PetscErrorCode PrintMatrix(Mat A, const char *filename,
+                                  const char *varname)
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function located
   // in Kernel/LinAlg_PETSC.cpp
 
   std::string tmp(filename);
-  PetscInt m,n;
+  PetscInt m, n;
 
   _try(PetscObjectSetName((PetscObject)A, varname));
   // ASCII (if the matrix is not too large)
@@ -823,7 +832,8 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
   _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, filename, &viewer));
   _try(PetscViewerSetFormat(viewer, PETSC_VIEWER_ASCII_MATLAB));
   _try(MatView(A, viewer));
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(PetscViewerDestroy(&viewer));
 #else
   _try(PetscViewerDestroy(viewer));
@@ -840,7 +850,8 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
                              FILE_MODE_WRITE, &viewer_bin));
   _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
   _try(MatView(A, viewer_bin));
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(PetscViewerDestroy(&viewer_bin));
 #else
   _try(PetscViewerDestroy(viewer_bin));
@@ -850,7 +861,8 @@ static PetscErrorCode PrintMatrix(Mat A, const char* filename, const char* varna
 }
 
 // Print a SEQUENTIAL Petsc Vec into a Matlab File
-static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varname)
+static PetscErrorCode PrintVecSeq(Vec b, const char *filename,
+                                  const char *varname)
 {
   std::string tmp(filename);
   PetscViewer viewer, viewer_bin;
@@ -864,7 +876,8 @@ static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varna
   _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
   VecView(b, viewer);
   VecView(b, viewer_bin);
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(PetscViewerDestroy(&viewer));
   _try(PetscViewerDestroy(&viewer_bin));
 #else
@@ -876,18 +889,19 @@ static PetscErrorCode PrintVecSeq(Vec b, const char* filename, const char* varna
 }
 
 // Print a Petsc Vec into a Matlab File - FIXME: to be changed!
-static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
+static PetscErrorCode PrintVec(Vec b, const char *filename, const char *varname)
 {
   // This function is copy/paste of function LinAlg_PrintMatrix function
   // located in Kernel/LinAlg_PETSC.cpp
 
-#if (PETSC_VERSION_MAJOR == 0) || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
+#if(PETSC_VERSION_MAJOR == 0) ||                                               \
+  ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 4))
   const char *type = "";
 #else
   const VecType type;
 #endif
   _try(VecGetType(b, &type));
-  if(!strcmp(type, "seq")){ // AND NUM_PROC > 1 !
+  if(!strcmp(type, "seq")) { // AND NUM_PROC > 1 !
     _try(PrintVecSeq(b, filename, varname));
     PetscFunctionReturn(0);
   }
@@ -904,7 +918,8 @@ static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
   _try(PetscViewerSetFormat(viewer_bin, PETSC_VIEWER_DEFAULT));
   VecView(b, viewer);
   VecView(b, viewer_bin);
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(PetscViewerDestroy(&viewer));
   _try(PetscViewerDestroy(&viewer_bin));
 #else
@@ -914,7 +929,8 @@ static PetscErrorCode PrintVec(Vec b, const char* filename, const char* varname)
   PetscFunctionReturn(0);
 }
 
-static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
+static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol,
+                                    int MaxIter)
 {
   Vec X_old, W;
   double residu, residuInit;
@@ -931,12 +947,12 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
   Current.Residual = residuInit;
   Current.KSPResidual = residuInit;
 
-  for (int j=1; j < MaxIter; j++){
+  for(int j = 1; j < MaxIter; j++) {
     _try(VecCopy(X, X_old));
     _try(MatMultILSMat(A, X_old, X));
-    _try(VecAYPX(X, 1.,B)); // X = X + B
-    //convergence test
-    _try(VecWAXPY(W, -1.,X_old, X)); //W = X-X_old
+    _try(VecAYPX(X, 1., B)); // X = X + B
+    // convergence test
+    _try(VecWAXPY(W, -1., X_old, X)); // W = X-X_old
     _try(VecNorm(W, NORM_2, &residu));
     Message::Info(3, "Jacobi iteration %d residual %g", j, residu);
 
@@ -944,26 +960,27 @@ static PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter
     Current.KSPIteration = j;
     Current.Residual = residu;
     Current.KSPResidual = residu;
-    if(residu/residuInit < Tol) break;
+    if(residu / residuInit < Tol) break;
   }
   PetscFunctionReturn(0);
 }
 
 // matrix-free preconditionning
-// Matrix-vector product for the preconditioning. Quite a copy/past of MatMultILSMat
+// Matrix-vector product for the preconditioning. Quite a copy/past of
+// MatMultILSMat
 static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 {
   std::vector<std::vector<std::vector<double> > > std_vec;
   ILSField MyField, AllField;
   ILSMat *ctx;
 
-  _try(PCShellGetContext(pc, (void**)&ctx));
+  _try(PCShellGetContext(pc, (void **)&ctx));
 
-  //convert X to a std vector
+  // convert X to a std vector
   _try(PETSc_Vec_to_STD_Vec(X, ctx->MyField, &std_vec));
 
   // Update PViews
-  for (int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++){
+  for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
     PView *view = GetViewByTag(ctx->MyField->GmshTag[cpt_view]);
     view->getData()->fromVector(std_vec[cpt_view]);
   }
@@ -971,11 +988,10 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
   // PVIEW BCAST !
   PViewBCast(*(ctx->MyField), *(ctx->AllField));
   // Getdp resolution (contained in the matrix context)
-  Treatment_Operation(ctx->Resolution_P,
-                      ctx->Operation_P->Case.IterativeLinearSolver.Operations_Mx,
-                      ctx->DofData_P0,
-                      ctx->GeoData_P0,
-                      NULL, NULL);
+  Treatment_Operation(
+    ctx->Resolution_P,
+    ctx->Operation_P->Case.IterativeLinearSolver.Operations_Mx, ctx->DofData_P0,
+    ctx->GeoData_P0, NULL, NULL);
   // Extract the (std) vector from the (new) .pos files
   // This assumes that every process reads every .pos files
   for(int cpt_view = 0; cpt_view < ctx->MyField->nb_field; cpt_view++) {
@@ -983,7 +999,7 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
     view->getData()->toVector(std_vec[cpt_view]);
   }
 
-  //Convert the obtained vector to a Petsc Vec
+  // Convert the obtained vector to a Petsc Vec
   _try(STD_vector_to_PETSc_Vec(std_vec, Y, ctx->MyField));
 
   _try(PetscBarrier((PetscObject)PETSC_NULL));
@@ -992,17 +1008,17 @@ static PetscErrorCode MatMultPC(PC pc, Vec X, Vec Y)
 
 static int KspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
-  Message::Cpu(3, false, true, true, true, false, "%3ld KSP Residual norm %14.12e",
-               (long)it, rnorm);
+  Message::Cpu(3, false, true, true, true, false,
+               "%3ld KSP Residual norm %14.12e", (long)it, rnorm);
   Current.KSPIteration = it;
   Current.KSPResidual = rnorm;
   return 0;
 }
 
-int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
-                                    struct Operation   *Operation_P,
-                                    struct DofData     *DofData_P0,
-                                    struct GeoData     *GeoData_P0)
+int Operation_IterativeLinearSolver(struct Resolution *Resolution_P,
+                                    struct Operation *Operation_P,
+                                    struct DofData *DofData_P0,
+                                    struct GeoData *GeoData_P0)
 {
   int mpi_comm_size = Message::GetCommSize();
   int mpi_comm_rank = Message::GetCommRank();
@@ -1015,7 +1031,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   std::vector<std::vector<std::vector<double> > > B_std; // rhs (std version)
   Vec B, X; // rhs and Solution
   PC pc;
-  MPI_Comm ILSComm = PETSC_COMM_WORLD; // by default, KSP is launched in parallel
+  MPI_Comm ILSComm =
+    PETSC_COMM_WORLD; // by default, KSP is launched in parallel
   char *LinearSystemType;
   ILSField MyField, AllField;
 #if defined(TIMER)
@@ -1035,11 +1052,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Restart = Operation_P->Case.IterativeLinearSolver.Restart;
   Solver = Operation_P->Case.IterativeLinearSolver.Type;
   LinearSystemType = Operation_P->Case.IterativeLinearSolver.OpMatMult;
-  if(strcmp(LinearSystemType, "I-A") &&
-     strcmp(LinearSystemType, "I+A") &&
-     strcmp(LinearSystemType, "A")){
-    Message::Error("Linear system type \"%s\" unknown. Try \"A\", \"I-A\" or \"I+A\".",
-                   LinearSystemType);
+  if(strcmp(LinearSystemType, "I-A") && strcmp(LinearSystemType, "I+A") &&
+     strcmp(LinearSystemType, "A")) {
+    Message::Error(
+      "Linear system type \"%s\" unknown. Try \"A\", \"I-A\" or \"I+A\".",
+      LinearSystemType);
   }
   Message::Info(3, "Linear system type: (%s)X = B", LinearSystemType);
   Message::Info(3, "Number of Processes: %d", mpi_comm_size);
@@ -1048,9 +1065,10 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Message::Info(3, "Max. numb. of iterations: %i", MaxIter);
 
   // if jacobi then MatMult(A,X) = A*X for linear system (I-A)*X=B
-  if(Solver == "jacobi"){
+  if(Solver == "jacobi") {
     if(strcmp(LinearSystemType, "I-A"))
-      Message::Error("Jacobi method implemented only for linear system of type \"I-A\"");
+      Message::Error(
+        "Jacobi method implemented only for linear system of type \"I-A\"");
     LinearSystemType = (char *)"A";
   }
 
@@ -1058,12 +1076,13 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   if(ILSField::areNeighbor)
     Message::Info(3, "Neighbors are specified: Fast exchange between process");
   for(int iField = 0; iField < AllField.nb_field; iField++)
-    Message::Info(3, "Size of Field %d: %d (on CPU %d)", AllField.GmshTag[iField],
-                  AllField.size[iField], AllField.rank[iField]);
+    Message::Info(3, "Size of Field %d: %d (on CPU %d)",
+                  AllField.GmshTag[iField], AllField.size[iField],
+                  AllField.rank[iField]);
   Message::Info(3, "Total system size: %d", AllField.n_elem);
 
 #if !defined(PETSC_USE_COMPLEX)
-  if(Current.NbrHar == 2){
+  if(Current.NbrHar == 2) {
     AllField.n_elem *= 2;
     MyField.n_elem *= 2;
     Message::Info(3, "PETSc REAL arithmetic: system size is doubled: n=%d",
@@ -1090,12 +1109,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   _try(MatCreateShell(ILSComm, MyField.n_elem, MyField.n_elem, AllField.n_elem,
                       AllField.n_elem, ctx, &A));
   _try(MatShellSetContext(A, ctx));
-  _try(MatShellSetOperation(A, MATOP_MULT, (void(*)(void))MatMultILSMat));
+  _try(MatShellSetOperation(A, MATOP_MULT, (void (*)(void))MatMultILSMat));
   _try(PetscBarrier((PetscObject)PETSC_NULL));
 
   // Creation of the iterative solver + solving
 
-  if(Solver == "print"){
+  if(Solver == "print") {
     // Print the iteration matrix
     Message::Info(3, "Launching Print mode (no resolution):");
     Message::Info(3, "Building Iteration Matrix...");
@@ -1106,7 +1125,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     Message::Info(3, "Printing Right Hand Side...");
     _try(PrintVec(B, "file_vec_rhs.m", "RightHandSide"));
     Message::Info(3, "done");
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(VecDestroy(&X));
     _try(VecDestroy(&B));
     _try(MatDestroy(&A));
@@ -1117,55 +1137,56 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
     PetscFunctionReturn(0);
   }
-  else if(Solver == "jacobi"){
+  else if(Solver == "jacobi") {
     _try(Jacobi_Solver(A, X, B, Tol, MaxIter));
   }
-  else{
+  else {
     // Krylov subspace solver
-    _try(KSPCreate(ILSComm,&ksp));
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
+    _try(KSPCreate(ILSComm, &ksp));
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 5)))
     _try(KSPSetOperators(ksp, A, A));
 #else
     _try(KSPSetOperators(ksp, A, A, DIFFERENT_NONZERO_PATTERN));
 #endif
     _try(KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter));
     _try(KSPMonitorSet(ksp, KspMonitor, PETSC_NULL, PETSC_NULL));
-    //Preconditioning
+    // Preconditioning
     bool pcright = true;
     std::string match = "_pcleft";
     int pos = (int)Solver.find(match.c_str());
-    if(pos != (int)std::string::npos){
+    if(pos != (int)std::string::npos) {
       Solver.replace(pos, match.size(), "");
       pcright = false;
     }
     _try(KSPGetPC(ksp, &pc));
     // check if a preconditioner is specified
     int nb_pc = List_Nbr(Operation_P->Case.IterativeLinearSolver.Operations_Mx);
-    if(nb_pc == 0) {
-      _try(PCSetType(pc, PCNONE));
-    }
-    else{
-      Message::Info(3, "%s preconditioner detected", pcright ? "Right" : "Left");
+    if(nb_pc == 0) { _try(PCSetType(pc, PCNONE)); }
+    else {
+      Message::Info(3, "%s preconditioner detected",
+                    pcright ? "Right" : "Left");
       // context of the shell PC
       _try(CreateILSMat(&ctx_pc));
-      _try(SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField, Resolution_P,
-                     Operation_P, DofData_P0, GeoData_P0));
+      _try(SetILSMat(&ctx_pc, LinearSystemType, &MyField, &AllField,
+                     Resolution_P, Operation_P, DofData_P0, GeoData_P0));
       // Shell PC
-      _try(PCSetType(pc,PCSHELL));
+      _try(PCSetType(pc, PCSHELL));
       _try(PCShellSetContext(pc, ctx_pc));
       _try(PCShellSetApply(pc, MatMultPC));
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
       _try(KSPSetPCSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
 #else
       _try(KSPSetPreconditionerSide(ksp, pcright ? PC_RIGHT : PC_LEFT));
 #endif
     }
     _try(KSPSetType(ksp, Solver.c_str()));
-    if(Restart > 0 && Solver.find("gmres") != std::string::npos){
+    if(Restart > 0 && Solver.find("gmres") != std::string::npos) {
       _try(KSPGMRESSetRestart(ksp, Restart));
       Message::Info(3, "GMRES Restart: %i", Restart);
     }
-    if(Restart > 0 && Solver.find("bcgsl") != std::string::npos){
+    if(Restart > 0 && Solver.find("bcgsl") != std::string::npos) {
       _try(KSPBCGSLSetEll(ksp, Restart));
       Message::Info(3, "BiCGL Ell: %i", Restart);
     }
@@ -1179,7 +1200,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     _try(KSPGetIterationNumber(ksp, &its));
     Current.KSPIterations = its;
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     _try(KSPDestroy(&ksp));
 #else
     _try(KSPDestroy(ksp));
@@ -1190,7 +1212,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   // we reuse B_std to avoid the creation of a new std::vector ...
   _try(PETSc_Vec_to_STD_Vec(X, &MyField, &B_std));
   // update views
-  for (int cpt_view = 0 ; cpt_view < MyField.nb_field; cpt_view++){
+  for(int cpt_view = 0; cpt_view < MyField.nb_field; cpt_view++) {
     PView *view = GetViewByTag(MyField.GmshTag[cpt_view]);
     view->getData()->fromVector(B_std[cpt_view]);
   }
@@ -1206,7 +1228,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #endif
 
   // cleaning
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if(PETSC_VERSION_RELEASE == 0 ||                                              \
+    ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(VecDestroy(&X));
   _try(VecDestroy(&B));
   _try(MatDestroy(&A));
@@ -1218,7 +1241,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 #ifdef TIMER
   time_total = MPI_Wtime() - time_start;
 #endif
-  if(MyField.TimeBcast.size()){
+  if(MyField.TimeBcast.size()) {
     // CPU Times
     double aver_it = 0, aver_com = 0;
     char filename[50];
@@ -1227,20 +1250,23 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     fid = FOpen(filename, "w");
     fprintf(fid, "Process rank %d\n", mpi_comm_rank);
     fprintf(fid, "it.  CPU Total \t ... Treatment \t ... Communication\n");
-    for (unsigned int i = 0; i < MyField.TimeBcast.size() ; i ++){
-      fprintf(fid, "%d \t%g\t %g\t %g\t (%g%%)\n", i+1,  MyField.TimeIt[i],
+    for(unsigned int i = 0; i < MyField.TimeBcast.size(); i++) {
+      fprintf(fid, "%d \t%g\t %g\t %g\t (%g%%)\n", i + 1, MyField.TimeIt[i],
               MyField.TimeTreatment[i], MyField.TimeBcast[i],
-              MyField.TimeBcast[i]/MyField.TimeIt[i]*100);
-      aver_com += MyField.TimeBcast[i]/MyField.TimeBcast.size();
-      aver_it += MyField.TimeIt[i]/MyField.TimeIt.size();
+              MyField.TimeBcast[i] / MyField.TimeIt[i] * 100);
+      aver_com += MyField.TimeBcast[i] / MyField.TimeBcast.size();
+      aver_it += MyField.TimeIt[i] / MyField.TimeIt.size();
     }
     fprintf(fid, "Average: %g %g\n", aver_it, aver_com);
-    fprintf(fid, "Percent of communication in average: %g%%\n", aver_com/aver_it*100);
+    fprintf(fid, "Percent of communication in average: %g%%\n",
+            aver_com / aver_it * 100);
     fclose(fid);
 #ifdef TIMER
     Message::Info(3, "Processus %d: ended in %g", mpi_comm_rank, time_total);
-    Message::Info(3, "Processus %d: Average iteration time %g with %g for communication (%g%%)",
-                  mpi_comm_rank, aver_it, aver_com, aver_com/aver_it*100);
+    Message::Info(3,
+                  "Processus %d: Average iteration time %g with %g for "
+                  "communication (%g%%)",
+                  mpi_comm_rank, aver_it, aver_com, aver_com / aver_it * 100);
 #endif
   }
 
@@ -1251,12 +1277,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   PetscFunctionReturn(0);
 }
 
-int Operation_BroadcastFields(struct Resolution  *Resolution_P,
-                              struct Operation   *Operation_P,
-                              struct DofData     *DofData_P0,
-                              struct GeoData     *GeoData_P0)
+int Operation_BroadcastFields(struct Resolution *Resolution_P,
+                              struct Operation *Operation_P,
+                              struct DofData *DofData_P0,
+                              struct GeoData *GeoData_P0)
 {
-  if(!MyStaticField || !AllStaticField){
+  if(!MyStaticField || !AllStaticField) {
     // we are not in Operation_IterativeLinearSolver: call the new, generic
     // BroadcastFields operation:
     return Operation_BroadcastFieldsGeneric(Resolution_P, Operation_P,
@@ -1266,10 +1292,11 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
   // in the IterativeLinearSolver-specific BroadCastFields operation, the list
   // of view tags contains the list of views to *not* broadcast
   std::set<int> fieldsToSkip;
-  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.ViewTags); i++){
+  for(int i = 0; i < List_Nbr(Operation_P->Case.BroadcastFields.ViewTags);
+      i++) {
     double j;
     List_Read(Operation_P->Case.BroadcastFields.ViewTags, i, &j);
-    fieldsToSkip.insert((int) j);
+    fieldsToSkip.insert((int)j);
   }
 
   PViewBCast(*MyStaticField, *AllStaticField, fieldsToSkip);
@@ -1278,22 +1305,22 @@ int Operation_BroadcastFields(struct Resolution  *Resolution_P,
 
 #else
 
-int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
-                                    struct Operation   *Operation_P,
-                                    struct DofData     *DofData_P0,
-                                    struct GeoData     *GeoData_P0)
+int Operation_IterativeLinearSolver(struct Resolution *Resolution_P,
+                                    struct Operation *Operation_P,
+                                    struct DofData *DofData_P0,
+                                    struct GeoData *GeoData_P0)
 {
   Message::Error("IterativeLinearSolver requires PETSc and Gmsh");
   return 0;
 }
 
-int Operation_BroadcastFields(struct Resolution  *Resolution_P,
-                              struct Operation   *Operation_P,
-                              struct DofData     *DofData_P0,
-                              struct GeoData     *GeoData_P0)
+int Operation_BroadcastFields(struct Resolution *Resolution_P,
+                              struct Operation *Operation_P,
+                              struct DofData *DofData_P0,
+                              struct GeoData *GeoData_P0)
 {
-  return Operation_BroadcastFieldsGeneric(Resolution_P, Operation_P,
-                                          DofData_P0, GeoData_P0);
+  return Operation_BroadcastFieldsGeneric(Resolution_P, Operation_P, DofData_P0,
+                                          GeoData_P0);
 }
 
 #endif

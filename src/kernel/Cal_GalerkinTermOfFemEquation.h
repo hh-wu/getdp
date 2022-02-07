@@ -8,21 +8,22 @@
 
 #include "ProData.h"
 
-void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
-				       struct QuantityStorage  * QuantityStorage_P0,
-				       struct QuantityStorage  * QuantityStorageNoDof,
-				       struct Dof              * DofForNoDof_P);
+void Cal_InitGalerkinTermOfFemEquation(
+  struct EquationTerm *EquationTerm_P,
+  struct QuantityStorage *QuantityStorage_P0,
+  struct QuantityStorage *QuantityStorageNoDof, struct Dof *DofForNoDof_P);
 
-void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
-				    struct EquationTerm     * EquationTerm_P,
-				    struct QuantityStorage  * QuantityStorage_P0);
+void Cal_GalerkinTermOfFemEquation(struct Element *Element,
+                                   struct EquationTerm *EquationTerm_P,
+                                   struct QuantityStorage *QuantityStorage_P0);
 
 void Cal_EndGalerkinTermOfFemEquation();
 
 /* In F_MultiHar */
-void Cal_InitGalerkinTermOfFemEquation_MHBilinear(struct EquationTerm * EquationTerm_P);
-void Cal_GalerkinTermOfFemEquation_MHBilinear(struct Element * Element,
-                                              struct EquationTerm * EquationTerm_P,
-                                              struct QuantityStorage *QuantityStorage_P0);
+void Cal_InitGalerkinTermOfFemEquation_MHBilinear(
+  struct EquationTerm *EquationTerm_P);
+void Cal_GalerkinTermOfFemEquation_MHBilinear(
+  struct Element *Element, struct EquationTerm *EquationTerm_P,
+  struct QuantityStorage *QuantityStorage_P0);
 
 #endif

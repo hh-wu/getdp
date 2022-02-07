@@ -8,9 +8,9 @@
 
 #include "ProData.h"
 
-void  Cal_GlobalTermOfFemEquation(int  Num_Region,
-				  struct EquationTerm     * EquationTerm_P,
-				  struct QuantityStorage  * QuantityStorage_P0,
-				  struct QuantityStorage  * QuantityStorageNoDof,
-				  struct Dof              * DofForNoDof_P);
+void Cal_GlobalTermOfFemEquation(int Num_Region,
+                                 struct EquationTerm *EquationTerm_P,
+                                 struct QuantityStorage *QuantityStorage_P0,
+                                 struct QuantityStorage *QuantityStorageNoDof,
+                                 struct Dof *DofForNoDof_P);
 #endif

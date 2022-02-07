@@ -8,22 +8,21 @@
 
 #include "ProData.h"
 
-#define ARG  struct PostQuantity     *NCPQ_P,			\
-             struct PostQuantity     *CPQ_P,			\
-	     int                      Order,			\
-	     struct DefineQuantity   *DefineQuantity_P0,	\
-	     struct QuantityStorage  *QuantityStorage_P0,	\
-	     struct PostSubOperation *PostSubOperation_P
+#define ARG                                                                    \
+  struct PostQuantity *NCPQ_P, struct PostQuantity *CPQ_P, int Order,          \
+    struct DefineQuantity *DefineQuantity_P0,                                  \
+    struct QuantityStorage *QuantityStorage_P0,                                \
+    struct PostSubOperation *PostSubOperation_P
 
-void  Pos_PrintOnRegion     (ARG);
-void  Pos_PrintOnElementsOf (ARG);
-void  Pos_PrintOnSection    (ARG);
-void  Pos_PrintOnGrid       (ARG);
-void  Pos_PrintWithArgument (ARG);
+void Pos_PrintOnRegion(ARG);
+void Pos_PrintOnElementsOf(ARG);
+void Pos_PrintOnSection(ARG);
+void Pos_PrintOnGrid(ARG);
+void Pos_PrintWithArgument(ARG);
 
 #undef ARG
 
-void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P);
-void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P);
+void Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P);
+void Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P);
 
 #endif

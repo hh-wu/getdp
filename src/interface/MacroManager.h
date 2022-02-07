@@ -13,22 +13,22 @@
 class MacroManagerStack;
 class MacroManagerMap;
 
-class MacroManager
-{
- private:
+class MacroManager {
+private:
   MacroManagerMap *_macros;
   MacroManagerStack *_calls;
   MacroManager();
   static MacroManager *_instance;
- public :
+
+public:
   static MacroManager *Instance();
   void clear();
   // macro in a file that is (being) parsed
-  int createMacro(const std::string &name, FILE *f,
-                  const std::string &filename, long int lineno);
+  int createMacro(const std::string &name, FILE *f, const std::string &filename,
+                  long int lineno);
   int leaveMacro(FILE **f, std::string &filename, long int &lineno);
-  int enterMacro(const std::string &name, FILE **f,
-                 std::string &filename, long int &lineno) const;
+  int enterMacro(const std::string &name, FILE **f, std::string &filename,
+                 long int &lineno) const;
 
   // explicit macro as a string
   int createStringMacro(const std::string &name, const std::string &value);

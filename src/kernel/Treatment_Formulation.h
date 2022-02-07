@@ -8,6 +8,6 @@
 
 #include "ProData.h"
 
-void  Treatment_Formulation(struct Formulation * Formulation_P) ;
+void Treatment_Formulation(struct Formulation *Formulation_P);
 
 #endif

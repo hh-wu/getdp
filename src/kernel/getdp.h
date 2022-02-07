@@ -9,14 +9,15 @@
 #include <string>
 #include <vector>
 
-int getdp(const std::vector<std::string> &args, void *ptr=NULL);
+int getdp(const std::vector<std::string> &args, void *ptr = NULL);
 void getdpClearNumbers();
 void getdpSetNumber(const std::string &name, double value);
 void getdpSetNumber(const std::string &name, const std::vector<double> &value);
 std::vector<double> &getdpGetNumber(const std::string &name);
 void getdpClearStrings();
 void getdpSetString(const std::string &name, const std::string &value);
-void getdpSetString(const std::string &name, const std::vector<std::string> &value);
+void getdpSetString(const std::string &name,
+                    const std::vector<std::string> &value);
 std::vector<std::string> &getdpGetString(const std::string &name);
 
 #endif

@@ -27,18 +27,21 @@ static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
                                 int SuppListType2)
 {
   bool aligned = false;
-  double val1=0,val2=0;
+  double val1 = 0, val2 = 0;
   double tol = 1e-7;
 
   switch(SuppListType2) {
   case -1: // aligned with Cartesian X direction "X"
-    val1 = x[abs(Entity_P[0]) - 1] ; val2 = x[abs(Entity_P[1]) - 1] ;
+    val1 = x[abs(Entity_P[0]) - 1];
+    val2 = x[abs(Entity_P[1]) - 1];
     break;
   case -2: // aligned with Cartesian Y direction "Y"
-    val1 = y[abs(Entity_P[0]) - 1] ; val2 = y[abs(Entity_P[1]) - 1] ;
+    val1 = y[abs(Entity_P[0]) - 1];
+    val2 = y[abs(Entity_P[1]) - 1];
     break;
   case -3: // aligned with Cartesian Z direction "Z"
-    val1 = z[abs(Entity_P[0]) - 1] ; val2 = z[abs(Entity_P[1]) - 1] ;
+    val1 = z[abs(Entity_P[0]) - 1];
+    val2 = z[abs(Entity_P[1]) - 1];
     break;
   case -4: // aligned with radius around X axis "Rx"
     val1 = atan2(y[abs(Entity_P[0]) - 1], z[abs(Entity_P[0]) - 1]);
@@ -52,10 +55,9 @@ static bool testEdgeAlignedWith(double *x, double *y, double *z, int *Entity_P,
     val1 = atan2(x[abs(Entity_P[0]) - 1], y[abs(Entity_P[0]) - 1]);
     val2 = atan2(x[abs(Entity_P[1]) - 1], y[abs(Entity_P[1]) - 1]);
     break;
-  default:
-    Message::Error("Unknown 'AlignedWith parameter' %d", SuppListType2);
+  default: Message::Error("Unknown 'AlignedWith parameter' %d", SuppListType2);
   }
-  aligned = fabs(val2-val1) < tol;
+  aligned = fabs(val2 - val1) < tol;
   return aligned;
 }
 
@@ -111,24 +113,23 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
                                                List_T *ExtendedList,
                                                Tree_T *EntitiesInTree_T)
 {
-  int Nbr_Element, Num_Element, i_Element, Nbr_Entities2, i, Num_Entity1, Dim_Element;
+  int Nbr_Element, Num_Element, i_Element, Nbr_Entities2, i, Num_Entity1,
+    Dim_Element;
   struct Geo_Element *Geo_Element;
   int i_Entity2, Num_Entity2, *D_Element, *Entity_P, Entity, Flag_Change;
   struct EntityInTree *EntitiesInTree_P[NBR_MAX_ENTITIES_IN_ELEMENT];
   struct EntityInTree EntityInTree_S;
 
-
   Nbr_Element = isElementList ? List_Nbr(List) : Geo_GetNbrGeoElements();
 
   for(i_Element = 0; i_Element < Nbr_Element; i_Element++) {
-    if( isElementList ){
-      List_Read(List,i_Element, &Num_Element);
+    if(isElementList) {
+      List_Read(List, i_Element, &Num_Element);
       Geo_Element = Geo_GetGeoElementOfNum(Num_Element);
     }
-    else{
+    else {
       Geo_Element = Geo_GetGeoElement(i_Element);
-      if(!List_Search(List, &Geo_Element->Region, fcmp_int))
-        continue;
+      if(!List_Search(List, &Geo_Element->Region, fcmp_int)) continue;
     }
 
     Get_JacobianFunction(JACOBIAN_VOL, Geo_Element->Type, &Dim_Element);
@@ -165,8 +166,8 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
           }
           else {
             EntityInTree_S.Num = abs(Geo_Element->NumNodes[Entity]);
-            EntitiesInTree_P[Entity] =
-              (struct EntityInTree *)Tree_Add(EntitiesInTree_T, &EntityInTree_S);
+            EntitiesInTree_P[Entity] = (struct EntityInTree *)Tree_Add(
+              EntitiesInTree_T, &EntityInTree_S);
             Flag_Change = 1;
           }
         }
@@ -180,10 +181,11 @@ static void Geo_GenerateEdgesOfTreeByDimension(int dim, List_T *List,
   } /* for i_Element ... */
 }
 
-void Geo_GenerateEdgesOfTree(List_T * InitialList, bool isInitialListEL,
-                             List_T * InitialSuppList, bool isInitialSuppListEL,
-                             List_T * InitialSuppList2, bool isInitialSuppList2EL,
-                             int SuppListType2, List_T ** ExtendedList)
+void Geo_GenerateEdgesOfTree(List_T *InitialList, bool isInitialListEL,
+                             List_T *InitialSuppList, bool isInitialSuppListEL,
+                             List_T *InitialSuppList2,
+                             bool isInitialSuppList2EL, int SuppListType2,
+                             List_T **ExtendedList)
 {
   Tree_T *EntitiesInTree_T;
 
@@ -208,7 +210,6 @@ void Geo_GenerateEdgesOfTree(List_T * InitialList, bool isInitialListEL,
   Tree_Delete(EntitiesInTree_T);
   List_Sort(*ExtendedList, fcmp_int);
 }
-
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e n e r a t e F a c e t s O f T r e e                         */

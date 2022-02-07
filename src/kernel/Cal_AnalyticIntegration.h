@@ -8,8 +8,8 @@
 
 #include "ProData.h"
 
-double Cal_AnalyticIntegration(struct Element * E,
-			       void (*BFEqu)(), void (*BFDof)(),
-			       int i, int j, double (*Cal_Productx)());
+double Cal_AnalyticIntegration(struct Element *E, void (*BFEqu)(),
+                               void (*BFDof)(), int i, int j,
+                               double (*Cal_Productx)());
 
 #endif

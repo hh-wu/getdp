@@ -67,9 +67,7 @@ public:
   {
     double min[3], max[3];
     _getMinMax(e, min, max, _tol);
-    if(_rtree->Search(min, max, _rtreeCallback, &out)) {
-      return true;
-    }
+    if(_rtree->Search(min, max, _rtreeCallback, &out)) { return true; }
     return false;
   }
 };
