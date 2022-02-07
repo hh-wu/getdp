@@ -2,6 +2,9 @@
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
+//
+// Contributor(s):
+//   Guillaume Demesy
 
 #include "GetDPConfig.h"
 

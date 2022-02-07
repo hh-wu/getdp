@@ -2,6 +2,10 @@
 //
 // See the LICENSE.txt file for license information. Please report all
 // issues on https://gitlab.onelab.info/getdp/getdp/issues.
+//
+// Contributor(s):
+//   Francois Henrotte
+//   Guillaume Demesy
 
 #include <math.h>
 #include "ProData.h"
