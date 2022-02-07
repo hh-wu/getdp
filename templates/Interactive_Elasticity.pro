@@ -136,10 +136,12 @@ If(export)
   EndIf
   If(Flag_Regime == 2)
     Printf(Sprintf("Freq = %g;", Freq)) >> Str[exportFile];
-  EndIf
-  If(Flag_Regime == 3)
+  ElseIf(Flag_Regime == 3)
     Printf(Sprintf("Freq_Target = %g;", Freq_Target)) >> Str[exportFile];
     Printf(Sprintf("Num_Modes = %g;", Num_Modes)) >> Str[exportFile];
+  EndIf
+  If(modelDim == 3)
+    Printf(StrCat["modelDim = 3;"]) >> Str[exportFile];
   EndIf
 EndIf
 
