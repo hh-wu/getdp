@@ -1785,3 +1785,20 @@ void  Pos_PrintGroup(struct PostSubOperation *PSO_P)
 
   Format_PostFooter(PSO_P, 0);
 }
+
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ P r i n t V T U                                       */
+/* ------------------------------------------------------------------------ */
+#include <iostream>
+void  Pos_PrintVTU(struct PostQuantity      *NCPQ_P,
+			struct PostQuantity      *CPQ_P,
+			int                       Order,
+			struct DefineQuantity    *DefineQuantity_P0,
+			struct QuantityStorage   *QuantityStorage_P0,
+			struct PostSubOperation  *PSO_P)
+{
+	Message::Info("printing vtu file");
+	if(PostStream) fprintf(PostStream, "Something written to file") ;	
+	
+}

@@ -20,6 +20,7 @@ void  Pos_PrintOnElementsOf (ARG);
 void  Pos_PrintOnSection    (ARG);
 void  Pos_PrintOnGrid       (ARG);
 void  Pos_PrintWithArgument (ARG);
+void  Pos_PrintVTU (ARG);
 
 #undef ARG
 

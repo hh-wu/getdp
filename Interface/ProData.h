@@ -1466,6 +1466,8 @@ struct PostOperation {
 };
 
 struct PostSubOperation {
+  List_T* PointQuantities;
+  List_T* CellQuantities;
   int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile;
@@ -1524,6 +1526,7 @@ struct PostOpSolutions {
 #define POP_MERGE         5
 #define POP_DELETEFILE    6
 #define POP_CREATEDIR     7
+#define POP_PRINTVTU      8
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
