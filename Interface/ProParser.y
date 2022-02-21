@@ -7515,12 +7515,14 @@ PostSubOperation :
       PostSubOperation_S.FileOut = $3;
     }
 
-    | tPrintVTU '[' tPointData ListOfPostQuantities ',' tCellData ListOfPostQuantities ',' tVTUFile CharExpr ']' tEND
+    | tPrintVTU '[' tPointData ListOfPostQuantities ',' tCellData ListOfPostQuantities ',' tVTUFile CharExpr ',' tOnElementsOf GroupRHS ']' tEND
     {
+      PostSubOperation_S.Case.OnRegion.RegionIndex = Num_Group(&Group_S, strSave("PO_OnElementsOf"), $13);
       PostSubOperation_S.Type = POP_PRINTVTU;
 	  PostSubOperation_S.PointQuantities = $4;
       PostSubOperation_S.CellQuantities = $7;
 	  PostSubOperation_S.FileOut = $10;
+	  PostSubOperation_S.PostQuantityIndex[0] = 0;
     }
 
   | ParserCommandsWithoutOperations

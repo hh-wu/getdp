@@ -11,6 +11,7 @@
 #include "Get_DofOfElement.h"
 #include "Cal_Quantity.h"
 #include "Pos_Print.h"
+#include "Pos_PrintVTU.h"
 #include "Pos_Format.h"
 #include "ListUtils.h"
 #include "Message.h"
@@ -134,6 +135,58 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 
   List_Delete(QuantityStorage_L);
 }
+
+
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ F e m F o r m u l a t i o n _ M u l t i V a l                   */
+/* ------------------------------------------------------------------------ */
+
+void  Pos_FemFormulation_MultiVal(struct Formulation       *Formulation_P,
+			 struct PostProcessing    *      PostProcessing_P,
+			 int                       Order,
+			 struct PostSubOperation  *PostSubOperation_P)
+{
+  struct Element           Element ;
+  struct DefineQuantity   *DefineQuantity_P0 ;
+  struct QuantityStorage  *QuantityStorage_P0, QuantityStorage ;
+
+  List_T   *QuantityStorage_L ;
+  int       i ;
+  Get_InitDofOfElement(&Element) ;
+
+
+  DefineQuantity_P0 = (struct DefineQuantity*)
+    List_Pointer(Formulation_P->DefineQuantity, 0) ;
+  QuantityStorage_L = List_Create(List_Nbr(Formulation_P->DefineQuantity),  1,
+				  sizeof (struct QuantityStorage) ) ;
+
+  for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
+    QuantityStorage.DefineQuantity = DefineQuantity_P0 + i ;
+
+    if(QuantityStorage.DefineQuantity->Type == INTEGRALQUANTITY &&
+       QuantityStorage.DefineQuantity->IntegralQuantity.DefineQuantityIndexDof < 0){
+      QuantityStorage.TypeQuantity = VECTOR ; /* on ne sait pas... */
+    }
+    else{
+      QuantityStorage.TypeQuantity =
+	((struct FunctionSpace *)
+	 List_Pointer(Problem_S.FunctionSpace,
+		      (DefineQuantity_P0+i)->FunctionSpaceIndex))->Type ;
+    }
+
+    QuantityStorage.NumLastElementForFunctionSpace = 0 ;
+    List_Add(QuantityStorage_L, &QuantityStorage) ;
+  }
+
+  QuantityStorage_P0 = (struct QuantityStorage*)List_Pointer(QuantityStorage_L, 0) ;
+
+  Pos_PrintVTU(PostProcessing_P, Order, DefineQuantity_P0,
+			    QuantityStorage_P0, PostSubOperation_P) ;
+
+  List_Delete(QuantityStorage_L);
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ I n i t T i m e S t e p s                                       */
@@ -504,7 +557,15 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   switch (Formulation_P->Type) {
 
   case FEMEQUATION :
-    Pos_FemFormulation(Formulation_P, NCPQ_P, CPQ_P, Order, PostSubOperation_P) ;
+    if(PostSubOperation_P->Type != POP_PRINTVTU)
+	{
+        Pos_FemFormulation(Formulation_P, NCPQ_P, CPQ_P, Order, PostSubOperation_P) ;
+	}
+	else
+	{
+        Pos_FemFormulation_MultiVal(Formulation_P, PostProcessing_P, Order, PostSubOperation_P) ;
+	}
+	
     break ;
 
   case GLOBALEQUATION :
