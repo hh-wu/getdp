@@ -221,6 +221,7 @@ void Init_ProblemStructure()
   Current.KSPIteration = 0.0;
   Current.KSPResidual = 0.0;
   Current.KSPSystemSize = 0.0;
+  Current.Frequency = 0.0;
 }
 
 // FIXME: TODO to remove parser memory leaks!

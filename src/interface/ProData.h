@@ -1723,6 +1723,8 @@ struct CurrentData {
 
   // Iterative linear system solvers
   double KSPIterations, KSPIteration, KSPResidual, KSPSystemSize;
+  
+  double Frequency;
 };
 
 /* ------------------------------------------------------------------------ */

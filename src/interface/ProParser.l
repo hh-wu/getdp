@@ -223,6 +223,7 @@ FourierTransformJ            return tFourierTransformJ;
 Frequency                    return tFrequency;
 FrequencyLegend              return tFrequencyLegend;
 FrequencySpectrum            return tFrequencySpectrum;
+FrequencyValue               return tFrequencyValue;
 DummyFrequencies             return tFrequencySpectrum;
 Full_Matrix                  return tFull_Matrix;
 Function                     return tFunction;

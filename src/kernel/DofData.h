@@ -21,6 +21,7 @@ struct Solution {
   double Time, TimeImag;
   int SolutionExist;
   double *TimeFunctionValues, ExplicitTimeFunctionValue;
+  double Frequency;
   gVector x;
 };
 
@@ -169,7 +170,7 @@ void Dof_ReadFilePRE(struct DofData *DofData_P);
 void Dof_WriteFileRES0(char *Name_File, int Format);
 void Dof_ReadFileRES0(void);
 void Dof_WriteFileRES(char *Name_File, struct DofData *DofData_P, int Format,
-                      double Val_Time, double Val_TimeImag, int Val_TimeStep);
+                      double Val_Time, double Val_TimeImag, int Val_TimeStep, float Val_Frequency = 0.0);
 void Dof_ReadFileRES(List_T *DofData_L, struct DofData *Read_DofData_P,
                      int Read_DofData, double *Time, double *TimeImag,
                      double *TimeStep);

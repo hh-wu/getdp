@@ -219,12 +219,14 @@ void Pos_InitAllSolutions(List_T *TimeStep_L, int Index_TimeStep)
     Current.TimeStep = Solution_P->TimeStep;
     Current.Time = Solution_P->Time;
     Current.TimeImag = Solution_P->TimeImag;
+    Current.Frequency = Solution_P->Frequency;
   }
   else { // Warning: this can be wrong
     Current.TimeStep = TimeStepIndex;
     if(Current.DofData->CurrentSolution) {
       Current.Time = Current.DofData->CurrentSolution->Time;
       Current.TimeImag = Current.DofData->CurrentSolution->TimeImag;
+      Current.Frequency = Current.DofData->CurrentSolution->Frequency;
     }
   }
 }

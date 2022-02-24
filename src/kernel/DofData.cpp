@@ -635,7 +635,7 @@ void Dof_WriteFileRES0(char *Name_File, int Format)
   Dof_OpenFile(DOF_RES, Name_File, (char *)(Format ? "wb" : "w"));
   fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION,
           Format ? "binary" : "ascii");
-  fprintf(File_RES, "1.1 %d\n", Format);
+  fprintf(File_RES, "1.2 %d\n", Format);
   fprintf(File_RES, "$EndResFormat\n");
   Dof_CloseFile(DOF_RES);
 }
@@ -661,7 +661,7 @@ void Dof_WriteFileRES_ExtendMH(char *Name_File, struct DofData *DofData_P,
   Dof_OpenFile(DOF_RES, Name_File, (char *)(Format ? "ab" : "a"));
 
   fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num);
-  fprintf(File_RES, "%d 0 0 0 \n", DofData_P->Num);
+  fprintf(File_RES, "%d 0 0 0 0\n", DofData_P->Num);
 
   LinAlg_CreateVector(&x, &DofData_P->Solver,
                       (DofData_P->NbrDof / Current.NbrHar) * NbrH);
@@ -703,7 +703,7 @@ void Dof_WriteFileRES_MHtoTime(char *Name_File, struct DofData *DofData_P,
     List_Read(Time_L, iT, &Time);
 
     fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num);
-    fprintf(File_RES, "%d %e 0 %d \n", DofData_P->Num, Time, iT);
+    fprintf(File_RES, "%d %e 0 %d 0\n", DofData_P->Num, Time, iT);
 
     Pulsation = DofData_P->Val_Pulsation;
 
@@ -739,7 +739,7 @@ void Dof_WriteFileRES_MHtoTime(char *Name_File, struct DofData *DofData_P,
 /* ------------------------------------------------------------------------ */
 
 void Dof_WriteFileRES(char *Name_File, struct DofData *DofData_P, int Format,
-                      double Val_Time, double Val_TimeImag, int Val_TimeStep)
+                      double Val_Time, double Val_TimeImag, int Val_TimeStep, float Val_Frequency)
 {
   if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
@@ -751,8 +751,8 @@ void Dof_WriteFileRES(char *Name_File, struct DofData *DofData_P, int Format,
   Dof_OpenFile(DOF_RES, Name_File, (char *)(Format ? "ab" : "a"));
 
   fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num);
-  fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time,
-          Val_TimeImag, Val_TimeStep);
+  fprintf(File_RES, "%d %.16g %.16g %d %.16g\n", DofData_P->Num, Val_Time,
+          Val_TimeImag, Val_TimeStep, Val_Frequency);
 
   Format ? LinAlg_WriteVector(File_RES, &DofData_P->CurrentSolution->x) :
            LinAlg_PrintVector(File_RES, &DofData_P->CurrentSolution->x);
@@ -926,7 +926,7 @@ void Dof_ReadFileRES(List_T *DofData_L, struct DofData *Read_DofData_P,
   Message::Barrier();
 
   int Num_DofData, Val_TimeStep, Format = 0, Read;
-  double Val_Time, Val_TimeImag = 0., Version = 0.;
+  double Val_Time, Val_TimeImag = 0., Version = 0., Val_Frequency = 0.;
   struct DofData *DofData_P = NULL;
   struct Solution Solution_S;
   char String[256];
@@ -961,6 +961,9 @@ void Dof_ReadFileRES(List_T *DofData_L, struct DofData *Read_DofData_P,
       }
       if(Version <= 1.0)
         sscanf(String, "%d %lf %d", &Num_DofData, &Val_Time, &Val_TimeStep);
+      else if (Version >= 1.0)
+        sscanf(String, "%d %lf %lf %d %lf", &Num_DofData, &Val_Time, &Val_TimeImag,
+               &Val_TimeStep, &Val_Frequency);      
       else
         sscanf(String, "%d %lf %lf %d", &Num_DofData, &Val_Time, &Val_TimeImag,
                &Val_TimeStep);
@@ -983,6 +986,7 @@ void Dof_ReadFileRES(List_T *DofData_L, struct DofData *Read_DofData_P,
         Solution_S.TimeStep = Val_TimeStep;
         Solution_S.SolutionExist = 1;
         Solution_S.TimeFunctionValues = NULL;
+        Solution_S.Frequency = Val_Frequency;
 
         LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver,
                             DofData_P->NbrDof);
