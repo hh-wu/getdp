@@ -234,6 +234,7 @@ struct doubleXstring{
 %type <l>  TimeLoopAdaptiveSystems TimeLoopAdaptivePOs IterativeLoopSystems
 %type <l>  IterativeLoopPOs
 %type <c2> Struct_FullName
+%type <l>  RecursiveListOfPostQuantities ListOfPostQuantities
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS tSCOPE
 %token  tStr tStrPrefix tStrRelative tStrList
@@ -372,6 +373,9 @@ struct doubleXstring{
 %token        tSendToServer
 %token        tDate tOnelabAction tCodeName tFixRelativePath
 %token        tAppendToExistingFile tAppendStringToFileName
+%token      tPrintExternal
+%token        tPointData 
+%token        tVTUFile 
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -7461,7 +7465,15 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_CREATEDIR;
       PostSubOperation_S.FileOut = $3;
     }
-
+    | tPrintExternal '[' tPointData ListOfPostQuantities ',' tVTUFile CharExpr ',' tOnElementsOf GroupRHS ']' tEND
+    {
+      PostSubOperation_S.Type = POP_PRINTEXTERNAL;
+	  PostSubOperation_S.PostQuantityIndex[0] = 0;
+	  PostSubOperation_S.PointQuantities = $4;
+	  PostSubOperation_S.FileOut = $7;
+      PostSubOperation_S.Case.OnRegion.RegionIndex = Num_Group(&Group_S, strSave("PO_OnElementsOf"), $10);
+    }
+	
   | ParserCommandsWithoutOperations
     {
       PostSubOperation_S.Type = POP_NONE;
@@ -7469,6 +7481,40 @@ PostSubOperation :
 
  ;
 
+  
+ListOfPostQuantities :
+
+    String__Index
+    {
+      $$ = List_Create(1, 1, sizeof(int));
+      int i;
+      if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, fcmp_PostQuantity_Name)) < 0)
+	vyyerror(0, "Unknown PostProcessing Quantity: %s", $1);
+      else
+	List_Add($$, &i);
+      Free($1);
+    }
+
+  | '{' RecursiveListOfPostQuantities '}'
+    { $$ = $2;  }
+ ;
+
+RecursiveListOfPostQuantities :
+
+    /* none */
+    { $$ = List_Create(2, 2, sizeof(int)); }
+
+  | RecursiveListOfPostQuantities Comma String__Index
+    {
+      int i;
+      if((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $3, fcmp_PostQuantity_Name)) < 0)
+	vyyerror(0, "Unknown PostProcessing Quantity: %s", $3);
+      else
+	List_Add($1, &i);
+      $$ = $1; Free($3);
+    }
+ ;
+ 
 PostQuantitiesToPrint :
 
     String__Index PostQuantitySupport ','

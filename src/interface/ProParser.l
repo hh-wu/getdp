@@ -378,6 +378,7 @@ OverrideTimeStepValue        return tOverrideTimeStepValue;
 Parse                        return tParse;
 Pi                           return tPi;
 Plot                         return tPlot;
+PointData                    return tPointData;
 PostOperation                return tPostOperation;
 PostProcessing               return tPostProcessing;
 PostQuantity                 return tQuantity;
@@ -385,6 +386,7 @@ Print                        return tPrint;
 PrintConstants               return tPrintConstants;
 PrintGroup                   return tPrintGroup;
 Printf                       return tPrintf;
+PrintExternal                return tPrintExternal;
 
 Quantity                     return tQuantity;
 
@@ -505,6 +507,7 @@ UsingPost                    return tUsingPost;
 Value                        return tValue;
 ValueIndex                   return tValueIndex;
 ValueName                    return tValueName;
+VTUFile                      return tVTUFile;
 
 WithArgument                 return tWithArgument;
 While                        return tWhile;
