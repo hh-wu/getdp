@@ -109,10 +109,11 @@ Atan2                        return tAtan2;
 Atanh                        return tAtanh;
 Auto                         return tAuto;
 
-Barrier			     return tBarrier;
+Barrier			     		 return tBarrier;
 BaseFileName                 return tBaseFileName;
 BasisFunction                return tBasisFunction;
 Beta                         return tBeta;
+Binary                       return tBinary;
 Branch                       return tBranch;
 Break                        return tBreak;
 BroadcastFields              return tBroadcastFields;

@@ -1509,6 +1509,7 @@ struct PostSubOperation {
   int PostQuantityIndex[2], PostQuantitySupport[2];
   int Type, SubType, CombinationType;
   int Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile;
+  int Binary; //used for PrintExternal
   char *Comma;
   int TimeToHarmonic;
   int FourierTransform;
@@ -1646,6 +1647,12 @@ struct PostOpSolutions {
 #define FORMAT_LOOP_ERROR 21
 #define FORMAT_GETDP 22
 #define FORMAT_ELEMENT_TABLE 23
+
+/* PostSubOperation.Format for PrintExternal */
+#define FORMAT_VTU 1
+#define FORMAT_ENSIGHT 2
+
+
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION 1

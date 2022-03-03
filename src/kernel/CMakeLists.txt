@@ -48,7 +48,7 @@ set(SRC
       EigenSolve.cpp EigenSolve_ARPACK.cpp EigenSolve_SLEPC.cpp
     Pos_FemInterpolation.cpp
     Pos_Formulation.cpp
-      Pos_Print.cpp Pos_PrintExternal.cpp
+      Pos_Print.cpp Pos_PrintExternal.cpp PostExternalData.cpp VTUExternalData.cpp EnsightExternalData.cpp
         Pos_Element.cpp Pos_Format.cpp Pos_Iso.cpp Pos_Search.cpp
 )
 

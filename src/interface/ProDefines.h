@@ -366,6 +366,11 @@ struct StringXDefine PostSubOperation_Format[] = {
   {"Adaptation", FORMAT_ADAPT},
   {NULL, FORMAT_GMSH}};
 
+struct StringXDefine PostSubOperation_ExternalFormat[] = {
+  {"VTU", FORMAT_VTU},
+  {"ENSIGHT", FORMAT_ENSIGHT},
+  {NULL, FORMAT_VTU}};
+  
 struct StringXDefine PostSubOperation_FormatTag[] = {{"Time", TAG_TIME},
                                                      {"TimeStep", TAG_TIMESTEP},
                                                      {"Value", TAG_VALUE},

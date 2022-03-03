@@ -447,11 +447,11 @@ void Pos_Formulation(struct Formulation *Formulation_P,
     CreateDirs(PostSubOperation_P->FileOut);
     return;
   }
-
-  if(PostSubOperation_P->FileOut) {
+  
+// for POP_PRINTEXTERNAL file opening, closing, naming is done in PosPrintExternal
+  if(PostSubOperation_P->FileOut && PostSubOperation_P->Type != POP_PRINTEXTERNAL) {
     strcpy(PostFileName,
            Fix_RelativePath(PostSubOperation_P->FileOut, Name_Path).c_str());
-
     if(PostSubOperation_P->AppendExpressionToFileName >= 0) {
       struct Value Value;
       Get_ValueOfExpressionByIndex(
@@ -595,7 +595,8 @@ void Pos_Formulation(struct Formulation *Formulation_P,
 
   Flag_GMSH_VERSION = oldVersion;
 
-  if(PostStream && PostSubOperation_P->FileOut) {
+  if(PostStream && PostSubOperation_P->FileOut 
+	&& PostSubOperation_P->Type != POP_PRINTEXTERNAL) {
     fclose(PostStream);
 
     if(PostSubOperation_P->SendToServer == NULL ||

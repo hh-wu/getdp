@@ -70,6 +70,7 @@ extern struct StringXDefine ChangeOfState_Type[];
 extern struct StringXDefine PostQuantityTerm_EvaluationType[];
 extern struct StringXDefine PostSubOperation_CombinationType[];
 extern struct StringXDefine PostSubOperation_Format[];
+extern struct StringXDefine PostSubOperation_ExternalFormat[];
 extern struct StringXDefine PostSubOperation_FormatTag[];
 extern struct StringXDefine PostSubOperation_AdaptationType[];
 extern struct StringXDefine PostSubOperation_SortType[];

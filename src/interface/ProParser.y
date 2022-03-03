@@ -375,7 +375,7 @@ struct doubleXstring{
 %token        tAppendToExistingFile tAppendStringToFileName
 %token      tPrintExternal
 %token        tPointData 
-%token        tVTUFile 
+%token        tVTUFile tBinary
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -7465,13 +7465,14 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_CREATEDIR;
       PostSubOperation_S.FileOut = $3;
     }
-    | tPrintExternal '[' tPointData ListOfPostQuantities ',' tVTUFile CharExpr ',' tOnElementsOf GroupRHS ']' tEND
+  | tPrintExternal '[' tPointData ListOfPostQuantities ',' tOnElementsOf GroupRHS PrintExternalOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINTEXTERNAL;
 	  PostSubOperation_S.PostQuantityIndex[0] = 0;
 	  PostSubOperation_S.PointQuantities = $4;
-	  PostSubOperation_S.FileOut = $7;
-      PostSubOperation_S.Case.OnRegion.RegionIndex = Num_Group(&Group_S, strSave("PO_OnElementsOf"), $10);
+      PostSubOperation_S.Case.OnRegion.RegionIndex = Num_Group(&Group_S, strSave("PO_OnElementsOf"), $7);
+	  
+	  //PostSubOperation_ExternalFormat
     }
 	
   | ParserCommandsWithoutOperations
@@ -8145,6 +8146,44 @@ PrintOption :
     }
  ;
 
+
+
+PrintExternalOptions :
+    /* none */
+    {
+    }
+  | PrintExternalOptions PrintExternalOption
+ ;
+
+PrintExternalOption :
+    ',' tFile CharExpr
+    {
+      PostSubOperation_S.FileOut = $3;
+      PostSubOperation_S.CatFile = 0;
+    }
+  | ',' tFormat tSTRING
+    {
+      PostSubOperation_S.Format =
+	Get_DefineForString(PostSubOperation_ExternalFormat, $3, &FlagError);
+      if(FlagError){
+	Get_Valid_SXD($3, PostSubOperation_ExternalFormat);
+	vyyerror(0, "Unknown External PostProcessing Format: %s", $3);
+      }
+      Free($3);
+    }
+  | ',' tLastTimeStepOnly
+    {
+      PostSubOperation_S.LastTimeStepOnly = 1;
+    }
+  | ',' tLastTimeStepOnly FExpr
+    {
+      PostSubOperation_S.LastTimeStepOnly = (int)$3;
+    }  
+  | ',' tBinary
+    {
+      PostSubOperation_S.Binary = 1;
+    }
+ ;
 
 /* ------------------------------------------------------------------------ */
 /*  P a r s e r C o m m a n d s                                             */
