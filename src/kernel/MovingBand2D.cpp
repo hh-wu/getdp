@@ -257,6 +257,7 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
                int b2_p1[], int b2_p2[], int b2_p3[])
 {
   double area_tr1, area_tr2;
+  int test;
 
   int Delauny_1234_MB(double, double, double, double, double, double, double,
                       double, double *, double *);
@@ -299,11 +300,18 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
   b1_p3[n1] = itry2;
   n1++;
 
-  for(int i = 1; i < ntr1 + ntr2; i++) {
-    if((Delauny_1234_MB(x1[itry1], y1[itry1], x2[itry2], y2[itry2], x1[itry3],
-                        y1[itry3], x2[itry4], y2[itry4], &area_tr1,
-                        &area_tr2) == 1) &&
-       itry1 < nth1 && itry1) {
+  while(  n1+n2 < ntr1+ntr2 ){
+    if( itry3 < nth1 && itry4 < nth2)
+      test = Delauny_1234_MB(x1[itry1], y1[itry1], x2[itry2], y2[itry2], x1[itry3],
+                             y1[itry3], x2[itry4], y2[itry4], &area_tr1,
+                             &area_tr2);
+    else{
+      if(itry3 == nth1 && itry4 == nth2)
+        Message::Error("Meshing of 2D Moving Band failed");
+      test = ( itry3 < nth1 ) ? 1 : 2;
+    }
+    
+    if ( test == 1 ){
       b1_p1[n1] = itry1;
       b1_p2[n1] = itry3;
       b1_p3[n1] = itry2;
