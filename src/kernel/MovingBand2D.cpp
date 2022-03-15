@@ -146,7 +146,7 @@ void  Init_MovingBand2D (struct Group * Group_P)
   MB->ntr2 = MB->NbrNodes2-1 ;
   if (MB->Period2 != 1) {
     if ((MB->NbrNodes2-1)%MB->Period2 != 0.)
-      Message::Warning("Strange periodicity stuff  (%d %d)! Do you know what you're doing?",
+      Message::Warning("The MB on rotor side does not respect the periodicity (%d %d).",
                        MB->NbrNodes2-1, MB->Period2);
     MB->ntr2 = (MB->NbrNodes2-1)/MB->Period2;
     Message::Info("Periodicity data (%d %d %d %d)", MB->ntr1, MB->NbrNodes2-1, MB->Period2, MB->ntr2);
@@ -155,10 +155,9 @@ void  Init_MovingBand2D (struct Group * Group_P)
   Geo_GetNodesCoordinates (MB->NbrNodes1, MB->NumNodes1, MB->x1, MB->y1, MB->z1) ;
   Geo_GetNodesCoordinates (MB->NbrNodes2, MB->NumNodes2, MB->x2, MB->y2, MB->z2) ;
 
-
   if (Different_Sense_MB2D(MB->NbrNodes1, MB->NbrNodes2, MB->ntr1, MB->ntr2,
                            MB->Closed1, MB->Closed2, MB->x1, MB->y1, MB->x2, MB->y2) ) {
-    Message::Debug("Contours have a different sense: inverting!");
+    Message::Debug("MB contours have opposite orientations: I revert MB rotor");
     for (i=0 ; i<MB->NbrNodes2/2 ; i++) {
       int dummy = MB->NumNodes2[i];
       MB->NumNodes2[i] = MB->NumNodes2[MB->NbrNodes2-1-i];
@@ -221,14 +220,28 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
 	       double * area_moving_band,
 	       int b1_p1[], int b1_p2[], int b1_p3[], int b2_p1[], int b2_p2[], int b2_p3[])
 {
-
   double area_tr1,area_tr2;
+  int test;
 
   int Delauny_1234_MB(double, double, double, double, double, double, double, double,
 		      double *, double * );
 
-  double xm = (x1[0]+x1[1])/2.;
-  double ym = (y1[0]+y1[1])/2.;
+  // //FH
+  // for(int i=0 ; i< nth1 ; i++){
+  //   printf("in MB2D x1 y1 = %3d %e %e\n", i,x1[i],y1[i]);
+  // }
+  // for(int i=0 ; i< nth2 ; i++){
+  //   printf("in MB2D x2 y2 = %3d %e %e\n", i,x2[i],y2[i]);
+  // }
+  // printf("nth1=%d nth2=%d ntr1=%d ntr2=%d closed1=%d closed2=%d\n", nth1,nth2,ntr1,ntr2,closed1,closed2);
+
+  
+  // Find index imindist of the rotor point closest
+  // to the gravity center of the first stator element.
+  int itry1 = 0;
+  int itry3 = 1;
+  double xm = (x1[itry1]+x1[itry3])/2.;
+  double ym = (y1[itry1]+y1[itry3])/2.;
   int imindist = 0;
   double mindist2 = SQU(xm-x2[0]) + SQU(ym-y2[0]);
   for (int i = 1 ; i < nth2 ; i++ ){
@@ -236,45 +249,73 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
     if (dist2 < mindist2) { imindist = i; mindist2 = dist2; }
   }
 
+  // Check orientation of MB rotor contour
   int itry2 = (closed2==1) ? ((imindist+1) % (nth2-1))        : std::min(imindist+1, nth2) ;
   int itry4 = (closed2==1) ? ((imindist-1+nth2-1) % (nth2-1)) : std::max(imindist-1,0) ;
-
   double dist1 = SQU(x1[2]-x2[itry2]) + SQU(y1[2]-y2[itry2]);
   double dist2 = SQU(x1[2]-x2[itry4]) + SQU(y1[2]-y2[itry4]);
   int d2 = (dist1 < dist2) ? 1 : -1 ;
-
-  Message::Debug("+++++++++++++++++++++++++++++++++++++++++++++++++ %d",d2);
-
-  *area_moving_band =
-        fabs( (x2[imindist]-x1[0])*(y1[1]-y1[0])-(x1[1]-x1[0])*(y2[imindist]-y1[0]) )/2. ;
-  int itry1 = 1 ;
-  int itry3 = 2 ;
-  itry2 = imindist ;
-  itry4 = (closed2==1) ? ((imindist + d2) % (nth2-1)) : imindist + d2 ;
+  if(d2==-1){
+    Message::Warning("MB contours have opposite orientations: d2=%d\n", d2);
+  }
 
   int n1 = 0; int n2 = 0;
-  b1_p1[n1] = 0; b1_p2[n1] = 1; b1_p3[n1] = itry2;
+  
+  itry2 = imindist ;
+  itry4 = (closed2==1) ? ((imindist + d2) % (nth2-1)) : imindist + d2 ;
+  
+  // Create first MB triangular element  
+  b1_p1[n1] = itry1; b1_p2[n1] = itry3; b1_p3[n1] = itry2;
+  *area_moving_band =
+        fabs( (x2[imindist]-x1[itry1])*(y1[itry3]-y1[itry1])-(x1[itry3]-x1[itry1])*(y2[imindist]-y1[itry1]) )/2. ;
   n1++;
+  Message::Debug("Create MB element %d (s%d,s%d,r%d)\n",
+         n1+n2,itry1,itry3,itry2);
 
-  for (int i = 1 ; i < ntr1 + ntr2  ; i++ ){
-    if ( (Delauny_1234_MB (x1[itry1], y1[itry1], x2[itry2], y2[itry2],
-			   x1[itry3], y1[itry3], x2[itry4], y2[itry4],
-			   &area_tr1, &area_tr2) == 1) &&
-	 itry1 < nth1 && itry1 ){
+  itry1++ ; itry3++ ;
+  if (closed1) {
+    itry1 = itry1 % (nth1-1);
+    itry3 = itry3 % (nth1-1) ;
+  }
+
+  while(  n1+n2 < ntr1+ntr2 ){
+    if( itry3 < nth1 && itry4 < nth2)
+      test = Delauny_1234_MB (x1[itry1], y1[itry1], x2[itry2], y2[itry2],
+                              x1[itry3], y1[itry3], x2[itry4], y2[itry4],
+                              &area_tr1, &area_tr2);
+    else{
+      if(itry3 == nth1 && itry4 == nth2)
+          Message::Error("Meshing of 2D Moving Band failed");
+      test = ( itry3 < nth1 ) ? 1 : 2;
+    }
+    
+    if ( test == 1 ){
       b1_p1[n1] = itry1; b1_p2[n1] = itry3; b1_p3[n1] = itry2;
-      itry1++; itry3++; if (closed1) {itry1 = itry1 % (nth1-1); itry3 = itry3 % (nth1-1) ;}
       *area_moving_band += area_tr1;
       n1++;
-    } else{
-      b2_p1[n2] = itry2; b2_p2[n2] = itry4; b2_p3[n2] = itry1;
-      itry2+=d2; itry4+=d2;
-      if (closed2) {
-	itry2 = (nth2-1+itry2) % (nth2-1);
-	itry4 = (nth2-1+itry4) % (nth2-1) ;
+       Message::Debug("Create MB element %d (s%d,s%d,r%d) test=%d\n",
+             n1+n2,itry1,itry3,itry2,test);
+      
+      itry1++; itry3++;
+      if (closed1) {
+        itry1 = itry1 % (nth1-1);
+        itry3 = itry3 % (nth1-1) ;
       }
+    }
+    else{
+      b2_p1[n2] = itry2; b2_p2[n2] = itry4; b2_p3[n2] = itry1;
       *area_moving_band += area_tr2;
       n2++;
+       Message::Debug("Create MB element %d (r%d,r%d,s%d) test=%d\n",
+             n1+n2,itry2,itry4,itry1,test);
+      
+      itry2+=d2; itry4+=d2;
+      if (closed2) {
+        itry2 = (nth2-1+itry2) % (nth2-1);
+        itry4 = (nth2-1+itry4) % (nth2-1) ;
+      }
     }
+
   }
   if(n1 != ntr1 || n2 != ntr2){
     Message::Error("Meshing of 2D Moving Band failed (%d != %d || %d != %d)",
@@ -355,9 +396,12 @@ int Delauny_1234_MB (double x1, double y1, double x2, double y2,
 		     double x3, double y3, double x4, double y4,
 		     double * area1, double * area2)
 {
-
   double Det1 = (x3-x1)*(y2-y1)-(x2-x1)*(y3-y1);
   double Det2 = (x4-x1)*(y2-y1)-(x2-x1)*(y4-y1);
+
+  //printf("Det1 %g Det2 %g t1 %e t2 %e x1 %e y1 %e x2 %e y2 %e x3 %e y3 %e x4 %e y4 %e\n)",
+  //       Det1, Det2, t1, t2, x1, y1, x2, y2, x3, y3, x4, y4);
+  
   if( !Det1 || !Det2 ) {
     Message::Error("Colinear points in Delauny_1234 ("
                    "Det1 %g Det2 %g "
@@ -366,6 +410,11 @@ int Delauny_1234_MB (double x1, double y1, double x2, double y2,
   }
   double t1 = ( (x3-x1)*(x3-x2)+(y3-y1)*(y3-y2) ) / Det1 ;
   double t2 = ( (x4-x1)*(x4-x2)+(y4-y1)*(y4-y2) ) / Det2 ;
+
+  // printf("Det1 %g Det2 %g t1 %e t2 %e x1 %e y1 %e x2 %e y2 %e x3 %e y3 %e x4 %e y4 %e\n)",
+  //        Det1, Det2, t1, t2, x1, y1, x2, y2, x3, y3, x4, y4);
+
+  
   if ( fabs(t1) < fabs(t2) ){
     *area1 = fabs(Det1)/2.;
     return (1);
