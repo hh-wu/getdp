@@ -23,7 +23,10 @@ public:
 struct PostExternalElement
 {
 	int type;
+	int index;
+    int region;
 	std::vector<int> nodes;
+    std::vector<std::vector<double> > nodes_coordinates;
 };
 
 struct TimeStepData

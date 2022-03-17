@@ -54,6 +54,9 @@ void PostExternalData::addElement(PostElement  * PE)
 
 	PostExternalElement post_el;
 	post_el.type = e.Type;
+    post_el.index = PE->Index;
+    post_el.region = e.GeoElement->ElementaryRegion;
+    //Message::Info("%d", PE->Index);
 					
 	for(int iNode = 0; iNode < e.GeoElement->NbrNodes; iNode++)
 	{
@@ -62,7 +65,10 @@ void PostExternalData::addElement(PostElement  * PE)
 			node_map[PE->NumNodes[iNode]] = node_map.size();
 			node_coordinates.push_back(std::vector<double>({PE->x[iNode], PE->y[iNode], PE->z[iNode]}));
 		}
-		post_el.nodes.push_back(node_map[PE->NumNodes[iNode]] );
+        post_el.nodes.push_back(node_map[PE->NumNodes[iNode]]);
+        post_el.nodes_coordinates.push_back(
+          std::vector<double>({PE->x[iNode], PE->y[iNode], PE->z[iNode]}));
+		
 	}
 	elements.push_back(post_el);	
 }
