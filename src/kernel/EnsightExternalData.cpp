@@ -14,8 +14,15 @@ EnsightExternalData::~EnsightExternalData()
 {
 
 }
-//binary
+
 void EnsightExternalData::write(std::string filename)
+{
+	writeBinary(filename);
+}
+	
+
+//binary
+void EnsightExternalData::writeBinary(std::string filename)
 {
   FILE *fd = nullptr;
   bool binary = true;
@@ -27,6 +34,7 @@ void EnsightExternalData::write(std::string filename)
                    current_filename.c_str(), strerror(errno));
     return;
   }
+  
   WriteStringToFile("C Binary", fd);
   WriteStringToFile("Written by GetDP", fd);
   WriteStringToFile("description line 1", fd);
@@ -45,17 +53,20 @@ void EnsightExternalData::write(std::string filename)
 
     for(auto node : parts[i].nodes) {
       // fprintf(fd, "#node id");
-      NodeIdToOrder[node] = NodeIdToOrder.size();
+	  
+	  
+      NodeIdToOrder[node] = NodeIdToOrder.size() + 1;
       WriteIntToFile(NodeIdToOrder[node], fd);
       
     }
     //cordinates
-    for(size_t k = 0; k < 3; k++) {
-      for(size_t j = 0; j < parts[i].nodes.size(); j++) {
-        // fprintf(fd, "%lld ", k);
-        WriteFloatToFile(parts[i].nodes_coordinates[j][k], fd); 
-      }
-    }
+	for (auto node : parts[i].nodes) 
+        WriteFloatToFile(node_coordinates[node][0], fd); 
+	for (auto node : parts[i].nodes) 
+        WriteFloatToFile(node_coordinates[node][1], fd); 
+	for (auto node : parts[i].nodes) 
+        WriteFloatToFile(node_coordinates[node][2], fd); 
+	
     groupElementByType(parts[i]);
 
     for(size_t j = 0; j < parts[i].groupedElements.size(); j++) {
@@ -87,7 +98,7 @@ void EnsightExternalData::write(std::string filename)
   }
  }
 //ascii
-void EnsightExternalData::writeAA(std::string filename)
+void EnsightExternalData::writeASCII(std::string filename)
 {
   FILE *fd = nullptr;
   bool binary = true;
@@ -115,18 +126,18 @@ void EnsightExternalData::writeAA(std::string filename)
       //fprintf(fd, "#node ");
       NodeIdToOrder[node] = NodeIdToOrder.size() + 1;
       fprintf(fd, "%d\n", 
-          //NodeIdToOrder[
+          NodeIdToOrder[
           node
-      //]
+      ]
       );
     }
-    for(size_t k = 0; k < 3; k++) {
-      for(size_t j = 0; j < parts[i].nodes.size(); j++) {
-        //fprintf(fd, "%lld ", k);
-        fprintf(fd, "%.10e\n",
-                parts[i].nodes_coordinates[j][k]);
-      }
-    }
+    
+	for (auto node : parts[i].nodes) 
+        fprintf(fd, "%.10e\n", node_coordinates[node][0]);
+	for (auto node : parts[i].nodes) 
+        fprintf(fd, "%.10e\n", node_coordinates[node][1]);
+	for (auto node : parts[i].nodes) 
+        fprintf(fd, "%.10e\n", node_coordinates[node][2]);
 
     groupElementByType(parts[i]);
 
@@ -148,25 +159,17 @@ void EnsightExternalData::writeAA(std::string filename)
         for(size_t m = 0;
             m < parts[i].groupedElements[j].elements[k].nodes.size(); m++) {
           fprintf(fd, "%d ",
-                  //NodeIdToOrder[
+                  NodeIdToOrder[
                       parts[i].groupedElements[j].elements[k].nodes[m]
-                  //]
-          );
-
-        }
-        fprintf(fd, "maps to ");
-        for(size_t m = 0;
-            m < parts[i].groupedElements[j].elements[k].nodes.size(); m++) {
-          fprintf(fd, "%d ",
-                   NodeIdToOrder[
-                  parts[i].groupedElements[j].elements[k].nodes[m]
                   ]
           );
-        }
         fprintf(fd, "\n");
+
+        }
+        }
+
         /*fprintf(fd, "# element %d nodes\n",
                 parts[i].groupedElements[j].elements[k].index);*/
-      }
     }    
   }
 }
@@ -223,53 +226,29 @@ bool EnsightExternalData::foundElementType(
   return false;
 }
 void EnsightExternalData::groupParts() {
-  for(size_t i = 0; i < elements.size(); i++) 
-  { 
-      if(!foundPart(elements[i].region, parts)) {
-          std::vector<PostExternalElement> elementsAux;
-          elementsAux.push_back(elements[i]);
-
-          elementsInPart elementPart;
-          std::vector<elementsByType> groupedElements;
-          
-
-          elementPart.part = elements[i].region;
-          elementPart.elements = elementsAux;
-          elementPart.groupedElements = groupedElements;
-
-          parts.push_back(elementPart);
-      }
-      else {
-        for(size_t j = 0; j < parts.size(); j++) {
-          if(parts[j].part == elements[i].region) {
-            parts[j].elements.push_back(elements[i]);
-            //fill nodes
-            for(size_t k = 0; k < elements[i].nodes.size(); k++) {
-                if (std::find(parts[j].nodes.begin(), parts[j].nodes.end(),
-                           elements[i].nodes[k]) == parts[j].nodes.end()) {
-                parts[j].nodes.push_back(elements[i].nodes[k]); 
-              }
-              
-            }  
-          }
-        }
-        for(size_t j = 0; j < parts.size(); j++) {
-          // eliminate nodes duplicates
-          /*for(size_t m = 0; m < parts.size(); m++) {
-            parts[m].nodes.sort();
-            parts[m].nodes.unique();
-          }*/
-          // fill node coordinates
-          for(size_t k = 0; k < elements[i].nodes.size(); k++) {
-            parts[j].nodes_coordinates.push_back(
-              elements[i].nodes_coordinates[k]);
-          }
-        } 
-      }
-  }
-  
-  
+	
+   for (auto part_item: region_elements)
+   {
+	   elementsInPart elementPart;
+	   elementPart.part = part_item.first;
+	   for (auto el_index : part_item.second)
+	   {
+		  elementPart.elements.push_back(elements[el_index]); 
+		  for (auto n: elements[el_index].nodes)
+		  {
+          if (std::find(elementPart.nodes.begin(),
+						elementPart.nodes.end(),
+                        n) == elementPart.nodes.end()) 
+			{
+					elementPart.nodes.push_back(n); 
+			}
+		  }  
+	   }
+	   
+	   parts.push_back(elementPart);
+   }
 }
+
 bool EnsightExternalData::foundPart(int part, std::vector<elementsInPart> parts)
 {
   // if groupedElements is empty

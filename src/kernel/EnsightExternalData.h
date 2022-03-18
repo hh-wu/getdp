@@ -30,7 +30,8 @@ public:
     EnsightExternalData();
     ~EnsightExternalData();
 
-	void writeAA(std::string fname);
+	void writeASCII(std::string fname);
+	void writeBinary(std::string fname);
     void write(std::string fname) override;
     void WriteStringToFile(const char *cstring, FILE *file);
     void WriteIntToFile(const int i, FILE *file);

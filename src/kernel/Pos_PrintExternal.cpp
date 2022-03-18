@@ -37,7 +37,7 @@ void  Pos_PrintExternal(struct PostProcessing    *      PostProcessing_P,
 		return;
 	}
 	
-	if (PSO_P->Format == 1)
+	if (PSO_P->Binary == 1)
 		post_data->wtype = PostExternalData::WriteType::BINARY;
 	else
 		post_data->wtype = PostExternalData::WriteType::ASCII;

@@ -57,7 +57,9 @@ void PostExternalData::addElement(PostElement  * PE)
     post_el.index = PE->Index;
     post_el.region = e.GeoElement->ElementaryRegion;
     //Message::Info("%d", PE->Index);
-					
+				
+
+	
 	for(int iNode = 0; iNode < e.GeoElement->NbrNodes; iNode++)
 	{
 		if (node_map.count(PE->NumNodes[iNode]) == 0)
@@ -70,6 +72,10 @@ void PostExternalData::addElement(PostElement  * PE)
           std::vector<double>({PE->x[iNode], PE->y[iNode], PE->z[iNode]}));
 		
 	}
+	if (!region_elements.count(post_el.region)) 
+		region_elements[post_el.region] = std::vector<int>();
+	region_elements[post_el.region].push_back(elements.size());
+	
 	elements.push_back(post_el);	
 }
 

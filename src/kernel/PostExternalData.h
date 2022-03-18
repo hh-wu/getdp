@@ -50,6 +50,7 @@ public:
 	// unordered map showed about 15% better performance in tests than map
 	std::unordered_map<int, int> node_map; //map to store new node ids
 	std::vector<std::vector<double>> node_coordinates;
+	std::map<int, std::vector<int>> region_elements; // contains map to index in elements vector
 	
 	std::vector<TimeStepData> data_sets;
 	std::vector<PostExternalElement> elements;
