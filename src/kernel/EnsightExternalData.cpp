@@ -3,25 +3,20 @@
 #include <string.h>
 #include "Message.h"
 #include "OS.h"
-#include <cstring>	
+#include <cstring>
 #include <algorithm>
 
-EnsightExternalData::EnsightExternalData()
-{
-}
+EnsightExternalData::EnsightExternalData() {}
 
-EnsightExternalData::~EnsightExternalData()
-{
-
-}
+EnsightExternalData::~EnsightExternalData() {}
 
 void EnsightExternalData::write(std::string filename)
 {
-	writeBinary(filename);
+  writeBinary(filename);
+  // writeASCII(filename);
 }
-	
 
-//binary
+// binary
 void EnsightExternalData::writeBinary(std::string filename)
 {
   FILE *fd = nullptr;
@@ -34,7 +29,7 @@ void EnsightExternalData::writeBinary(std::string filename)
                    current_filename.c_str(), strerror(errno));
     return;
   }
-  
+
   WriteStringToFile("C Binary", fd);
   WriteStringToFile("Written by GetDP", fd);
   WriteStringToFile("description line 1", fd);
@@ -43,6 +38,7 @@ void EnsightExternalData::writeBinary(std::string filename)
   groupParts();
 
   std::map<int, int> NodeIdToOrder;
+  int node_count = 0; // nodes are named sequentially
   for(size_t i = 0; i < parts.size(); i++) {
     WriteStringToFile("part", fd);
     WriteIntToFile(parts[i].part, fd);
@@ -53,51 +49,45 @@ void EnsightExternalData::writeBinary(std::string filename)
 
     for(auto node : parts[i].nodes) {
       // fprintf(fd, "#node id");
-	  
-	  
-      NodeIdToOrder[node] = NodeIdToOrder.size() + 1;
+
+      // NodeIdToOrder[node] = NodeIdToOrder.size() + 1;
+      NodeIdToOrder[node] = ++node_count;
       WriteIntToFile(NodeIdToOrder[node], fd);
-      
     }
-    //cordinates
-	for (auto node : parts[i].nodes) 
-        WriteFloatToFile(node_coordinates[node][0], fd); 
-	for (auto node : parts[i].nodes) 
-        WriteFloatToFile(node_coordinates[node][1], fd); 
-	for (auto node : parts[i].nodes) 
-        WriteFloatToFile(node_coordinates[node][2], fd); 
-	
-    groupElementByType(parts[i]);
+    // cordinates
+    for(auto node : parts[i].nodes)
+      WriteFloatToFile(node_coordinates[node][0], fd);
+    for(auto node : parts[i].nodes)
+      WriteFloatToFile(node_coordinates[node][1], fd);
+    for(auto node : parts[i].nodes)
+      WriteFloatToFile(node_coordinates[node][2], fd);
 
-    for(size_t j = 0; j < parts[i].groupedElements.size(); j++) {
-      // fprintf(fd, "#element type\n");
-      WriteStringToFile(
-        ToEnsightElementType[parts[i].groupedElements[j].elementType].c_str(),
-        fd);
-      // fprintf(fd, "#number of elements ");
-      WriteIntToFile(parts[i].groupedElements[j].elements.size(), fd);
-      
+    groupElementType(parts[i]);
+    for(auto elementGroup : parts[i].type_el_Part) {
+      WriteStringToFile(ToEnsightElementType[elementGroup.first].c_str(), fd);
+      // number of elements
+      WriteIntToFile(elementGroup.second.size(), fd);
 
-      for(size_t k = 0; k < parts[i].groupedElements[j].elements.size(); k++) {
-        // fprintf(fd, "#element ");
-        WriteIntToFile(parts[i].groupedElements[j].elements[k].index, fd);
-       
+      int element_id_offset =
+        0; // this works if elements are stored sequentially by regions
+      while(elements[element_id_offset].region != parts[i].part) {
+        element_id_offset++;
       }
-
-      for(size_t k = 0; k < parts[i].groupedElements[j].elements.size(); k++) {
-        for(size_t m = 0;
-            m < parts[i].groupedElements[j].elements[k].nodes.size(); m++) {
-          WriteIntToFile(
-            NodeIdToOrder[
-                parts[i].groupedElements[j].elements[k].nodes[m]
-            ]
-              , fd);
+      // print elements id
+      for(auto el_index : elementGroup.second) {
+        WriteIntToFile(elements[el_index + element_id_offset].index, fd);
+      }
+      // print nodes of elements
+      for(auto el_index : elementGroup.second) {
+        for(auto n : elements[el_index + element_id_offset].nodes) {
+          WriteIntToFile(NodeIdToOrder[n], fd);
         }
       }
     }
   }
- }
-//ascii
+}
+
+// ascii
 void EnsightExternalData::writeASCII(std::string filename)
 {
   FILE *fd = nullptr;
@@ -116,154 +106,88 @@ void EnsightExternalData::writeASCII(std::string filename)
   fprintf(fd, "element id given\n");
   groupParts();
   std::map<int, int> NodeIdToOrder;
+  int node_count = 0; // nodes are named sequentially
   for(size_t i = 0; i < parts.size(); i++) {
     fprintf(fd, "part\n");
     fprintf(fd, "%d\n", parts[i].part);
     fprintf(fd, "coordinates\n");
-    //fprintf(fd, "nn ");
+    // fprintf(fd, "nn ");
     fprintf(fd, "%lld\n", parts[i].nodes.size());
-    for (auto node : parts[i].nodes) {
-      //fprintf(fd, "#node ");
-      NodeIdToOrder[node] = NodeIdToOrder.size() + 1;
-      fprintf(fd, "%d\n", 
-          NodeIdToOrder[
-          node
-      ]
-      );
+    for(auto node : parts[i].nodes) {
+      // for each part, node starts at value 0 and we want univoque
+      // nodeIdToOrder for each part, so: fprintf(fd, "node_count  =  %d\n",
+      // node_count);
+      NodeIdToOrder[node] = ++node_count;
+      // fprintf(fd, "node id =  %d\n", node);
+      fprintf(fd, "%d\n", NodeIdToOrder[node]);
     }
-    
-	for (auto node : parts[i].nodes) 
-        fprintf(fd, "%.10e\n", node_coordinates[node][0]);
-	for (auto node : parts[i].nodes) 
-        fprintf(fd, "%.10e\n", node_coordinates[node][1]);
-	for (auto node : parts[i].nodes) 
-        fprintf(fd, "%.10e\n", node_coordinates[node][2]);
 
-    groupElementByType(parts[i]);
+    for(auto node : parts[i].nodes)
+      fprintf(fd, "%.10e\n", node_coordinates[node][0]);
+    for(auto node : parts[i].nodes)
+      fprintf(fd, "%.10e\n", node_coordinates[node][1]);
+    for(auto node : parts[i].nodes)
+      fprintf(fd, "%.10e\n", node_coordinates[node][2]);
 
-    for(size_t j = 0; j < parts[i].groupedElements.size(); j++) {
-      //fprintf(fd, "#element type\n");
-      fprintf(fd, "%s\n",
-        ToEnsightElementType[parts[i].groupedElements[j].elementType].c_str());
-      //fprintf(fd, "#number of elements ");
-      fprintf(
-        fd, "%lld\n",
-        parts[i].groupedElements[j].elements.size());
+    groupElementType(parts[i]);
+    for(auto elementGroup : parts[i].type_el_Part) {
+      // print element type
+      fprintf(fd, "%s\n", ToEnsightElementType[elementGroup.first].c_str());
+      // print number of elements of this type
+      fprintf(fd, "%lld\n", elementGroup.second.size());
 
-      for(size_t k = 0; k < parts[i].groupedElements[j].elements.size(); k++) {
-        //fprintf(fd, "#element ");
-        fprintf(fd, "%d\n", parts[i].groupedElements[j].elements[k].index);
+      int element_id_offset =
+        0; // this works if elements are stores sequentially by regions
+      while(elements[element_id_offset].region != parts[i].part) {
+        element_id_offset++;
       }
-
-      for(size_t k = 0; k < parts[i].groupedElements[j].elements.size(); k++) {
-        for(size_t m = 0;
-            m < parts[i].groupedElements[j].elements[k].nodes.size(); m++) {
-          fprintf(fd, "%d ",
-                  NodeIdToOrder[
-                      parts[i].groupedElements[j].elements[k].nodes[m]
-                  ]
-          );
+      // print elements id
+      for(auto el_index : elementGroup.second) {
+        // fprintf(fd, "el_index %d\n", el_index);
+        fprintf(fd, "%d\n", elements[el_index + element_id_offset].index);
+      }
+      // print nodes of elements
+      for(auto el_index : elementGroup.second) {
+        for(auto n : elements[el_index + element_id_offset].nodes) {
+          fprintf(fd, "%d ", NodeIdToOrder[n]);
+        }
         fprintf(fd, "\n");
-
-        }
-        }
-
-        /*fprintf(fd, "# element %d nodes\n",
-                parts[i].groupedElements[j].elements[k].index);*/
-    }    
-  }
-}
-
-void EnsightExternalData::groupElementByType(
-  elementsInPart& el_part)
-{
-  elementsByType elementGroup;
-  for(size_t i = 0; i < el_part.elements.size(); i++) {
-    Message::Info("element ID %d", el_part.elements[i].index);
-    if(!foundElementType(el_part.elements[i].type, el_part.groupedElements)) {
-     
-      std::vector<PostExternalElement> elementsAux;
-      elementsAux.push_back(el_part.elements[i]);
-   
-      elementGroup.elementType = el_part.elements[i].type;
-      elementGroup.countElement = 1;
-      elementGroup.elements = elementsAux;
-
-      el_part.groupedElements.push_back(elementGroup); 
-    }
-    else {
-      
-      for(size_t j = 0; j < el_part.groupedElements.size(); j++) {
-        
-        if(el_part.groupedElements[j].elementType == elements[i].type) {
-       
-          el_part.groupedElements[j].countElement++;
-          
-          el_part.groupedElements[j].elements.push_back(elements[i]);
-          
-        }
       }
     }
   }
-  Message::Info("size  %lld", el_part.groupedElements.size());
 }
 
-bool EnsightExternalData::foundElementType(
-  int type,
-  std::vector<elementsByType> groupedElements)
+void EnsightExternalData::groupParts()
 {
-    // if groupedElements is empty
-  if(groupedElements.empty()) { 
-      return false;}
-  // if the element type is not present in groupedElements
-  else {
-    for(size_t i = 0; i < groupedElements.size(); i++) { 
-      if(groupedElements[i].elementType == type) {
-       
-          return true; }
+  for(auto part_item : region_elements) {
+    elementsInPart elementPart;
+    elementPart.part = part_item.first;
+    Message::Info("part %d", elementPart.part);
+    for(auto el_index : part_item.second) {
+      elementPart.elements.push_back(elements[el_index]);
+      for(auto n : elements[el_index].nodes) {
+        if(std::find(elementPart.nodes.begin(), elementPart.nodes.end(), n) ==
+           elementPart.nodes.end()) {
+          elementPart.nodes.push_back(n);
+        }
+      }
     }
+    parts.push_back(elementPart);
   }
-  return false;
-}
-void EnsightExternalData::groupParts() {
-	
-   for (auto part_item: region_elements)
-   {
-	   elementsInPart elementPart;
-	   elementPart.part = part_item.first;
-	   for (auto el_index : part_item.second)
-	   {
-		  elementPart.elements.push_back(elements[el_index]); 
-		  for (auto n: elements[el_index].nodes)
-		  {
-          if (std::find(elementPart.nodes.begin(),
-						elementPart.nodes.end(),
-                        n) == elementPart.nodes.end()) 
-			{
-					elementPart.nodes.push_back(n); 
-			}
-		  }  
-	   }
-	   
-	   parts.push_back(elementPart);
-   }
 }
 
-bool EnsightExternalData::foundPart(int part, std::vector<elementsInPart> parts)
+void EnsightExternalData::groupElementType(elementsInPart &el_part)
 {
-  // if groupedElements is empty
-  if(parts.empty()) { return false; }
-  // if the element type is not present in groupedElements
-  else {
-    for(size_t i = 0; i < parts.size(); i++) {
-      if(parts[i].part == part) { return true; }
+  for(size_t i = 0; i < el_part.elements.size(); i++) {
+    if(!el_part.type_el_Part.count(el_part.elements[i].type)) {
+      el_part.type_el_Part[el_part.elements[i].type] = std::vector<int>();
     }
+    // to give an id sequentially
+    el_part.type_el_Part[el_part.elements[i].type].push_back(i);
   }
-  return false;
 }
 
-
-
+// functions to write in binary
 void EnsightExternalData::WriteStringToFile(const char *cstring, FILE *file)
 {
   char cbuffer[81];
