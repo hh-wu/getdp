@@ -44,6 +44,7 @@ void F_Asin(F_ARG) { scalar_real_1_arg(asin, "Asin") }
 void F_Acos(F_ARG) { scalar_real_1_arg(acos, "Acos") }
 void F_Atan(F_ARG) { scalar_real_1_arg(atan, "Atan") }
 void F_Atanh(F_ARG) { scalar_real_1_arg(atanh, "Atanh") }
+void F_Erf(F_ARG) { scalar_real_1_arg(erf, "Erf") }
 
 #undef scalar_real_1_arg
 
