@@ -89,7 +89,7 @@ void Pos_FemFormulation(struct Formulation *Formulation_P,
   case POP_PRINT:
     switch(PostSubOperation_P->SubType) {
     case PRINT_ONREGION:
-      Pos_PrintOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+      Pos_PrintOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,//FIXME: frequency is set to zero 
                         QuantityStorage_P0, PostSubOperation_P);
       break;
     case PRINT_ONELEMENTSOF:
@@ -152,7 +152,7 @@ void  Pos_FemFormulation_MultipleFields(struct Formulation       *Formulation_P,
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
   QuantityStorage_L = List_Create(List_Nbr(Formulation_P->DefineQuantity),  1,
 				  sizeof (struct QuantityStorage) ) ;
-
+ 
   for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
     QuantityStorage.DefineQuantity = DefineQuantity_P0 + i ;
 
@@ -172,7 +172,6 @@ void  Pos_FemFormulation_MultipleFields(struct Formulation       *Formulation_P,
   }
 
   QuantityStorage_P0 = (struct QuantityStorage*)List_Pointer(QuantityStorage_L, 0) ;
-
   Pos_PrintExternal(PostProcessing_P, Order, DefineQuantity_P0,
 			    QuantityStorage_P0, PostSubOperation_P) ;
 
@@ -256,31 +255,34 @@ void Pos_InitAllSolutions(List_T *TimeStep_L, int Index_TimeStep)
   int TimeStepIndex, k, Num_Solution;
 
   List_Read(TimeStep_L, Index_TimeStep, &TimeStepIndex);
-
-  for(k = 0; k < Current.NbrSystem; k++)
+  for(k = 0; k < Current.NbrSystem; k++) {
     if((Num_Solution =
           std::min(List_Nbr((Current.DofData_P0 + k)->Solutions) - 1,
-                   TimeStepIndex)) >= 0)
+                   TimeStepIndex)) >= 0) {
+
       (Current.DofData_P0 + k)->CurrentSolution =
         (struct Solution *)List_Pointer((Current.DofData_P0 + k)->Solutions,
                                         Num_Solution);
+    }
+  }
 
   if(TimeStepIndex >= 0 &&
      TimeStepIndex < List_Nbr(Current.DofData->Solutions)) {
+
     Solution *Solution_P = ((struct Solution *)List_Pointer(
-      Current.DofData->Solutions, TimeStepIndex));
+      Current.DofData->Solutions, TimeStepIndex));//FIXME: freqency is set to zero
     Current.TimeStep = Solution_P->TimeStep;
     Current.Time = Solution_P->Time;
     Current.TimeImag = Solution_P->TimeImag;
-    Current.Frequency = Solution_P->Frequency;
-  }
+    //Current.Frequency = Solution_P->Frequency;//FIXME: freqency is set to zero
+    }
   else { // Warning: this can be wrong
     Current.TimeStep = TimeStepIndex;
     if(Current.DofData->CurrentSolution) {
       Current.Time = Current.DofData->CurrentSolution->Time;
       Current.TimeImag = Current.DofData->CurrentSolution->TimeImag;
       Current.Frequency = Current.DofData->CurrentSolution->Frequency;
-    }
+      }
   }
 }
 
@@ -430,7 +432,7 @@ void Pos_Formulation(struct Formulation *Formulation_P,
   struct PostQuantity *NCPQ_P = NULL, *CPQ_P = NULL;
   double Pulsation;
   int i, Order = 0;
-
+  
   if(PostSubOperation_P->Type == POP_MERGE) {
     Message::SendMergeFileRequest(PostSubOperation_P->FileOut);
     return;
@@ -532,9 +534,9 @@ void Pos_Formulation(struct Formulation *Formulation_P,
   if(PostStream && PostSubOperation_P->CatFile == 2)
     fprintf(PostStream, "\n\n");
   /*  two blanks lines for -index in gnuplot  */
-
+  
   Format_PostFormat(PostSubOperation_P);
-
+  
   if(PostSubOperation_P->PostQuantityIndex[0] >= 0) {
     if(PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
       NCPQ_P = (struct PostQuantity *)List_Pointer(
@@ -559,7 +561,7 @@ void Pos_Formulation(struct Formulation *Formulation_P,
       Order = 0;
     }
   }
-
+  
   if(List_Nbr(PostSubOperation_P->Frequency_L)) {
     if(List_Nbr(PostSubOperation_P->Frequency_L) >
        List_Nbr(Current.DofData->Pulsation))
@@ -573,7 +575,7 @@ void Pos_Formulation(struct Formulation *Formulation_P,
       }
     }
   }
-
+ 
   switch(Formulation_P->Type) {
   case FEMEQUATION:
     if(PostSubOperation_P->Type != POP_PRINTEXTERNAL)
@@ -584,8 +586,9 @@ void Pos_Formulation(struct Formulation *Formulation_P,
 	{
         Pos_FemFormulation_MultipleFields(Formulation_P, PostProcessing_P, Order, PostSubOperation_P) ;
 	}
+   
     break;
-
+    
   case GLOBALEQUATION: break;
 
   default:
@@ -611,7 +614,7 @@ void Pos_Formulation(struct Formulation *Formulation_P,
                                        "/{Output files",
                                      "file", PostFileName, true, true);
     }
-
+   
     /* NewCoordinates print option: write a new mesh */
     if(PostSubOperation_P->NewCoordinates) {
 #if defined(HAVE_GMSH)

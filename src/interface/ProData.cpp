@@ -28,6 +28,9 @@ struct Problem Problem_S;
 // structure that is instantiated
 struct CurrentData Current;
 
+// Global ensight variables to create the case file for ensight format
+struct EnsightCase Ensight_Case;
+
 // Sorting functions
 
 int fcmp_Integer(const void *a, const void *b)

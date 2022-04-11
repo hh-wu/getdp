@@ -33,6 +33,8 @@ struct TimeStepData
 {
 	int time_step;
 	double time_value;
+    int freq_step;
+    double freq_value;
 	std::vector<PointDataSet> point_data;
 };
 

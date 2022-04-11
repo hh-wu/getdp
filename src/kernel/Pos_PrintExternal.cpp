@@ -27,6 +27,7 @@ void  Pos_PrintExternal(struct PostProcessing    *      PostProcessing_P,
 			struct PostSubOperation  *PSO_P)
 {  				
     PostExternalData* post_data;
+    
 	if (PSO_P->Format == FORMAT_VTU)
 		post_data = new VTUExternalData();
 	else if (PSO_P->Format == FORMAT_ENSIGHT)
@@ -42,7 +43,7 @@ void  Pos_PrintExternal(struct PostProcessing    *      PostProcessing_P,
 	else
 		post_data->wtype = PostExternalData::WriteType::ASCII;
 
-
+	
     // Fill post_data with elements and nodes
     struct Group * Group_P = (struct Group *)List_Pointer(Problem_S.Group, PSO_P->Case.OnRegion.RegionIndex);
     List_T  * Region_L = Group_P->InitialList ;
@@ -76,6 +77,7 @@ void  Pos_PrintExternal(struct PostProcessing    *      PostProcessing_P,
 
     // outer time loop
 	struct PostQuantity * PostQuantity_P;
+    
 	for(int iTime = 0; iTime < Pos_InitTimeSteps(PSO_P); iTime++) 
 	{
         Pos_InitAllSolutions(PSO_P->TimeStep_L, iTime);
@@ -83,7 +85,8 @@ void  Pos_PrintExternal(struct PostProcessing    *      PostProcessing_P,
 		TimeStepData tdata;
 		tdata.time_step = Current.TimeStep;
 		tdata.time_value = Current.Time;
-		
+        tdata.freq_value = Current.Frequency;
+
 		for(int ipq = 0; ipq < List_Nbr(PSO_P->PointQuantities);  ipq++)
 		{
 			PostQuantity_P = (struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity,

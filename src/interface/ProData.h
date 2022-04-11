@@ -1491,6 +1491,35 @@ struct PostQuantityTerm {
 /*  P o s t O p e r a t i o n                                               */
 /* ------------------------------------------------------------------------ */
 
+//used for Enisght writer 
+
+struct PostExternalElementCopy {
+  int type;
+  int index;
+  int region;
+  std::vector<int> nodes;
+  std::vector<std::vector<double> > nodes_coordinates;
+};//dummy copy of PostExternalElement
+struct elementsInPart {
+  int part;
+  std::vector<PostExternalElementCopy> elements;
+  std::vector<int> nodes;
+  std::vector<std::vector<double> > nodes_coordinates;
+  std::map<int, std::vector<int> >
+    type_el_Part; // stores element type as key and vector element references
+                  // with this type as value
+};
+struct EnsightCase {
+  std::vector<char*> postNames ;
+  std::vector<int> valueTypes;
+  std::vector<std::vector<double> > nodes_coordinates_all;
+  std::vector<double> time_values;//stores time_values fro .case file writting
+  std::vector<elementsInPart>
+    parts; // stores the parts for the current variable field
+};
+
+
+
 struct PostOperation {
   char *Name, *AppendString, *Comma;
   bool Hidden;
@@ -1505,11 +1534,11 @@ struct PostOperation {
 };
 
 struct PostSubOperation {
-  List_T* PointQuantities;
+  List_T *PointQuantities;
   int PostQuantityIndex[2], PostQuantitySupport[2];
   int Type, SubType, CombinationType;
   int Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile;
-  int Binary; //used for PrintExternal
+  int Binary; // used for PrintExternal
   char *Comma;
   int TimeToHarmonic;
   int FourierTransform;
@@ -1652,8 +1681,6 @@ struct PostOpSolutions {
 #define FORMAT_VTU 1
 #define FORMAT_ENSIGHT 2
 
-
-
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION 1
 #define SORT_BY_CONNECTIVITY 2
@@ -1732,7 +1759,7 @@ struct CurrentData {
 
   // Iterative linear system solvers
   double KSPIterations, KSPIteration, KSPResidual, KSPSystemSize;
-  
+
   double Frequency;
 };
 
