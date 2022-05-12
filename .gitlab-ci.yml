@@ -237,7 +237,7 @@ windows64_official_petsc_real_mh_release:
   script:
     - mkdir build
     - cd build
-    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc ${EXTRA_OPTION} ..
+    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=complex_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc -DENABLE_PYTHON=0 ${EXTRA_OPTION} ..
     - make package -j 4
     - PKG=`ls getdp-*.tar*`
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/c\.tgz}
@@ -249,7 +249,7 @@ windows64_official_petsc_real_mh_release:
   script:
     - mkdir build
     - cd build
-    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc ${EXTRA_OPTION} ..
+    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc -DENABLE_PYTHON=0 ${EXTRA_OPTION} ..
     - make package -j 4
     - PKG=`ls getdp-*.tar*`
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r\.tgz}
@@ -261,7 +261,7 @@ windows64_official_petsc_real_mh_release:
   script:
     - mkdir build
     - cd build
-    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc -DENABLE_MULTIHARMONIC=1 ${EXTRA_OPTION} ..
+    - /usr/local/bin/cmake -DGETDP_HOST=getdp.info -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran -DENABLE_SPARSKIT=0 -DENABLE_PETSC=1 -DPETSC_ARCH=real_mumps_seq -DPETSC_DIR=/Users/geuzaine/src/petsc -DSLEPC_DIR=/Users/geuzaine/src/slepc -DENABLE_PYTHON=0 -DENABLE_MULTIHARMONIC=1 ${EXTRA_OPTION} ..
     - make package -j 4
     - PKG=`ls getdp-*.tar*`
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/MacOSX/${PKG/\.tar\.gz/r-MH\.tgz}
