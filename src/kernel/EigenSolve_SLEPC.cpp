@@ -72,7 +72,7 @@ static void _try(int ierr)
   }
 }
 
-static PetscErrorCode _myMonitor(const char *str, int its, int nconv,
+static PetscErrorCode _myMonitor(const char *str, PetscInt its, PetscInt nconv,
                                  PetscScalar *eigr, PetscScalar *eigi,
                                  PetscReal *errest)
 {
@@ -91,34 +91,34 @@ static PetscErrorCode _myMonitor(const char *str, int its, int nconv,
   return 0;
 }
 
-static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv,
+static PetscErrorCode _myEpsMonitor(EPS eps, PetscInt its,  PetscInt nconv,
                                     PetscScalar *eigr, PetscScalar *eigi,
-                                    PetscReal *errest, int nest, void *mctx)
+                                    PetscReal *errest,  PetscInt nest, void *mctx)
 {
   return _myMonitor("EPS", its, nconv, eigr, eigi, errest);
 }
 
 #if(PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
 
-static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv,
+static PetscErrorCode _myQepMonitor(QEP qep, PetscInt its,  PetscInt nconv,
                                     PetscScalar *eigr, PetscScalar *eigi,
-                                    PetscReal *errest, int nest, void *mctx)
+                                    PetscReal *errest,  PetscInt nest, void *mctx)
 {
   return _myMonitor("QEP", its, nconv, eigr, eigi, errest);
 }
 
 #else
 
-static PetscErrorCode _myPepMonitor(PEP pep, int its, int nconv,
+static PetscErrorCode _myPepMonitor(PEP pep, PetscInt its, PetscInt nconv,
                                     PetscScalar *eigr, PetscScalar *eigi,
-                                    PetscReal *errest, int nest, void *mctx)
+                                    PetscReal *errest, PetscInt nest, void *mctx)
 {
   return _myMonitor("PEP", its, nconv, eigr, eigi, errest);
 }
 
 #endif
 
-static void _storeEigenVectors(struct DofData *DofData_P, int nconv, EPS eps,
+static void _storeEigenVectors(struct DofData *DofData_P, PetscInt nconv, EPS eps,
 #if(PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR < 5)
                                QEP qep,
 #else
@@ -512,14 +512,14 @@ static void _linearEVP(struct DofData *DofData_P, int numEigenValues,
   _try(EPSSolve(eps));
 
   // check convergence
-  int its;
+  PetscInt its;
   _try(EPSGetIterationNumber(eps, &its));
   EPSConvergedReason reason;
   _try(EPSGetConvergedReason(eps, &reason));
   if(reason == EPS_CONVERGED_TOL)
-    Message::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", (int)its);
   else if(reason == EPS_DIVERGED_ITS)
-    Message::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", (int)its);
   else if(reason == EPS_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
 #if !((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2))
@@ -635,14 +635,14 @@ static void _quadraticEVP(struct DofData *DofData_P, int numEigenValues,
   _try(QEPSolve(qep));
 
   // check convergence
-  int its;
+  PetscInt its;
   _try(QEPGetIterationNumber(qep, &its));
   QEPConvergedReason reason;
   _try(QEPGetConvergedReason(qep, &reason));
   if(reason == QEP_CONVERGED_TOL)
-    Message::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", (int)its);
   else if(reason == QEP_DIVERGED_ITS)
-    Message::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", (int)its);
   else if(reason == QEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
   else if(reason == QEP_CONVERGED_ITERATING)
@@ -795,14 +795,14 @@ static void _quadraticEVP(struct DofData *DofData_P, int numEigenValues,
   _try(PEPSolve(pep));
 
   // check convergence
-  int its;
+  PetscInt its;
   _try(PEPGetIterationNumber(pep, &its));
   PEPConvergedReason reason;
   _try(PEPGetConvergedReason(pep, &reason));
   if(reason == PEP_CONVERGED_TOL)
-    Message::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", (int)its);
   else if(reason == PEP_DIVERGED_ITS)
-    Message::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", (int)its);
   else if(reason == PEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
 
@@ -907,14 +907,14 @@ static void _polynomialEVP(struct DofData *DofData_P, int numEigenValues,
   _try(PEPSolve(pep));
 
   // check convergence
-  int its;
+  PetscInt its;
   _try(PEPGetIterationNumber(pep, &its));
   PEPConvergedReason reason;
   _try(PEPGetConvergedReason(pep, &reason));
   if(reason == PEP_CONVERGED_TOL)
-    Message::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", (int)its);
   else if(reason == PEP_DIVERGED_ITS)
-    Message::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", (int)its);
   else if(reason == PEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
   // _try(PEPView(pep, PETSC_VIEWER_STDOUT_SELF));
@@ -938,9 +938,9 @@ static void _polynomialEVP(struct DofData *DofData_P, int numEigenValues,
 
 #if defined(PETSC_USE_COMPLEX)
 
-static PetscErrorCode _myNepMonitor(NEP nep, int its, int nconv,
+static PetscErrorCode _myNepMonitor(NEP nep, PetscInt its, PetscInt nconv,
                                     PetscScalar *eigr, PetscScalar *eigi,
-                                    PetscReal *errest, int nest, void *mctx)
+                                    PetscReal *errest, PetscInt nest, void *mctx)
 {
   return _myMonitor("NEP", its, nconv, eigr, eigi, errest);
 }
@@ -1173,14 +1173,14 @@ static void _rationalEVP(struct DofData *DofData_P, int numEigenValues,
   _try(NEPSolve(nep));
 
   // check convergence
-  int its;
+  PetscInt its;
   _try(NEPGetIterationNumber(nep, &its));
   NEPConvergedReason reason;
   _try(NEPGetConvergedReason(nep, &reason));
   if(reason == NEP_CONVERGED_TOL)
-    Message::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", (int)its);
   else if(reason == NEP_DIVERGED_ITS)
-    Message::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", (int)its);
   else if(reason == NEP_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
 

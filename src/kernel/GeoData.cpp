@@ -564,6 +564,8 @@ static void Geo_ReadFileWithGmsh(struct GeoData *GeoData_P)
 
   Geo_SnapNodes(GeoData_P);
 
+  gmsh::fltk::run();
+
 #else
   Message::Error("You need to compile GetDP with Gmsh support to open '%s'",
                  name);
