@@ -240,8 +240,9 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     // PETSc (I)LU does not like matrices with empty (non assembled) diagonals
 
     for(int i = 0; i < n; i++) {
+      PetscInt ti = i;
       PetscScalar d = 0.;
-      _try(MatSetValues(M->M, 1, &i, 1, &i, &d, INSERT_VALUES));
+      _try(MatSetValues(M->M, 1, &ti, 1, &ti, &d, INSERT_VALUES));
     }
     _try(MatAssemblyBegin(M->M, MAT_FLUSH_ASSEMBLY));
     _try(MatAssemblyEnd(M->M, MAT_FLUSH_ASSEMBLY));
