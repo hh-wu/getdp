@@ -1751,6 +1751,16 @@ void Dof_TransferSolutionToConstraint(struct DofData *DofData_P)
 
   if(!DofData_P->NbrAnyDof) { return; }
 
+  if(!DofData_P->CurrentSolution) {
+    Message::Warning("No solution to transfer to constraint - skipping");
+    return;
+  }
+
+  if(!DofData_P->CurrentSolution->SolutionExist) {
+    Message::Error("Empty solution in DofData %d", DofData_P->Num);
+    return;
+  }
+
   Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0);
 
   for(i = 0; i < DofData_P->NbrAnyDof; i++) {
