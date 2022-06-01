@@ -20,6 +20,7 @@
 #define THESIGN(a) ((a) >= 0 ? 1 : -1)
 #define SQU(a) ((a) * (a))
 #define HYPOT(a, b) (sqrt((a) * (a) + (b) * (b)))
+#define MINRADIUSAXISQU (1e-8)
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ N o d e s C o o r d i n a t e s O f E l e m e n t               */
@@ -1287,6 +1288,19 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
 {
   int i;
   double s = 0., r, DetJac;
+  double rho[NBR_MAX_NODES_IN_ELEMENT];
+  static int warn = 0;
+
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
+    if( fabs(Element->x[i]) < MINRADIUSAXISQU ){
+      if(!warn) {
+        Message::Warning("JacobianVolAxiSqu1D, evaluated at r=%g instead of r=%g for regularization.", MINRADIUSAXISQU, fabs(Element->x[i]));
+        warn = 1;
+      }
+      rho[i] = SQU(MINRADIUSAXISQU);
+    }
+    else
+      rho[i] = SQU(Element->x[i]);
 
   Jac->c11 = 0.;
   Jac->c12 = 0.;
@@ -1299,19 +1313,19 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = 1.;
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    s += SQU(Element->x[i]) * Element->n[i];
+    s += rho[i] * Element->n[i];
 
-  /* Warning! For evaluations on the symmetry axis */
+  /* Warning! For evaluations on the symmetry axis
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
       s += Element->x[i] * Element->x[i];
     s /= (double)Element->GeoElement->NbrNodes;
-  }
+    } */
 
   r = sqrt(s);
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++) {
-    Jac->c11 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][0];
+    Jac->c11 += 0.5 / r * rho[i] * Element->dndu[i][0];
   }
   Jac->c33 = r;
 
@@ -1324,7 +1338,20 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
 {
   int i;
   double s = 0., r, DetJac;
+  double rho[NBR_MAX_NODES_IN_ELEMENT];
+  static int warn = 0;
 
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
+    if( fabs(Element->x[i]) < MINRADIUSAXISQU){
+      if(!warn) {
+        Message::Warning("JacobianVolAxiSqu2D, evaluated at r=%g instead of r=%g for regularization.", MINRADIUSAXISQU, fabs(Element->x[i]));
+        warn = 1;
+      }
+      rho[i] = SQU(MINRADIUSAXISQU);
+    }
+    else
+      rho[i] = SQU(Element->x[i]);
+      
   Jac->c11 = 0.;
   Jac->c12 = 0.;
   Jac->c13 = 0.;
@@ -1336,20 +1363,21 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = 1.;
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    s += SQU(Element->x[i]) * Element->n[i];
+    s += rho[i] * Element->n[i];
 
-  /* Warning! For evaluations on the symmetry axis */
+  /* Warning! For evaluations on the symmetry axis
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-      s += Element->x[i] * Element->x[i];
+      s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
   }
+  */
 
   r = sqrt(s);
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++) {
-    Jac->c11 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][0];
-    Jac->c21 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][1];
+    Jac->c11 += 0.5 / r * rho[i] * Element->dndu[i][0];
+    Jac->c21 += 0.5 / r * rho[i] * Element->dndu[i][1];
     Jac->c12 += Element->y[i] * Element->dndu[i][0];
     Jac->c22 += Element->y[i] * Element->dndu[i][1];
   }
