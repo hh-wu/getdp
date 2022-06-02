@@ -20,7 +20,6 @@
 #define THESIGN(a) ((a) >= 0 ? 1 : -1)
 #define SQU(a) ((a) * (a))
 #define HYPOT(a, b) (sqrt((a) * (a) + (b) * (b)))
-#define MINRADIUSAXISQU (1e-8)
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ N o d e s C o o r d i n a t e s O f E l e m e n t               */
@@ -1291,17 +1290,6 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   double rho[NBR_MAX_NODES_IN_ELEMENT];
   static int warn = 0;
 
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    if( fabs(Element->x[i]) < MINRADIUSAXISQU ){
-      if(!warn) {
-        Message::Warning("JacobianVolAxiSqu1D, evaluated at r=%g instead of r=%g for regularization.", MINRADIUSAXISQU, fabs(Element->x[i]));
-        warn = 1;
-      }
-      rho[i] = SQU(MINRADIUSAXISQU);
-    }
-    else
-      rho[i] = SQU(Element->x[i]);
-
   Jac->c11 = 0.;
   Jac->c12 = 0.;
   Jac->c13 = 0.;
@@ -1312,15 +1300,23 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c32 = 0.;
   Jac->c33 = 1.;
 
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++){
+    rho[i] = SQU(Element->x[i]);
     s += rho[i] * Element->n[i];
+  }
 
-  /* Warning! For evaluations on the symmetry axis
+  // If the Jacobian is evaluated on axis,
+  // s is taken as the average of rho on the element
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-      s += Element->x[i] * Element->x[i];
+      s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
-    } */
+    if(!warn) {
+      Message::Warning("JacobianVolAxiSqu1D: rho evaluated at barycenter r=%g for regularization.",
+                       sqrt(s));
+      warn = 1;
+    }
+  } 
 
   r = sqrt(s);
 
@@ -1330,7 +1326,10 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = r;
 
   DetJac = Jac->c11 * Jac->c33;
-
+  
+  if(DetJac==0){
+    Message::Error("JacobianVolAxiSqu1D is singular on axis with Lagrange order 2 geometrical shape functions.");
+  }
   return (DetJac);
 }
 
@@ -1340,18 +1339,7 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   double s = 0., r, DetJac;
   double rho[NBR_MAX_NODES_IN_ELEMENT];
   static int warn = 0;
-
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    if( fabs(Element->x[i]) < MINRADIUSAXISQU){
-      if(!warn) {
-        Message::Warning("JacobianVolAxiSqu2D, evaluated at r=%g instead of r=%g for regularization.", MINRADIUSAXISQU, fabs(Element->x[i]));
-        warn = 1;
-      }
-      rho[i] = SQU(MINRADIUSAXISQU);
-    }
-    else
-      rho[i] = SQU(Element->x[i]);
-      
+ 
   Jac->c11 = 0.;
   Jac->c12 = 0.;
   Jac->c13 = 0.;
@@ -1362,16 +1350,23 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c32 = 0.;
   Jac->c33 = 1.;
 
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++){
+    rho[i] = SQU(Element->x[i]);
     s += rho[i] * Element->n[i];
+  }
 
-  /* Warning! For evaluations on the symmetry axis
+  // If the Jacobian is evaluated on axis,
+  // s is taken as the average of rho on the element
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
       s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
-  }
-  */
+    if(!warn) {
+      Message::Warning("JacobianVolAxiSqu2D: rho evaluated at barycenter r=%g for regularization.",
+                       sqrt(s));
+      warn = 1;
+    }
+  } 
 
   r = sqrt(s);
 
@@ -1384,7 +1379,14 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = r;
 
   DetJac = (Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21) * Jac->c33;
-
+  
+  if(DetJac==0){
+    // This happens e.g. in post-processing
+    // with Lagrange order 2 geometrical shape functions,
+    // as they interpolate rho=x^2 exactly with an exact null gradient on axis.
+    // Workaround: use 2d order hierachical elements or the Depth=0 option. 
+    Message::Error("JacobianVolAxiSqu2D is singular on axis with Lagrange order 2 geometrical shape functions.");
+  }
   return (DetJac);
 }
 
