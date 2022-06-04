@@ -495,6 +495,9 @@ void SolvingAnalyse()
       Treatment_Operation(Resolution2_P, Resolution2_P->Operation, DofData2_P0,
                           GeoData_P0, Resolution_P, DofData_P0);
 
+      // FIXME: this is normally not necessary - to investigate (hmm with MPI)
+      LinAlg_SetCommWorld();
+
       if(PreResolutionInfo_S.Type == PR_GLOBALBASISFUNCTION) {
         for(j = 0; j < Nbr_DefineSystem2; j++) {
           DofData_P = DofData2_P0 + j;
