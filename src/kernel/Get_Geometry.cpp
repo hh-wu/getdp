@@ -1287,6 +1287,8 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
 {
   int i;
   double s = 0., r, DetJac;
+  double rho[NBR_MAX_NODES_IN_ELEMENT];
+  static int warn = 0;
 
   Jac->c11 = 0.;
   Jac->c12 = 0.;
@@ -1298,25 +1300,36 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c32 = 0.;
   Jac->c33 = 1.;
 
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    s += SQU(Element->x[i]) * Element->n[i];
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++){
+    rho[i] = SQU(Element->x[i]);
+    s += rho[i] * Element->n[i];
+  }
 
-  /* Warning! For evaluations on the symmetry axis */
+  // If the Jacobian is evaluated on axis,
+  // s is taken as the average of rho on the element
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-      s += Element->x[i] * Element->x[i];
+      s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
-  }
+    if(!warn) {
+      Message::Warning("JacobianVolAxiSqu1D: rho evaluated at barycenter r=%g for regularization.",
+                       sqrt(s));
+      warn = 1;
+    }
+  } 
 
   r = sqrt(s);
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++) {
-    Jac->c11 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][0];
+    Jac->c11 += 0.5 / r * rho[i] * Element->dndu[i][0];
   }
   Jac->c33 = r;
 
   DetJac = Jac->c11 * Jac->c33;
-
+  
+  if(DetJac==0){
+    Message::Error("JacobianVolAxiSqu1D is singular on axis with Lagrange order 2 geometrical shape functions.");
+  }
   return (DetJac);
 }
 
@@ -1324,7 +1337,9 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
 {
   int i;
   double s = 0., r, DetJac;
-
+  double rho[NBR_MAX_NODES_IN_ELEMENT];
+  static int warn = 0;
+ 
   Jac->c11 = 0.;
   Jac->c12 = 0.;
   Jac->c13 = 0.;
@@ -1335,28 +1350,43 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c32 = 0.;
   Jac->c33 = 1.;
 
-  for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-    s += SQU(Element->x[i]) * Element->n[i];
+  for(i = 0; i < Element->GeoElement->NbrNodes; i++){
+    rho[i] = SQU(Element->x[i]);
+    s += rho[i] * Element->n[i];
+  }
 
-  /* Warning! For evaluations on the symmetry axis */
+  // If the Jacobian is evaluated on axis,
+  // s is taken as the average of rho on the element
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
-      s += Element->x[i] * Element->x[i];
+      s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
-  }
+    if(!warn) {
+      Message::Warning("JacobianVolAxiSqu2D: rho evaluated at barycenter r=%g for regularization.",
+                       sqrt(s));
+      warn = 1;
+    }
+  } 
 
   r = sqrt(s);
 
   for(i = 0; i < Element->GeoElement->NbrNodes; i++) {
-    Jac->c11 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][0];
-    Jac->c21 += 0.5 / r * SQU(Element->x[i]) * Element->dndu[i][1];
+    Jac->c11 += 0.5 / r * rho[i] * Element->dndu[i][0];
+    Jac->c21 += 0.5 / r * rho[i] * Element->dndu[i][1];
     Jac->c12 += Element->y[i] * Element->dndu[i][0];
     Jac->c22 += Element->y[i] * Element->dndu[i][1];
   }
   Jac->c33 = r;
 
   DetJac = (Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21) * Jac->c33;
-
+  
+  if(DetJac==0){
+    // This happens e.g. in post-processing
+    // with Lagrange order 2 geometrical shape functions,
+    // as they interpolate rho=x^2 exactly with an exact null gradient on axis.
+    // Workaround: use 2d order hierachical elements or the Depth=0 option. 
+    Message::Error("JacobianVolAxiSqu2D is singular on axis with Lagrange order 2 geometrical shape functions.");
+  }
   return (DetJac);
 }
 

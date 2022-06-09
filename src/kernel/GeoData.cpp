@@ -402,8 +402,8 @@ static void Geo_SnapNodes(struct GeoData *GeoData_P)
     }
   }
   if(snaps)
-    Message::Info("Snapped x coordinate of %d node%s to 0", snaps,
-                  (snaps > 1) ? "s" : "");
+    Message::Warning("Snapped x coordinate of %d node%s to 0", snaps,
+                     (snaps > 1) ? "s" : "");
 }
 
 static void Geo_ReadFileWithGmsh(struct GeoData *GeoData_P)
