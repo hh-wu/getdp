@@ -1312,11 +1312,11 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
       s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
     if(!warn) {
-      Message::Warning("JacobianVolAxiSqu1D: rho evaluated at barycenter r=%g for regularization.",
-                       sqrt(s));
+      Message::Warning("VolAxiSqu Jacobian (1D): rho evaluated at barycenter "
+                       "r=%g for regularization", sqrt(s));
       warn = 1;
     }
-  } 
+  }
 
   r = sqrt(s);
 
@@ -1326,9 +1326,10 @@ double JacobianVolAxiSqu1D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = r;
 
   DetJac = Jac->c11 * Jac->c33;
-  
+
   if(DetJac==0){
-    Message::Error("JacobianVolAxiSqu1D is singular on axis with Lagrange order 2 geometrical shape functions.");
+    Message::Error("VolAxiSqu Jacobian (1D) is singular on axis (can happen "
+                   "e.g. with second order geometrical elements)");
   }
   return (DetJac);
 }
@@ -1339,7 +1340,7 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   double s = 0., r, DetJac;
   double rho[NBR_MAX_NODES_IN_ELEMENT];
   static int warn = 0;
- 
+
   Jac->c11 = 0.;
   Jac->c12 = 0.;
   Jac->c13 = 0.;
@@ -1355,18 +1356,18 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
     s += rho[i] * Element->n[i];
   }
 
-  // If the Jacobian is evaluated on axis,
-  // s is taken as the average of rho on the element
+  // If the Jacobian is evaluated on axis, s is taken as the average of rho on
+  // the element
   if(s == 0.0) {
     for(i = 0; i < Element->GeoElement->NbrNodes; i++)
       s += rho[i];
     s /= (double)Element->GeoElement->NbrNodes;
     if(!warn) {
-      Message::Warning("JacobianVolAxiSqu2D: rho evaluated at barycenter r=%g for regularization.",
-                       sqrt(s));
+      Message::Warning("VolAxiSqu Jacobian (2D): rho evaluated at barycenter "
+                       "r=%g for regularization", sqrt(s));
       warn = 1;
     }
-  } 
+  }
 
   r = sqrt(s);
 
@@ -1379,13 +1380,14 @@ double JacobianVolAxiSqu2D(struct Element *Element, MATRIX3x3 *Jac)
   Jac->c33 = r;
 
   DetJac = (Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21) * Jac->c33;
-  
-  if(DetJac==0){
-    // This happens e.g. in post-processing
-    // with Lagrange order 2 geometrical shape functions,
-    // as they interpolate rho=x^2 exactly with an exact null gradient on axis.
-    // Workaround: use 2d order hierachical elements or the Depth=0 option. 
-    Message::Error("JacobianVolAxiSqu2D is singular on axis with Lagrange order 2 geometrical shape functions.");
+
+  if(DetJac == 0){
+    // This happens e.g. in post-processing with Lagrange order 2 geometrical
+    // shape functions, as they interpolate rho=x^2 exactly with an exact null
+    // gradient on axis.  Workaround: use 2d order hierachical elements or the
+    // Depth=0 option.
+    Message::Error("VolAxiSqu Jacobian (2D) is singular on axis (can happen "
+                   "e.g. with second order geometrical elements)");
   }
   return (DetJac);
 }
