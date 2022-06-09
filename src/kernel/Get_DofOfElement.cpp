@@ -218,7 +218,7 @@ void Get_DofOfElement(struct Element *Element,
   QuantityStorage_P->NbrElementaryBasisFunction = Nbr_ElementaryBF;
 
   if(Nbr_ElementaryBF > NBR_MAX_BASISFUNCTIONS) {
-    Message::Error("Maximum number of basis functions exceeded: %d > %d "
+    Message::Fatal("Maximum number of basis functions exceeded: %d > %d "
                    "(recompile with higher value for NBR_MAX_BASISFUNCTIONS)",
                    Nbr_ElementaryBF, NBR_MAX_BASISFUNCTIONS);
   }
