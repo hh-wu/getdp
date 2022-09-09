@@ -255,7 +255,7 @@ windows64_official_petsc_real_mh_release:
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/macOS/${PKG/\.tar\.gz/r\.tgz}
     - ctest -j 4 --output-on-failure
 
-.macos64_official_petsc_real_mh: &macos_official_petsc_real_mh
+.macos_official_petsc_real_mh: &macos_official_petsc_real_mh
   only:
     - master@getdp/getdp
   script:
@@ -267,7 +267,7 @@ windows64_official_petsc_real_mh_release:
     - scp ${PKG} geuzaine@getdp.info:.wwwgetdp/bin/macOS/${PKG/\.tar\.gz/r-MH\.tgz}
     - ctest -j 4 --output-on-failure
 
-macos64_official_petsc_complex_snapshot:
+macosx_official_petsc_complex_snapshot:
   <<: *macos_official_petsc_complex
   tags:
     - macos64
@@ -275,7 +275,7 @@ macos64_official_petsc_complex_snapshot:
   except:
     - tags
 
-macos64_official_petsc_complex_release:
+macosx_official_petsc_complex_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_complex
@@ -285,7 +285,7 @@ macos64_official_petsc_complex_release:
   only:
     - /^getdp_.*$/
 
-macos64_official_petsc_real_snapshot:
+macosx_official_petsc_real_snapshot:
   <<: *macos_official_petsc_real
   tags:
     - macos64
@@ -293,7 +293,7 @@ macos64_official_petsc_real_snapshot:
   except:
     - tags
 
-macos64_official_petsc_real_release:
+macosx_official_petsc_real_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_real
@@ -303,7 +303,7 @@ macos64_official_petsc_real_release:
   only:
     - /^getdp_.*$/
 
-macos64_official_petsc_real_mh_snapshot:
+macosx_official_petsc_real_mh_snapshot:
   <<: *macos_official_petsc_real_mh
   tags:
     - macos64
@@ -311,12 +311,66 @@ macos64_official_petsc_real_mh_snapshot:
   except:
     - tags
 
-macos64_official_petsc_real_mh_release:
+macosx_official_petsc_real_mh_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *macos_official_petsc_real_mh
   tags:
     - macos64
+    - official
+  only:
+    - /^getdp_.*$/
+
+macosarm_official_petsc_complex_snapshot:
+  <<: *macos_official_petsc_complex
+  tags:
+    - macos64arm
+    - official
+  except:
+    - tags
+
+macosarm_official_petsc_complex_release:
+  variables:
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
+  <<: *macos_official_petsc_complex
+  tags:
+    - macos64arm
+    - official
+  only:
+    - /^getdp_.*$/
+
+macosarm_official_petsc_real_snapshot:
+  <<: *macos_official_petsc_real
+  tags:
+    - macos64arm
+    - official
+  except:
+    - tags
+
+macosarm_official_petsc_real_release:
+  variables:
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
+  <<: *macos_official_petsc_real
+  tags:
+    - macos64arm
+    - official
+  only:
+    - /^getdp_.*$/
+
+macosarm_official_petsc_real_mh_snapshot:
+  <<: *macos_official_petsc_real_mh
+  tags:
+    - macos64arm
+    - official
+  except:
+    - tags
+
+macosarm_official_petsc_real_mh_release:
+  variables:
+    EXTRA_OPTION: "-DGETDP_RELEASE=1"
+  <<: *macos_official_petsc_real_mh
+  tags:
+    - macos64arm
     - official
   only:
     - /^getdp_.*$/
