@@ -128,7 +128,11 @@ if(NOT GETDP_PACKAGER)
 endif()
 
 if(APPLE)
-  set(GETDP_OS "MacOSX")
+  if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
+    set(GMSH_OS "MacOSARM")
+  else()
+    set(GMSH_OS "MacOSX")
+  endif()
 elseif(CYGWIN)
   # detect if we use the MinGW compilers on Cygwin - if we do, handle the build
   # as a pure Windows build
