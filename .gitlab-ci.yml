@@ -17,7 +17,7 @@ variables:
 # Continuous integation builds for all branches
 # ---------------------------------------------
 
-linux64_ci:
+linux_ci:
   image: onelab/ubuntu20.04
   script:
     - mkdir build
@@ -31,7 +31,7 @@ linux64_ci:
   except:
     - tags
 
-windows64_ci:
+windows_ci:
   script:
     - md build
     - cd build
@@ -93,13 +93,13 @@ windows64_ci:
     - linux64
     - docker
 
-linux64_official_petsc_complex_snapshot:
+linux_official_petsc_complex_snapshot:
   image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_complex
   except:
     - tags
 
-linux64_official_petsc_complex_release:
+linux_official_petsc_complex_release:
   image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
@@ -107,13 +107,13 @@ linux64_official_petsc_complex_release:
   only:
     - /^getdp_.*$/
 
-linux64_official_petsc_real_snapshot:
+linux_official_petsc_real_snapshot:
   image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_real
   except:
     - tags
 
-linux64_official_petsc_real_release:
+linux_official_petsc_real_release:
   image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
@@ -121,13 +121,13 @@ linux64_official_petsc_real_release:
   only:
     - /^getdp_.*$/
 
-linux64_official_petsc_real_mh_snapshot:
+linux_official_petsc_real_mh_snapshot:
   image: onelab/debian.stretch.64bit
   <<: *linux_official_petsc_real_mh
   except:
     - tags
 
-linux64_official_petsc_real_mh_release:
+linux_official_petsc_real_mh_release:
   image: onelab/debian.stretch.64bit
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
@@ -173,7 +173,7 @@ linux64_official_petsc_real_mh_release:
 #    - c:\cygwin64\bin\bash -c "/usr/bin/ctest -j 4 --output-on-failure"
   allow_failure: true
 
-windows64_official_petsc_complex_snapshot:
+windows_official_petsc_complex_snapshot:
   <<: *windows_official_petsc_complex
   tags:
     - windows64
@@ -181,7 +181,7 @@ windows64_official_petsc_complex_snapshot:
   except:
     - tags
 
-windows64_official_petsc_complex_release:
+windows_official_petsc_complex_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_complex
@@ -191,7 +191,7 @@ windows64_official_petsc_complex_release:
   only:
     - /^getdp_.*$/
 
-windows64_official_petsc_real_snapshot:
+windows_official_petsc_real_snapshot:
   <<: *windows_official_petsc_real
   tags:
     - windows64
@@ -199,7 +199,7 @@ windows64_official_petsc_real_snapshot:
   except:
     - tags
 
-windows64_official_petsc_real_release:
+windows_official_petsc_real_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real
@@ -209,7 +209,7 @@ windows64_official_petsc_real_release:
   only:
     - /^getdp_.*$/
 
-windows64_official_petsc_real_mh_snapshot:
+windows_official_petsc_real_mh_snapshot:
   <<: *windows_official_petsc_real_mh
   tags:
     - windows64
@@ -217,7 +217,7 @@ windows64_official_petsc_real_mh_snapshot:
   except:
     - tags
 
-windows64_official_petsc_real_mh_release:
+windows_official_petsc_real_mh_release:
   variables:
     EXTRA_OPTION: "-DGETDP_RELEASE=1"
   <<: *windows_official_petsc_real_mh
