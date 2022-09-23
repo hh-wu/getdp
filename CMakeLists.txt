@@ -686,7 +686,7 @@ if(NOT INTPTR_T_SIZE AND NOT ENABLE_BUILD_IOS)
   set_config_option(HAVE_NO_INTPTR_T "NoIntptrT")
 endif()
 
-if(WIN32 OR CYGWIN)
+if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
   list(APPEND EXTERNAL_LIBRARIES winmm wsock32 ws2_32 psapi)
 endif()
@@ -858,7 +858,7 @@ else()
 endif()
 
 # Windows specific linker options
-if(WIN32 AND NOT MSVC OR CYGWIN)
+if(WIN32 AND NOT MSVC)
   set(FLAGS "-Wl,--image-base -Wl,0x10000000 -static")
   set_target_properties(getdp PROPERTIES LINK_FLAGS "${FLAGS} -municode")
   if(ENABLE_BUILD_SHARED OR ENABLE_BUILD_DYNAMIC)
